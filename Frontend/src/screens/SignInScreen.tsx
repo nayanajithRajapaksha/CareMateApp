@@ -94,7 +94,7 @@ export const SignInScreen: React.FC<Props> = ({ navigation }) => {
               onChangeText={setPassword}
             />
 
-            <TouchableOpacity style={styles.forgotPassword}>
+            <TouchableOpacity style={styles.forgotPasswordContainer} onPress={() => navigation.navigate('ForgotPassword')}>
               <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
             </TouchableOpacity>
           </View>
