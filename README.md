@@ -65,7 +65,7 @@ cd CareMateApp
 
 ---
 
-## 🤝 GitHub Workflow (For 3 Collaborators)
+## 🤝 GitHub Workflow
 
 With 3 people working on the same codebase, **never push directly to the `master` branch.** Doing so will cause messy merge conflicts. 
 
