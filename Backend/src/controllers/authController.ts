@@ -1,29 +1,12 @@
-import express, { Request, Response } from 'express';
-import { Pool } from 'pg';
+import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import cors from 'cors';
-import dotenv from 'dotenv';
-
-dotenv.config();
-
-const app = express();
-app.use(express.json());
-app.use(cors());
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL
-});
+import pool, { clientQuery } from '../config/db';
+import { findUserByEmail, findProfileById } from '../models/userModel';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret';
 
-// Helper to generate UUIDs if needed (though Postgres defaults can handle it)
-import crypto from 'crypto';
-
-/**
- * REGISTER ENDPOINT
- */
-app.post('/api/auth/register', async (req: Request, res: Response): Promise<void> => {
+export const register = async (req: Request, res: Response): Promise<void> => {
   const { password, full_name, contact_number } = req.body;
   let { email } = req.body;
 
@@ -75,12 +58,9 @@ app.post('/api/auth/register', async (req: Request, res: Response): Promise<void
   } finally {
     client.release();
   }
-});
+};
 
-/**
- * LOGIN ENDPOINT
- */
-app.post('/api/auth/login', async (req: Request, res: Response): Promise<void> => {
+export const login = async (req: Request, res: Response): Promise<void> => {
   const { password } = req.body;
   let { email } = req.body;
 
@@ -92,13 +72,12 @@ app.post('/api/auth/login', async (req: Request, res: Response): Promise<void> =
   email = email.toLowerCase().trim();
 
   try {
-    const userResult = await clientQuery('SELECT * FROM app_users WHERE email = $1', [email]);
-    if (userResult.rows.length === 0) {
+    const user = await findUserByEmail(email);
+    if (!user) {
       res.status(401).json({ error: 'Invalid email or password.' });
       return;
     }
 
-    const user = userResult.rows[0];
     const passwordMatch = await bcrypt.compare(password, user.password_hash);
     if (!passwordMatch) {
       res.status(401).json({ error: 'Invalid email or password.' });
@@ -106,8 +85,7 @@ app.post('/api/auth/login', async (req: Request, res: Response): Promise<void> =
     }
 
     // Get Profile for role
-    const profileResult = await clientQuery('SELECT role, full_name FROM profiles WHERE id = $1', [user.id]);
-    const profile = profileResult.rows[0];
+    const profile = await findProfileById(user.id);
 
     const token = jwt.sign({ id: user.id, email: user.email, role: profile.role }, JWT_SECRET, { expiresIn: '7d' });
 
@@ -116,13 +94,4 @@ app.post('/api/auth/login', async (req: Request, res: Response): Promise<void> =
     console.error('Login Error:', error);
     res.status(500).json({ error: 'Internal server error during login.' });
   }
-});
-
-// Helper for simple queries outside transactions
-const clientQuery = (text: string, params: any[]) => pool.query(text, params);
-
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`CareMate Custom Authentication Backend running on port ${PORT}`);
-});
+};
