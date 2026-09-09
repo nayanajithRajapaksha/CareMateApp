@@ -28,18 +28,34 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
 
   const handleSignUp = async () => {
     if (!name || !email || !contactNumber || !password) {
-      Alert.alert('Error', 'Please fill in all fields.');
+      Alert.alert('Validation Error', 'Please fill in all fields.');
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      Alert.alert('Validation Error', 'Please enter a valid email address.');
+      return;
+    }
+
+    if (password.length < 6) {
+      Alert.alert('Validation Error', 'Password must be at least 6 characters long.');
+      return;
+    }
+
+    if (contactNumber.length < 9) {
+      Alert.alert('Validation Error', 'Please enter a valid contact number.');
       return;
     }
 
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:3000/api/auth/register', {
+      const response = await fetch('http://192.168.8.222:3000/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           full_name: name,
-          email, 
+          email: email.toLowerCase().trim(), 
           contact_number: contactNumber,
           password 
         }),
