@@ -1,6 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView } from 'react-native';
-import { HeartPulse } from 'lucide-react-native';
+import { View, Text, StyleSheet, SafeAreaView, Image } from 'react-native';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { colors, typography, layout } from '../theme';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -8,6 +7,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 type RootStackParamList = {
   Welcome: undefined;
   SignIn: undefined;
+  SignUp: undefined;
 };
 
 type WelcomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Welcome'>;
@@ -22,8 +22,11 @@ export const WelcomeScreen: React.FC<Props> = ({ navigation }) => {
       <View style={styles.content}>
         
         <View style={styles.logoContainer}>
-          {/* Placeholder for the logo. A heart with a pulse fits the medical aesthetic */}
-          <HeartPulse size={120} color={colors.primary} />
+          <Image 
+            source={require('../../assets/logo.png')} 
+            style={{ width: 140, height: 140 }}
+            resizeMode="contain"
+          />
         </View>
 
         <Text style={styles.title}>Welcome to CareMate</Text>
@@ -36,8 +39,9 @@ export const WelcomeScreen: React.FC<Props> = ({ navigation }) => {
       <View style={styles.footer}>
         <PrimaryButton 
           title="Get Started" 
-          onPress={() => console.log('Get Started')} 
+          onPress={() => navigation.navigate('SignUp')} 
         />
+        <View style={{ height: 16 }} />
         <PrimaryButton 
           title="Sign In" 
           variant="outline"

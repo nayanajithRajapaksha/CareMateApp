@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, KeyboardAvoidingView, Platform, Alert, ActivityIndicator } from 'react-native';
-import { HeartPulse, User, Lock } from 'lucide-react-native';
+import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, KeyboardAvoidingView, Platform, Alert, ActivityIndicator, Image } from 'react-native';
+import { User, Lock } from 'lucide-react-native';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { InputField } from '../components/InputField';
 import { colors, typography, layout } from '../theme';
@@ -10,6 +10,8 @@ import { supabase } from '../lib/supabase';
 type RootStackParamList = {
   SignIn: undefined;
   SignInSuccess: undefined;
+  SignUp: undefined;
+  ForgotPassword: undefined;
 };
 
 type SignInScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'SignIn'>;
@@ -30,16 +32,27 @@ export const SignInScreen: React.FC<Props> = ({ navigation }) => {
     }
 
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({
-      email: email,
-      password: password,
-    });
-    setLoading(false);
+    try {
+      const response = await fetch('http://localhost:3000/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Login failed');
+      }
 
-    if (error) {
-      Alert.alert('Sign In Failed', error.message);
-    } else {
+      // Store JWT token (Assuming you have AsyncStorage setup, for now we just navigate)
+      // await AsyncStorage.setItem('token', data.token);
+
       navigation.navigate('SignInSuccess');
+    } catch (error: any) {
+      Alert.alert('Sign In Failed', error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -52,7 +65,11 @@ export const SignInScreen: React.FC<Props> = ({ navigation }) => {
         <View style={styles.content}>
           
           <View style={styles.header}>
-            <HeartPulse size={64} color={colors.primary} style={styles.logo} />
+            <Image 
+              source={require('../../assets/logo.png')} 
+              style={styles.logo}
+              resizeMode="contain"
+            />
             <Text style={styles.title}>Welcome Back</Text>
             <Text style={styles.subtitle}>Sign in to continue to CareMate</Text>
           </View>
@@ -84,7 +101,7 @@ export const SignInScreen: React.FC<Props> = ({ navigation }) => {
 
           <View style={styles.footer}>
             {loading ? (
-              <ActivityIndicator size="large" color={colors.primary} style={{ marginBottom: 16 }} />
+              <ActivityIndicator size="large" color={colors.primary} />
             ) : (
               <PrimaryButton 
                 title="Sign In" 
@@ -94,8 +111,8 @@ export const SignInScreen: React.FC<Props> = ({ navigation }) => {
             
             <View style={styles.signupContainer}>
               <Text style={styles.signupText}>Don't have an account? </Text>
-              <TouchableOpacity>
-                <Text style={styles.signupLink}>Create Account</Text>
+              <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
+                <Text style={styles.signupLink}>Sign Up</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -117,6 +134,7 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: layout.padding,
+    paddingTop: 60,
     justifyContent: 'center',
   },
   header: {
@@ -124,17 +142,19 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   logo: {
+    width: 120,
+    height: 120,
     marginBottom: 24,
   },
   title: {
-    ...typography.h2,
+    ...typography.h1,
     marginBottom: 8,
   },
   subtitle: {
     ...typography.body,
   },
   form: {
-    marginBottom: 32,
+    marginBottom: 24,
   },
   label: {
     ...typography.body,
@@ -143,9 +163,9 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     fontWeight: '500',
   },
-  forgotPassword: {
-    alignSelf: 'flex-end',
-    marginTop: -8,
+  forgotPasswordContainer: {
+    alignItems: 'flex-end',
+    marginTop: 8,
   },
   forgotPasswordText: {
     color: colors.primary,
@@ -153,12 +173,13 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   footer: {
-    marginTop: 20,
+    marginTop: 'auto',
+    marginBottom: 40,
   },
   signupContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 16,
+    marginTop: 24,
   },
   signupText: {
     color: colors.textMuted,

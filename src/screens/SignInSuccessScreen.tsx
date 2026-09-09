@@ -1,20 +1,44 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ActivityIndicator } from 'react-native';
-import { HeartPulse, CheckCircle2 } from 'lucide-react-native';
+import { View, Text, StyleSheet, SafeAreaView, Image, Animated } from 'react-native';
+import { Check } from 'lucide-react-native';
 import { colors, typography } from '../theme';
 
 export const SignInSuccessScreen: React.FC = () => {
+  // Simple bouncing animation for the 3 dots
+  const dot1 = new Animated.Value(0);
+  const dot2 = new Animated.Value(0);
+  const dot3 = new Animated.Value(0);
+
+  useEffect(() => {
+    const animateDot = (dot: Animated.Value, delay: number) => {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(dot, { toValue: -10, duration: 300, delay, useNativeDriver: true }),
+          Animated.timing(dot, { toValue: 0, duration: 300, useNativeDriver: true }),
+          Animated.delay(400)
+        ])
+      ).start();
+    };
+
+    animateDot(dot1, 0);
+    animateDot(dot2, 150);
+    animateDot(dot3, 300);
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         
         <View style={styles.logoContainer}>
-          <HeartPulse size={120} color={colors.primary} />
+          <Image 
+            source={require('../../assets/logo.png')} 
+            style={{ width: 160, height: 160 }}
+            resizeMode="contain"
+          />
         </View>
 
         <View style={styles.successIconContainer}>
-          <CheckCircle2 size={64} color={colors.primary} />
+          <Check color={colors.white} size={32} strokeWidth={3} />
         </View>
 
         <Text style={styles.title}>Sign In Successful</Text>
@@ -22,8 +46,10 @@ export const SignInSuccessScreen: React.FC = () => {
           Welcome back to CareMate. Taking you to your dashboard...
         </Text>
 
-        <View style={styles.loader}>
-          <ActivityIndicator size="large" color={colors.primary} />
+        <View style={styles.dotsContainer}>
+          <Animated.View style={[styles.dot, { transform: [{ translateY: dot1 }] }]} />
+          <Animated.View style={[styles.dot, { transform: [{ translateY: dot2 }] }]} />
+          <Animated.View style={[styles.dot, { transform: [{ translateY: dot3 }] }]} />
         </View>
 
       </View>
@@ -34,7 +60,7 @@ export const SignInSuccessScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: '#F4FAFA',
   },
   content: {
     flex: 1,
@@ -43,25 +69,38 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   logoContainer: {
-    marginBottom: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  successIconContainer: {
     marginBottom: 24,
   },
+  successIconContainer: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 32,
+  },
   title: {
-    ...typography.h2,
+    ...typography.h1,
+    marginBottom: 12,
     textAlign: 'center',
-    marginBottom: 16,
   },
   subtitle: {
     ...typography.body,
     textAlign: 'center',
-    paddingHorizontal: 20,
+    color: colors.textMuted,
+    paddingHorizontal: 16,
     marginBottom: 40,
   },
-  loader: {
+  dotsContainer: {
+    flexDirection: 'row',
+    gap: 12,
     marginTop: 20,
+  },
+  dot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: colors.primary,
   }
 });
