@@ -1,10 +1,11 @@
-import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, KeyboardAvoidingView, Platform, Alert, ActivityIndicator } from 'react-native';
 import { HeartPulse, User, Lock } from 'lucide-react-native';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { InputField } from '../components/InputField';
 import { colors, typography, layout } from '../theme';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { supabase } from '../lib/supabase';
 
 type RootStackParamList = {
   SignIn: undefined;
@@ -18,6 +19,30 @@ interface Props {
 }
 
 export const SignInScreen: React.FC<Props> = ({ navigation }) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleSignIn = async () => {
+    if (!email || !password) {
+      Alert.alert('Error', 'Please enter your email and password.');
+      return;
+    }
+
+    setLoading(true);
+    const { error } = await supabase.auth.signInWithPassword({
+      email: email,
+      password: password,
+    });
+    setLoading(false);
+
+    if (error) {
+      Alert.alert('Sign In Failed', error.message);
+    } else {
+      navigation.navigate('SignInSuccess');
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView 
@@ -33,11 +58,14 @@ export const SignInScreen: React.FC<Props> = ({ navigation }) => {
           </View>
 
           <View style={styles.form}>
-            <Text style={styles.label}>Email or Mobile Number</Text>
+            <Text style={styles.label}>Email Address</Text>
             <InputField 
-              placeholder="Enter your email or mobile"
+              placeholder="Enter your email"
               icon={User}
               autoCapitalize="none"
+              keyboardType="email-address"
+              value={email}
+              onChangeText={setEmail}
             />
 
             <Text style={styles.label}>Password</Text>
@@ -45,6 +73,8 @@ export const SignInScreen: React.FC<Props> = ({ navigation }) => {
               placeholder="Enter your password"
               icon={Lock}
               isPassword
+              value={password}
+              onChangeText={setPassword}
             />
 
             <TouchableOpacity style={styles.forgotPassword}>
@@ -53,10 +83,14 @@ export const SignInScreen: React.FC<Props> = ({ navigation }) => {
           </View>
 
           <View style={styles.footer}>
-            <PrimaryButton 
-              title="Sign In" 
-              onPress={() => navigation.navigate('SignInSuccess')} 
-            />
+            {loading ? (
+              <ActivityIndicator size="large" color={colors.primary} style={{ marginBottom: 16 }} />
+            ) : (
+              <PrimaryButton 
+                title="Sign In" 
+                onPress={handleSignIn} 
+              />
+            )}
             
             <View style={styles.signupContainer}>
               <Text style={styles.signupText}>Don't have an account? </Text>
