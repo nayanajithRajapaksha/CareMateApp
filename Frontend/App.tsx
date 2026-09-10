@@ -11,6 +11,8 @@ import { SignUpScreen } from './src/screens/SignUpScreen';
 import { SignInSuccessScreen } from './src/screens/SignInSuccessScreen';
 import { ForgotPasswordScreen } from './src/screens/ForgotPasswordScreen';
 import { CheckEmailScreen } from './src/screens/CheckEmailScreen';
+import { MainTabNavigator } from './src/navigation/MainTabNavigator';
+import { RegisterChildScreen } from './src/screens/RegisterChildScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -30,6 +32,8 @@ export default function App() {
           <Stack.Screen name="SignInSuccess" component={SignInSuccessScreen} />
           <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
           <Stack.Screen name="CheckEmail" component={CheckEmailScreen} />
+          <Stack.Screen name="Main" component={MainTabNavigator} />
+          <Stack.Screen name="RegisterChild" component={RegisterChildScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>

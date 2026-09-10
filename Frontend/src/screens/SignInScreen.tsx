@@ -5,7 +5,8 @@ import { PrimaryButton } from '../components/PrimaryButton';
 import { InputField } from '../components/InputField';
 import { colors, typography, layout } from '../theme';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { supabase } from '../lib/supabase';
+import { authService } from '../services/authService';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type RootStackParamList = {
   SignIn: undefined;
@@ -33,24 +34,14 @@ export const SignInScreen: React.FC<Props> = ({ navigation }) => {
 
     setLoading(true);
     try {
-      const response = await fetch('http://192.168.8.222:3000/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.toLowerCase().trim(), password }),
-      });
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error || 'Login failed');
-      }
+      const data = await authService.login({ email: email.toLowerCase().trim(), password });
 
       // Store JWT token (Assuming you have AsyncStorage setup, for now we just navigate)
-      // await AsyncStorage.setItem('token', data.token);
+      await AsyncStorage.setItem('userToken', data.token);
 
       navigation.navigate('SignInSuccess');
     } catch (error: any) {
-      Alert.alert('Sign In Failed', error.message);
+      Alert.alert('Sign In Failed', error.message || 'Something went wrong');
     } finally {
       setLoading(false);
     }

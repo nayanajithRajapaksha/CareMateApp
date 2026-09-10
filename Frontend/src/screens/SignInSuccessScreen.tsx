@@ -3,7 +3,10 @@ import { View, Text, StyleSheet, SafeAreaView, Image, Animated } from 'react-nat
 import { Check } from 'lucide-react-native';
 import { colors, typography } from '../theme';
 
+import { useNavigation } from '@react-navigation/native';
+
 export const SignInSuccessScreen: React.FC = () => {
+  const navigation = useNavigation<any>();
   // Simple bouncing animation for the 3 dots
   const dot1 = new Animated.Value(0);
   const dot2 = new Animated.Value(0);
@@ -23,6 +26,12 @@ export const SignInSuccessScreen: React.FC = () => {
     animateDot(dot1, 0);
     animateDot(dot2, 150);
     animateDot(dot3, 300);
+
+    const timer = setTimeout(() => {
+      navigation.replace('Main');
+    }, 2500);
+
+    return () => clearTimeout(timer);
   }, []);
 
   return (

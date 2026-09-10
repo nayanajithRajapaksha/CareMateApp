@@ -5,12 +5,15 @@ import { PrimaryButton } from '../components/PrimaryButton';
 import { InputField } from '../components/InputField';
 import { colors, typography, layout } from '../theme';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { authService } from '../services/authService';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type RootStackParamList = {
   Welcome: undefined;
   SignUp: undefined;
   SignIn: undefined;
   SignInSuccess: undefined;
+  CheckEmail: undefined;
 };
 
 type SignUpScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'SignUp'>;
@@ -50,26 +53,17 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
 
     setLoading(true);
     try {
-      const response = await fetch('http://192.168.8.222:3000/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          full_name: name,
-          email: email.toLowerCase().trim(), 
-          contact_number: contactNumber,
-          password 
-        }),
+      const data = await authService.register({
+        full_name: name,
+        email: email.toLowerCase().trim(),
+        contact_number: contactNumber,
+        password,
       });
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error || 'Registration failed');
-      }
 
+      await AsyncStorage.setItem('userToken', data.token);
       navigation.navigate('SignInSuccess');
     } catch (error: any) {
-      Alert.alert('Registration Failed', error.message);
+      Alert.alert('Registration Failed', error.message || 'Something went wrong');
     } finally {
       setLoading(false);
     }

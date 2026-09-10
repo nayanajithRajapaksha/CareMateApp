@@ -1,0 +1,90 @@
+import React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Home, Baby, Calendar, BookOpen, User } from 'lucide-react-native';
+import { colors } from '../theme';
+
+import { ParentDashboardScreen } from '../screens/ParentDashboardScreen';
+import { ChildrenScreen } from '../screens/ChildrenScreen';
+import { ScheduleScreen } from '../screens/ScheduleScreen';
+import { LearnScreen } from '../screens/LearnScreen';
+import { ProfileScreen } from '../screens/ProfileScreen';
+
+const Tab = createBottomTabNavigator();
+
+export const MainTabNavigator = () => {
+  return (
+    <Tab.Navigator
+      screenOptions={{
+        headerShown: false,
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.textMuted,
+        tabBarStyle: {
+          paddingBottom: 8,
+          paddingTop: 8,
+          height: 60,
+          backgroundColor: colors.white,
+          borderTopWidth: 1,
+          borderTopColor: 'rgba(0,0,0,0.05)',
+        },
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: '500',
+        }
+      }}
+    >
+      <Tab.Screen 
+        name="HomeTab" 
+        component={ParentDashboardScreen} 
+        options={{
+          tabBarLabel: 'Home',
+          tabBarIcon: ({ color, size }) => (
+            <Home color={color} size={24} />
+          ),
+        }}
+      />
+      <Tab.Screen 
+        name="ChildrenTab" 
+        component={ChildrenScreen} 
+        options={{
+          tabBarLabel: 'Children',
+          tabBarIcon: ({ color, size }) => (
+            <Baby color={color} size={24} />
+          ),
+        }}
+      />
+      <Tab.Screen 
+        name="ScheduleTab" 
+        component={ScheduleScreen} 
+        options={{
+          tabBarLabel: 'Schedule',
+          tabBarIcon: ({ color, size }) => (
+            <Calendar color={color} size={24} />
+          ),
+        }}
+      />
+      <Tab.Screen 
+        name="LearnTab" 
+        component={LearnScreen} 
+        options={{
+          tabBarLabel: 'Learn',
+          tabBarIcon: ({ color, size }) => (
+            <BookOpen color={color} size={24} />
+          ),
+        }}
+      />
+      <Tab.Screen 
+        name="ProfileTab" 
+        component={ProfileScreen} 
+        options={{
+          tabBarLabel: 'Profile',
+          tabBarIcon: ({ color, size }) => (
+            <User color={color} size={24} />
+          ),
+        }}
+      />
+    </Tab.Navigator>
+  );
+};
+
+

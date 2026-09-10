@@ -45,7 +45,7 @@ export const requireRole = (requiredRole: string) => {
       return;
     }
 
-    if (req.user.role !== requiredRole) {
+    if (req.user.role.toLowerCase() !== requiredRole.toLowerCase()) {
       res.status(403).json({ error: `Access denied. Requires '${requiredRole}' role.` });
       return;
     }
@@ -67,7 +67,8 @@ export const requireAnyRole = (allowedRoles: string[]) => {
       return;
     }
 
-    if (!allowedRoles.includes(req.user.role)) {
+    const allowedLower = allowedRoles.map(r => r.toLowerCase());
+    if (!allowedLower.includes(req.user.role.toLowerCase())) {
       res.status(403).json({ error: 'Access denied. Insufficient permissions.' });
       return;
     }
