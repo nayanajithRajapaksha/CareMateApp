@@ -1,6 +1,6 @@
 import { Response } from 'express';
 import { AuthRequest } from '../middleware/authMiddleware';
-import { createChildWithMedicalProfile, getChildrenByParentId } from '../models/childModel';
+import { createChildWithMedicalProfile, getChildrenByParentId, updateChildMedicalProfile, getAllChildren as getAllChildrenDb } from '../models/childModel';
 
 export const registerChild = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -34,6 +34,40 @@ export const getChildren = async (req: AuthRequest, res: Response): Promise<void
     res.status(200).json({ children });
   } catch (error) {
     console.error('Error fetching children:', error);
+    res.status(500).json({ error: 'Internal server error while fetching children.' });
+  }
+};
+
+export const updateChild = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    if (req.user?.role?.toLowerCase() !== 'phm') {
+      res.status(403).json({ error: 'Forbidden. Only PHMs can update child records.' });
+      return;
+    }
+
+    const childId = req.params.id;
+    const { blood_group, birth_weight_kg, allergies, existing_conditions, primary_clinic } = req.body;
+
+    await updateChildMedicalProfile(childId, { blood_group, birth_weight_kg, allergies, existing_conditions, primary_clinic });
+    
+    res.status(200).json({ message: 'Child medical profile updated successfully' });
+  } catch (error) {
+    console.error('Error updating child:', error);
+    res.status(500).json({ error: 'Internal server error while updating child.' });
+  }
+};
+
+export const getAllChildrenController = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    if (req.user?.role?.toLowerCase() !== 'phm') {
+      res.status(403).json({ error: 'Forbidden. Only PHMs can view all children.' });
+      return;
+    }
+
+    const children = await getAllChildrenDb();
+    res.status(200).json({ children });
+  } catch (error) {
+    console.error('Error fetching all children:', error);
     res.status(500).json({ error: 'Internal server error while fetching children.' });
   }
 };

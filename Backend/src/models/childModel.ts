@@ -59,3 +59,50 @@ export const getChildrenByParentId = async (parent_id: string) => {
   );
   return res.rows;
 };
+
+export const updateChildMedicalProfile = async (child_id: string, medical: Partial<MedicalProfileData>) => {
+  const fields: string[] = [];
+  const values: any[] = [];
+  let index = 1;
+
+  if (medical.blood_group !== undefined) {
+    fields.push(`blood_group = $${index++}`);
+    values.push(medical.blood_group);
+  }
+  if (medical.birth_weight_kg !== undefined) {
+    fields.push(`birth_weight_kg = $${index++}`);
+    values.push(medical.birth_weight_kg);
+  }
+  if (medical.allergies !== undefined) {
+    fields.push(`allergies = $${index++}`);
+    values.push(medical.allergies);
+  }
+  if (medical.existing_conditions !== undefined) {
+    fields.push(`existing_conditions = $${index++}`);
+    values.push(medical.existing_conditions);
+  }
+  if (medical.primary_clinic !== undefined) {
+    fields.push(`primary_clinic = $${index++}`);
+    values.push(medical.primary_clinic);
+  }
+
+  if (fields.length === 0) return;
+
+  values.push(child_id);
+  const query = `UPDATE child_medical_profiles SET ${fields.join(', ')} WHERE child_id = $${index}`;
+
+  await pool.query(query, values);
+};
+
+export const getAllChildren = async () => {
+  const res = await pool.query(
+    `SELECT 
+      c.id, c.full_name, c.dob, c.gender, c.relationship, c.birth_cert_number, c.parent_id,
+      m.blood_group, m.birth_weight_kg, m.allergies, m.existing_conditions, m.primary_clinic
+     FROM children c
+     LEFT JOIN child_medical_profiles m ON c.id = m.child_id
+     ORDER BY c.created_at DESC`
+  );
+  return res.rows;
+};
+
