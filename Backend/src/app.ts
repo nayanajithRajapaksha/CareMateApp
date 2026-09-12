@@ -3,6 +3,7 @@ import cors from 'cors';
 import authRoutes from './routes/authRoutes';
 import childrenRoutes from './routes/childrenRoutes';
 import staffRoutes from './routes/staffRoutes';
+import userRoutes from './routes/userRoutes';
 
 const app = express();
 
@@ -14,5 +15,6 @@ app.use(cors());
 app.use('/api/auth', authRoutes);
 app.use('/api/children', childrenRoutes);
 app.use('/api/staff', staffRoutes);
+app.use('/api/users', userRoutes);
 
 export default app;

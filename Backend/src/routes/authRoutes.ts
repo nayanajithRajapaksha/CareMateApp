@@ -10,6 +10,6 @@ router.post('/login', login);
 
 // Staff endpoints
 router.post('/register-phm', registerPHM);
-router.post('/register-moh', verifyToken, requireRole(['admin']), registerMOH);
+router.post('/register-moh', verifyToken, requireRole('admin'), registerMOH);
 
 export default router;

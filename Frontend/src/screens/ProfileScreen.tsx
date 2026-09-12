@@ -1,6 +1,7 @@
-import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Image } from 'react-native';
-import { Pencil, User as UserIcon, Shield, Bell, Globe, FileKey, HelpCircle, ChevronRight, ExternalLink } from 'lucide-react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Image, Modal, TextInput, ActivityIndicator, Alert } from 'react-native';
+import { Pencil, User as UserIcon, Shield, Bell, Globe, FileKey, HelpCircle, ChevronRight, ExternalLink, X } from 'lucide-react-native';
+import { profileService, UserProfile } from '../services/profileService';
 import { colors, typography, layout } from '../theme';
 
 const menuItems = [
@@ -47,8 +48,69 @@ const menuItems = [
 ];
 
 export const ProfileScreen: React.FC = () => {
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [isEditModalVisible, setEditModalVisible] = useState(false);
+  
+  const [editFullName, setEditFullName] = useState('');
+  const [editContactNumber, setEditContactNumber] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    fetchProfile();
+  }, []);
+
+  const fetchProfile = async () => {
+    try {
+      setLoading(true);
+      const res = await profileService.getProfile();
+      setProfile(res.profile);
+    } catch (error) {
+      console.error('Failed to fetch profile', error);
+      Alert.alert('Error', 'Failed to load profile.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const openEditModal = () => {
+    if (profile) {
+      setEditFullName(profile.full_name || '');
+      setEditContactNumber(profile.contact_number || '');
+      setEditModalVisible(true);
+    }
+  };
+
+  const handleSaveProfile = async () => {
+    if (!editFullName.trim()) {
+      Alert.alert('Validation Error', 'Full Name is required.');
+      return;
+    }
+
+    try {
+      setIsSaving(true);
+      const res = await profileService.updateProfile({
+        full_name: editFullName.trim(),
+        contact_number: editContactNumber.trim()
+      });
+      setProfile(res.profile);
+      setEditModalVisible(false);
+      Alert.alert('Success', 'Profile updated successfully.');
+    } catch (error) {
+      console.error('Failed to update profile', error);
+      Alert.alert('Error', 'Failed to update profile.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
+      {loading ? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="large" color={colors.primary} />
+        </View>
+      ) : (
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         
         {/* Profile Header */}
@@ -58,16 +120,16 @@ export const ProfileScreen: React.FC = () => {
               source={{ uri: 'https://i.pravatar.cc/150?img=47' }} // Same as home mock user
               style={styles.avatar} 
             />
-            <TouchableOpacity style={styles.editBadge}>
+            <TouchableOpacity style={styles.editBadge} onPress={openEditModal}>
               <Pencil color={colors.white} size={14} />
             </TouchableOpacity>
           </View>
           
-          <Text style={styles.userName}>Nadeesha Perera</Text>
-          <Text style={styles.userInfo}>nadeesha@caremate.com</Text>
-          <Text style={styles.userInfo}>071-1982345</Text>
+          <Text style={styles.userName}>{profile?.full_name || 'User'}</Text>
+          <Text style={styles.userInfo}>{profile?.email}</Text>
+          <Text style={styles.userInfo}>{profile?.contact_number || 'No contact number'}</Text>
           
-          <TouchableOpacity style={styles.editProfileBtn}>
+          <TouchableOpacity style={styles.editProfileBtn} onPress={openEditModal}>
             <UserIcon color={colors.primary} size={16} style={{ marginRight: 6 }} />
             <Text style={styles.editProfileText}>Edit Profile</Text>
           </TouchableOpacity>
@@ -105,6 +167,59 @@ export const ProfileScreen: React.FC = () => {
         </View>
 
       </ScrollView>
+      )}
+
+      {/* Edit Profile Modal */}
+      <Modal
+        visible={isEditModalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setEditModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Edit Profile</Text>
+              <TouchableOpacity onPress={() => setEditModalVisible(false)}>
+                <X color={colors.textDark} size={24} />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Full Name</Text>
+              <TextInput
+                style={styles.input}
+                value={editFullName}
+                onChangeText={setEditFullName}
+                placeholder="Enter your full name"
+              />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Contact Number</Text>
+              <TextInput
+                style={styles.input}
+                value={editContactNumber}
+                onChangeText={setEditContactNumber}
+                placeholder="Enter contact number"
+                keyboardType="phone-pad"
+              />
+            </View>
+
+            <TouchableOpacity 
+              style={styles.saveButton}
+              onPress={handleSaveProfile}
+              disabled={isSaving}
+            >
+              {isSaving ? (
+                <ActivityIndicator color={colors.white} />
+              ) : (
+                <Text style={styles.saveButtonText}>Save Changes</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -218,5 +333,58 @@ const styles = StyleSheet.create({
   footerText: {
     fontSize: 12,
     color: colors.textMuted,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: colors.white,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 24,
+    minHeight: 300,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: colors.textDark,
+  },
+  inputGroup: {
+    marginBottom: 16,
+  },
+  label: {
+    fontSize: 14,
+    color: colors.textDark,
+    marginBottom: 8,
+    fontWeight: '500',
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: layout.borderRadius,
+    padding: 12,
+    fontSize: 16,
+    color: colors.textDark,
+  },
+  saveButton: {
+    backgroundColor: colors.primary,
+    padding: 16,
+    borderRadius: layout.borderRadius,
+    alignItems: 'center',
+    marginTop: 16,
+    marginBottom: 20,
+  },
+  saveButtonText: {
+    color: colors.white,
+    fontSize: 16,
+    fontWeight: 'bold',
   }
 });

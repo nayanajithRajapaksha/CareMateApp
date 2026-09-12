@@ -6,7 +6,7 @@ const router = Router();
 
 router.use(verifyToken);
 
-router.get('/unassigned-phms', requireRole(['moh']), getUnassignedPHMs);
-router.post('/assign-hospital', requireRole(['moh']), assignHospital);
+router.get('/unassigned-phms', requireRole('moh'), getUnassignedPHMs);
+router.post('/assign-hospital', requireRole('moh'), assignHospital);
 
 export default router;
