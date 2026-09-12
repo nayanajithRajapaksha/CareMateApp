@@ -1,0 +1,66 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  MOH
+  MIDWIFE
+  PARENT
+}
+
+model User {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  passwordHash String
+  role         Role
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  profile      Profile?
+  children     Child[]
+
+  @@map("users")
+}
+
+model Profile {
+  id            String  @id @default(uuid())
+  userId        String  @unique
+  user          User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fullName      String
+  contactNumber String?
+  address       String?
+  nic           String?
+  clinicId      String?
+
+  @@map("profiles")
+}
+
+model Child {
+  id              String               @id @default(uuid())
+  parentId        String
+  parent          User                 @relation(fields: [parentId], references: [id], onDelete: Cascade)
+  fullName        String
+  dob             DateTime
+  gender          String
+  birthCertNumber String?
+  medicalProfile  ChildMedicalProfile?
+
+  @@map("children")
+}
+
+model ChildMedicalProfile {
+  id                 String  @id @default(uuid())
+  childId            String  @unique
+  child              Child   @relation(fields: [childId], references: [id], onDelete: Cascade)
+  bloodGroup         String?
+  birthWeightKg      Float?
+  allergies          String?
+  existingConditions String?
+
+  @@map("child_medical_profiles")
+}

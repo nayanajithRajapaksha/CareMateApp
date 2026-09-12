@@ -27,7 +27,7 @@ export const createChildWithMedicalProfile = async (child: ChildData, medical: M
        VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
       [child.parent_id, child.full_name, child.dob, child.gender, child.relationship, child.birth_cert_number || null]
     );
-    
+
     const childId = childRes.rows[0].id;
 
     await client.query(
