@@ -47,10 +47,11 @@ export const updateProfile = async (req: AuthRequest, res: Response): Promise<vo
 
     const result = await pool.query(
       `UPDATE profiles
-       SET full_name = $1, contact_number = $2
+       SET full_name = $1,
+           contact_number = COALESCE($2, contact_number)
        WHERE id = $3
        RETURNING full_name, contact_number, role, hospital`,
-      [full_name, contact_number || null, userId]
+      [full_name, contact_number ?? null, userId]
     );
 
     if (result.rows.length === 0) {

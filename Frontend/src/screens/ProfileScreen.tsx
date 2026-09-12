@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Image, Modal, TextInput, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Modal, TextInput, ActivityIndicator, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { Pencil, User as UserIcon, Shield, Bell, Globe, FileKey, HelpCircle, ChevronRight, ExternalLink, X } from 'lucide-react-native';
 import { profileService, UserProfile } from '../services/profileService';
 import { colors, typography, layout } from '../theme';
@@ -46,6 +46,20 @@ const menuItems = [
     rightElement: <ChevronRight color={colors.textMuted} size={20} />
   }
 ];
+
+const getInitials = (fullName?: string): string => {
+  if (!fullName?.trim()) {
+    return 'U';
+  }
+
+  return fullName
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map(name => name[0])
+    .join('')
+    .toUpperCase();
+};
 
 export const ProfileScreen: React.FC = () => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -116,10 +130,9 @@ export const ProfileScreen: React.FC = () => {
         {/* Profile Header */}
         <View style={styles.profileHeader}>
           <View style={styles.avatarContainer}>
-            <Image 
-              source={{ uri: 'https://i.pravatar.cc/150?img=47' }} // Same as home mock user
-              style={styles.avatar} 
-            />
+            <View style={styles.avatar}>
+              <Text style={styles.avatarText}>{getInitials(profile?.full_name)}</Text>
+            </View>
             <TouchableOpacity style={styles.editBadge} onPress={openEditModal}>
               <Pencil color={colors.white} size={14} />
             </TouchableOpacity>
@@ -176,7 +189,10 @@ export const ProfileScreen: React.FC = () => {
         transparent={true}
         onRequestClose={() => setEditModalVisible(false)}
       >
-        <View style={styles.modalOverlay}>
+        <KeyboardAvoidingView
+          style={[styles.modalOverlay, styles.modalKeyboardAvoidingView]}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Edit Profile</Text>
@@ -218,7 +234,7 @@ export const ProfileScreen: React.FC = () => {
               )}
             </TouchableOpacity>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     </SafeAreaView>
   );
@@ -246,6 +262,14 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
+    backgroundColor: colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  avatarText: {
+    color: colors.white,
+    fontSize: 32,
+    fontWeight: 'bold',
   },
   editBadge: {
     position: 'absolute',
@@ -337,6 +361,9 @@ const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalKeyboardAvoidingView: {
     justifyContent: 'flex-end',
   },
   modalContent: {

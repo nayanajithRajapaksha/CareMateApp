@@ -45,7 +45,7 @@ export const updateChild = async (req: AuthRequest, res: Response): Promise<void
       return;
     }
 
-    const childId = req.params.id;
+    const childId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
     const { blood_group, birth_weight_kg, allergies, existing_conditions, primary_clinic } = req.body;
 
     await updateChildMedicalProfile(childId, { blood_group, birth_weight_kg, allergies, existing_conditions, primary_clinic });

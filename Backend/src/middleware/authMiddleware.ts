@@ -3,15 +3,19 @@ import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret';
 
-// Extend the Express Request type to include the decoded user information
 export interface AuthRequest extends Request {
   user?: any;
 }
 
 /**
- * Middleware to verify if the user has a valid JWT token.
- * This should be used on all protected routes.
+ * Normalizes role names so phm and midwife map to the same permission set
  */
+const normalizeRole = (role: string): string => {
+  const lower = role.toLowerCase();
+  if (lower === 'phm' || lower === 'midwife') return 'midwife';
+  return lower;
+};
+
 export const verifyToken = (req: AuthRequest, res: Response, next: NextFunction): void => {
   const authHeader = req.headers.authorization;
 
@@ -24,29 +28,25 @@ export const verifyToken = (req: AuthRequest, res: Response, next: NextFunction)
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
-    req.user = decoded; // Attach the decoded token payload to the request object
-    next(); // Pass control to the next middleware or route handler
+    req.user = decoded;
+    next();
   } catch (error) {
     res.status(403).json({ error: 'Invalid or expired token.' });
   }
 };
 
-/**
- * Middleware factory to check if the user has a specific role.
- * Example usage: router.get('/admin-dashboard', verifyToken, requireRole('admin'), controllerFunc)
- * 
- * @param requiredRole The role string required (e.g., 'parent', 'phm', 'admin')
- */
-export const requireRole = (requiredRole: string) => {
+export const requireRole = (requiredRoles: string | string[]) => {
   return (req: AuthRequest, res: Response, next: NextFunction): void => {
-    // Ensure verifyToken has already run and attached req.user
     if (!req.user || !req.user.role) {
       res.status(403).json({ error: 'Access denied. Role information missing.' });
       return;
     }
 
-    if (req.user.role.toLowerCase() !== requiredRole.toLowerCase()) {
-      res.status(403).json({ error: `Access denied. Requires '${requiredRole}' role.` });
+    const allowedRoles = Array.isArray(requiredRoles) ? requiredRoles : [requiredRoles];
+    const userRole = normalizeRole(req.user.role);
+
+    if (!allowedRoles.some(role => normalizeRole(role) === userRole)) {
+      res.status(403).json({ error: `Access denied. Requires one of: ${allowedRoles.join(', ')}.` });
       return;
     }
 
@@ -54,12 +54,6 @@ export const requireRole = (requiredRole: string) => {
   };
 };
 
-/**
- * Middleware factory to check if the user has one of multiple allowed roles.
- * Example usage: router.get('/data', verifyToken, requireAnyRole(['admin', 'phm']), controllerFunc)
- * 
- * @param allowedRoles Array of role strings
- */
 export const requireAnyRole = (allowedRoles: string[]) => {
   return (req: AuthRequest, res: Response, next: NextFunction): void => {
     if (!req.user || !req.user.role) {
@@ -67,8 +61,10 @@ export const requireAnyRole = (allowedRoles: string[]) => {
       return;
     }
 
-    const allowedLower = allowedRoles.map(r => r.toLowerCase());
-    if (!allowedLower.includes(req.user.role.toLowerCase())) {
+    const normalizedUserRole = normalizeRole(req.user.role);
+    const normalizedAllowed = allowedRoles.map(r => normalizeRole(r));
+
+    if (!normalizedAllowed.includes(normalizedUserRole)) {
       res.status(403).json({ error: 'Access denied. Insufficient permissions.' });
       return;
     }

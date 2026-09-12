@@ -12,6 +12,7 @@
   "license": "MIT",
   "type": "commonjs",
   "dependencies": {
+    "@prisma/client": "^5.22.0",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
@@ -25,8 +26,12 @@
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/pg": "^8.23.1",
+    "prisma": "^5.22.0",
     "ts-node": "^10.9.2",
     "tsx": "^4.23.13",
     "typescript": "^7.0.2"
+  },
+  "prisma": {
+    "seed": "npx tsx prisma/seed.ts"
   }
 }
