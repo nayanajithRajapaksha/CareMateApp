@@ -14,6 +14,10 @@ import { CheckEmailScreen } from './src/screens/CheckEmailScreen';
 import { MainTabNavigator } from './src/navigation/MainTabNavigator';
 import { RegisterChildScreen } from './src/screens/RegisterChildScreen';
 
+import { SelectClinicScreen } from './src/screens/SelectClinicScreen';
+import { FindClinicScreen } from './src/screens/FindClinicScreen';
+import { ClinicDetailsScreen } from './src/screens/ClinicDetailsScreen';
+
 const Stack = createNativeStackNavigator();
 
 export default function App() {
@@ -34,6 +38,9 @@ export default function App() {
           <Stack.Screen name="CheckEmail" component={CheckEmailScreen} />
           <Stack.Screen name="Main" component={MainTabNavigator} />
           <Stack.Screen name="RegisterChild" component={RegisterChildScreen} />
+          <Stack.Screen name="SelectClinic" component={SelectClinicScreen} />
+          <Stack.Screen name="FindClinic" component={FindClinicScreen} />
+          <Stack.Screen name="ClinicDetails" component={ClinicDetailsScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>

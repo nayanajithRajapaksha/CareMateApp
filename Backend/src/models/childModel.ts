@@ -60,6 +60,40 @@ export const getChildrenByParentId = async (parent_id: string) => {
   return res.rows;
 };
 
+export const updateChildDetails = async (child_id: string, child: Partial<ChildData>) => {
+  const fields: string[] = [];
+  const values: any[] = [];
+  let index = 1;
+
+  if (child.full_name !== undefined) {
+    fields.push(`full_name = $${index++}`);
+    values.push(child.full_name);
+  }
+  if (child.dob !== undefined) {
+    fields.push(`dob = $${index++}`);
+    values.push(child.dob);
+  }
+  if (child.gender !== undefined) {
+    fields.push(`gender = $${index++}`);
+    values.push(child.gender);
+  }
+  if (child.relationship !== undefined) {
+    fields.push(`relationship = $${index++}`);
+    values.push(child.relationship);
+  }
+  if (child.birth_cert_number !== undefined) {
+    fields.push(`birth_cert_number = $${index++}`);
+    values.push(child.birth_cert_number || null);
+  }
+
+  if (fields.length === 0) return;
+
+  values.push(child_id);
+  const query = `UPDATE children SET ${fields.join(', ')} WHERE id = $${index}`;
+
+  await pool.query(query, values);
+};
+
 export const updateChildMedicalProfile = async (child_id: string, medical: Partial<MedicalProfileData>) => {
   const fields: string[] = [];
   const values: any[] = [];

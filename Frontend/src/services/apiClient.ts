@@ -14,16 +14,34 @@ export const apiClient = async (endpoint: string, options: RequestInit = {}) => 
     ...(options.headers || {}),
   };
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    ...options,
-    headers,
-  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10000);
 
-  const data = await response.json();
-  
-  if (!response.ok) {
-    throw new Error(data.error || 'API Request failed');
+  try {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      ...options,
+      headers,
+      signal: controller.signal,
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || 'API Request failed');
+    }
+
+    return data;
+  } catch (error: any) {
+    if (error.name === 'AbortError') {
+      throw new Error('The server did not respond. Please make sure the backend is running and try again.');
+    }
+
+    if (error instanceof TypeError) {
+      throw new Error('Unable to connect to the server. Check that the backend is running and your device is on the same network.');
+    }
+
+    throw error;
+  } finally {
+    clearTimeout(timeout);
   }
-
-  return data;
 };

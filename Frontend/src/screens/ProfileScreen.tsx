@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Modal, TextInput, ActivityIndicator, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Modal, TextInput, ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Linking } from 'react-native';
 import { Pencil, User as UserIcon, Shield, Bell, Globe, FileKey, HelpCircle, ChevronRight, ExternalLink, X } from 'lucide-react-native';
+import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { authService } from '../services/authService';
 import { profileService, UserProfile } from '../services/profileService';
 import { colors, typography, layout } from '../theme';
 
@@ -16,7 +19,7 @@ const menuItems = [
     id: 'notifications',
     icon: Bell,
     title: 'Notification Preferences',
-    subtitle: 'Email, Push, SMS',
+    subtitle: 'Email, App Notifications',
     rightElement: <ChevronRight color={colors.textMuted} size={20} />
   },
   {
@@ -62,9 +65,19 @@ const getInitials = (fullName?: string): string => {
 };
 
 export const ProfileScreen: React.FC = () => {
+  const navigation = useNavigation<any>();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [isEditModalVisible, setEditModalVisible] = useState(false);
+  const [activeAction, setActiveAction] = useState<'notifications' | 'privacy' | 'support' | 'security' | null>(null);
+  const [emailNotifications, setEmailNotifications] = useState(true);
+  const [pushNotifications, setPushNotifications] = useState(true);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [passwordMessage, setPasswordMessage] = useState('');
+  const [passwordMessageType, setPasswordMessageType] = useState<'error' | 'success'>('error');
   
   const [editFullName, setEditFullName] = useState('');
   const [editContactNumber, setEditContactNumber] = useState('');
@@ -118,6 +131,103 @@ export const ProfileScreen: React.FC = () => {
     }
   };
 
+  const handleMenuPress = (itemId: string) => {
+    switch (itemId) {
+      case 'security':
+        setPasswordMessage('');
+        setActiveAction('security');
+        break;
+      case 'notifications':
+        setActiveAction('notifications');
+        break;
+      case 'language':
+        navigation.navigate('Language');
+        break;
+      case 'privacy':
+        setActiveAction('privacy');
+        break;
+      case 'support':
+        setActiveAction('support');
+        break;
+      default:
+        break;
+    }
+  };
+
+  const handleChangePassword = async () => {
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      setPasswordMessageType('error');
+      setPasswordMessage('Please fill in all password fields.');
+      Alert.alert('Validation Error', 'Please fill in all password fields.');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setPasswordMessageType('error');
+      setPasswordMessage('Confirm password does not match the new password.');
+      Alert.alert('Validation Error', 'Confirm password does not match the new password.');
+      return;
+    }
+
+    if (newPassword === currentPassword) {
+      setPasswordMessageType('error');
+      setPasswordMessage('New password must be different from your current password.');
+      Alert.alert('Validation Error', 'New password must be different from your current password.');
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      setPasswordMessageType('error');
+      setPasswordMessage('New password must be at least 6 characters long.');
+      Alert.alert('Validation Error', 'New password must be at least 6 characters long.');
+      return;
+    }
+
+    try {
+      setIsChangingPassword(true);
+      await authService.changePassword({ currentPassword, newPassword });
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      setPasswordMessageType('success');
+      setPasswordMessage('Password changed successfully.');
+      Alert.alert('Password Changed', 'Password changed successfully.');
+    } catch (error: any) {
+      const message = error?.message || 'Unable to update your password.';
+      setPasswordMessageType('error');
+      setPasswordMessage(message);
+      Alert.alert(
+        message === 'Current password is incorrect.' ? 'Incorrect Password' : 'Password Update Failed',
+        message
+      );
+    } finally {
+      setIsChangingPassword(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await AsyncStorage.removeItem('userToken');
+      setActiveAction(null);
+      navigation.reset({ index: 0, routes: [{ name: 'SignIn' }] });
+    } catch (error) {
+      console.error('Logout error:', error);
+      Alert.alert('Error', 'Unable to sign out right now.');
+    }
+  };
+
+  const openSupportEmail = async () => {
+    const email = 'support@caremate.app';
+    const url = `mailto:${email}`;
+    const canOpen = await Linking.canOpenURL(url);
+
+    if (canOpen) {
+      await Linking.openURL(url);
+    } else {
+      Alert.alert('Help & Support', 'Email us at support@caremate.app');
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       {loading ? (
@@ -158,6 +268,8 @@ export const ProfileScreen: React.FC = () => {
               <TouchableOpacity 
                 key={item.id} 
                 style={[styles.menuItem, !isLast && styles.menuItemBorder]}
+                onPress={() => handleMenuPress(item.id)}
+                activeOpacity={0.7}
               >
                 <View style={styles.menuIconContainer}>
                   <Icon color={colors.primary} size={20} />
@@ -235,6 +347,130 @@ export const ProfileScreen: React.FC = () => {
             </TouchableOpacity>
           </View>
         </KeyboardAvoidingView>
+      </Modal>
+
+      <Modal
+        visible={activeAction !== null}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setActiveAction(null)}
+      >
+        <View style={styles.actionModalOverlay}>
+          <View style={styles.actionModalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>
+                {activeAction === 'notifications' ? 'Notification Preferences' :
+                  activeAction === 'privacy' ? 'Privacy Policy' :
+                  activeAction === 'support' ? 'Help & Support' : 'Settings'}
+              </Text>
+              <TouchableOpacity onPress={() => setActiveAction(null)}>
+                <X color={colors.textDark} size={24} />
+              </TouchableOpacity>
+            </View>
+
+            {activeAction === 'security' && (
+              <View>
+                <Text style={styles.modalBodyText}>
+                  Manage your account access. You can change your password or sign out from this device.
+                </Text>
+
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Current Password</Text>
+                  <TextInput
+                    style={styles.input}
+                    value={currentPassword}
+                    onChangeText={setCurrentPassword}
+                    placeholder="Enter current password"
+                    secureTextEntry
+                  />
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>New Password</Text>
+                  <TextInput
+                    style={styles.input}
+                    value={newPassword}
+                    onChangeText={setNewPassword}
+                    placeholder="Enter new password"
+                    secureTextEntry
+                  />
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Confirm Password</Text>
+                  <TextInput
+                    style={styles.input}
+                    value={confirmPassword}
+                    onChangeText={setConfirmPassword}
+                    placeholder="Confirm new password"
+                    secureTextEntry
+                  />
+                </View>
+
+                {!!passwordMessage && (
+                  <Text style={passwordMessageType === 'success' ? styles.successMessage : styles.errorMessage}>
+                    {passwordMessage}
+                  </Text>
+                )}
+
+                <TouchableOpacity style={styles.supportButton} onPress={handleChangePassword} disabled={isChangingPassword}>
+                  <Text style={styles.supportButtonText}>{isChangingPassword ? 'Updating...' : 'Change Password'}</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.closeActionButton} onPress={handleLogout}>
+                  <Text style={styles.closeActionButtonText}>Log Out</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+
+            {activeAction === 'notifications' && (
+              <View>
+                <View style={styles.toggleRow}>
+                  <Text style={styles.toggleLabel}>Email notifications</Text>
+                  <TouchableOpacity
+                    style={[styles.toggle, emailNotifications && styles.toggleOn]}
+                    onPress={() => setEmailNotifications(prev => !prev)}
+                  >
+                    <View style={[styles.toggleThumb, emailNotifications && styles.toggleThumbOn]} />
+                  </TouchableOpacity>
+                </View>
+
+                <View style={styles.toggleRow}>
+                  <Text style={styles.toggleLabel}>App notifications</Text>
+                  <TouchableOpacity
+                    style={[styles.toggle, pushNotifications && styles.toggleOn]}
+                    onPress={() => setPushNotifications(prev => !prev)}
+                  >
+                    <View style={[styles.toggleThumb, pushNotifications && styles.toggleThumbOn]} />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            )}
+
+            {activeAction === 'privacy' && (
+              <Text style={styles.modalBodyText}>
+                CareMate protects your child and family data with access controls, secure storage, and limited sharing. We use your information only to provide care coordination, reminders, and health record support.
+              </Text>
+            )}
+
+            {activeAction === 'support' && (
+              <View>
+                <Text style={styles.modalBodyText}>
+                  Need help with your account or child profiles? Our support team is available to assist you.
+                </Text>
+                <TouchableOpacity style={styles.supportButton} onPress={openSupportEmail}>
+                  <Text style={styles.supportButtonText}>Contact Support</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+
+            {activeAction !== 'security' && (
+              <TouchableOpacity style={styles.closeActionButton} onPress={() => setActiveAction(null)}>
+                <Text style={styles.closeActionButtonText}>Close</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        </View>
       </Modal>
     </SafeAreaView>
   );
@@ -413,5 +649,90 @@ const styles = StyleSheet.create({
     color: colors.white,
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  actionModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  actionModalContent: {
+    backgroundColor: colors.white,
+    borderRadius: 20,
+    padding: 20,
+  },
+  modalBodyText: {
+    fontSize: 15,
+    color: colors.textDark,
+    lineHeight: 22,
+    marginBottom: 18,
+  },
+  errorMessage: {
+    color: '#B42318',
+    fontSize: 14,
+    marginBottom: 16,
+    fontWeight: '600',
+  },
+  successMessage: {
+    color: '#027A48',
+    fontSize: 14,
+    marginBottom: 16,
+    fontWeight: '600',
+  },
+  toggleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 18,
+  },
+  toggleLabel: {
+    fontSize: 15,
+    color: colors.textDark,
+    fontWeight: '500',
+  },
+  toggle: {
+    width: 52,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#D9E3E3',
+    padding: 4,
+    justifyContent: 'center',
+  },
+  toggleOn: {
+    backgroundColor: colors.primary,
+  },
+  toggleThumb: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: colors.white,
+    alignSelf: 'flex-start',
+  },
+  toggleThumbOn: {
+    alignSelf: 'flex-end',
+  },
+  supportButton: {
+    backgroundColor: '#E6F4F4',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginBottom: 18,
+  },
+  supportButtonText: {
+    color: colors.primary,
+    fontWeight: '700',
+    fontSize: 15,
+  },
+  closeActionButton: {
+    backgroundColor: colors.primary,
+    paddingVertical: 12,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  closeActionButtonText: {
+    color: colors.white,
+    fontWeight: '700',
+    fontSize: 15,
   }
 });

@@ -25,14 +25,23 @@ export const SignInScreen: React.FC<Props> = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [signInMessage, setSignInMessage] = useState('');
 
   const handleSignIn = async () => {
-    if (!email || !password) {
-      Alert.alert('Error', 'Please enter your email and password.');
+    if (!email.trim()) {
+      setSignInMessage('Please enter your email address.');
+      Alert.alert('Sign In Error', 'Please enter your email address.');
+      return;
+    }
+
+    if (!password) {
+      setSignInMessage('Please enter your password.');
+      Alert.alert('Sign In Error', 'Please enter your password.');
       return;
     }
 
     setLoading(true);
+    setSignInMessage('');
     try {
       const data = await authService.login({ email: email.toLowerCase().trim(), password });
 
@@ -41,7 +50,12 @@ export const SignInScreen: React.FC<Props> = ({ navigation }) => {
 
       navigation.navigate('SignInSuccess');
     } catch (error: any) {
-      Alert.alert('Sign In Failed', error.message || 'Something went wrong');
+      const errorMessage = error?.message || '';
+      const message = errorMessage.includes('connect') || errorMessage.includes('server')
+        ? errorMessage
+        : 'Wrong password or email.';
+      setSignInMessage(message);
+      Alert.alert('Sign In Failed', message);
     } finally {
       setLoading(false);
     }
@@ -82,8 +96,13 @@ export const SignInScreen: React.FC<Props> = ({ navigation }) => {
               icon={Lock}
               isPassword
               value={password}
-              onChangeText={setPassword}
+              onChangeText={(value) => {
+                setPassword(value);
+                setSignInMessage('');
+              }}
             />
+
+            {!!signInMessage && <Text style={styles.errorMessage}>{signInMessage}</Text>}
 
             <TouchableOpacity style={styles.forgotPasswordContainer} onPress={() => navigation.navigate('ForgotPassword')}>
               <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
@@ -162,6 +181,12 @@ const styles = StyleSheet.create({
     color: colors.primary,
     fontSize: 14,
     fontWeight: '600',
+  },
+  errorMessage: {
+    color: '#B42318',
+    fontSize: 14,
+    fontWeight: '600',
+    marginTop: 12,
   },
   footer: {
     marginTop: 'auto',

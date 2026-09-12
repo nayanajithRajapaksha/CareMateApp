@@ -87,7 +87,9 @@ export const ChildrenScreen: React.FC = () => {
                 <View style={styles.cardTop}>
                   <Image source={{ uri: child.image || 'https://i.pravatar.cc/150?img=5' }} style={styles.childImage} />
                   <View style={styles.childInfo}>
-                    <Text style={styles.childName}>{child.full_name}</Text>
+                    <TouchableOpacity onPress={() => navigation.navigate('RegisterChild', { mode: 'edit', child })}>
+                      <Text style={styles.childName}>{child.full_name}</Text>
+                    </TouchableOpacity>
                     <Text style={styles.childDetails}>{child.gender}</Text>
                   </View>
                   <TouchableOpacity style={styles.menuIcon}>

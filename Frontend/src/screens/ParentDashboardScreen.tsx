@@ -5,12 +5,7 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { colors, typography, layout } from '../theme';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { childService } from '../services/childService';
-
-// Mock data
-const mockUser = {
-  name: 'Nadeesha',
-  profilePic: 'https://i.pravatar.cc/150?img=47' // Placeholder female face
-};
+import { profileService } from '../services/profileService';
 
 const mockChildren = [
   {
@@ -35,21 +30,28 @@ export const ParentDashboardScreen: React.FC = () => {
   const navigation = useNavigation<any>();
   const [childrenData, setChildrenData] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(true);
+  const [userName, setUserName] = React.useState('User');
 
   useFocusEffect(
     React.useCallback(() => {
-      const fetchChildren = async () => {
+      const fetchData = async () => {
         try {
-          const data = await childService.getChildren();
-          setChildrenData(data.children);
+          const [childrenResponse, profileResponse] = await Promise.all([
+            childService.getChildren(),
+            profileService.getProfile()
+          ]);
+
+          setChildrenData(childrenResponse.children || []);
+          setUserName(profileResponse.profile?.full_name || 'User');
         } catch (error) {
-          console.error('Error fetching children:', error);
+          console.error('Error fetching dashboard data:', error);
+          setChildrenData([]);
         } finally {
           setLoading(false);
         }
       };
 
-      fetchChildren();
+      fetchData();
     }, [])
   );
 
@@ -74,7 +76,7 @@ export const ParentDashboardScreen: React.FC = () => {
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity style={styles.headerLeft} onPress={() => navigation.navigate('ProfileTab')}>
-            <Image source={{ uri: mockUser.profilePic }} style={styles.profilePic} />
+            <Image source={{ uri: 'https://i.pravatar.cc/150?img=47' }} style={styles.profilePic} />
             <Text style={styles.headerTitle}>CareMate</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.notificationBtn}>
@@ -85,7 +87,7 @@ export const ParentDashboardScreen: React.FC = () => {
 
         {/* Greeting Card */}
         <View style={styles.greetingCard}>
-          <Text style={styles.greetingTitle}>Hello, {mockUser.name}!</Text>
+          <Text style={styles.greetingTitle}>Hello, {userName}!</Text>
           <Text style={styles.greetingText}>
             Your family's health is on track. All children are up to date with vaccinations.
           </Text>
@@ -106,7 +108,7 @@ export const ParentDashboardScreen: React.FC = () => {
               <Text style={styles.actionText}>Book</Text>
             </TouchableOpacity>
             
-            <TouchableOpacity style={styles.actionItem} onPress={() => navigation.navigate('LearnTab')}>
+            <TouchableOpacity style={styles.actionItem} onPress={() => navigation.navigate('SelectClinic')}>
               <View style={styles.actionIconContainer}>
                 <Stethoscope color={colors.textDark} size={24} />
               </View>
@@ -145,7 +147,11 @@ export const ParentDashboardScreen: React.FC = () => {
               renderEmptyState()
             ) : (
               displayData.map(child => (
-                <TouchableOpacity key={child.id} style={styles.childCard}>
+                <TouchableOpacity 
+                  key={child.id} 
+                  style={styles.childCard}
+                  onPress={() => navigation.navigate('RegisterChild', { mode: 'edit', child })}
+                >
                   <Image source={{ uri: child.image || 'https://i.pravatar.cc/150?img=5' }} style={styles.childImage} />
                   
                   <View style={styles.childInfo}>

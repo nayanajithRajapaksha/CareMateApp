@@ -10,6 +10,6 @@ router.use(verifyToken);
 router.post('/register', requireRole('parent'), registerChild);
 router.get('/', requireRole('parent'), getChildren);
 router.get('/all', requireRole('phm'), getAllChildrenController);
-router.put('/:id', requireRole('phm'), updateChild);
+router.put('/:id', requireRole(['parent', 'phm']), updateChild);
 
 export default router;
