@@ -5,11 +5,12 @@ import { colors, typography, layout } from '../theme';
 interface PrimaryButtonProps {
   title: string;
   onPress: () => void;
+  disabled?: boolean;
   variant?: 'solid' | 'outline';
   style?: ViewStyle;
 }
 
-export const PrimaryButton: React.FC<PrimaryButtonProps> = ({ title, onPress, variant = 'solid', style }) => {
+export const PrimaryButton: React.FC<PrimaryButtonProps> = ({ title, onPress, disabled = false, variant = 'solid', style }) => {
   const isSolid = variant === 'solid';
 
   return (
@@ -20,6 +21,7 @@ export const PrimaryButton: React.FC<PrimaryButtonProps> = ({ title, onPress, va
         style
       ]} 
       onPress={onPress}
+      disabled={disabled}
       activeOpacity={0.8}
     >
       <Text style={[

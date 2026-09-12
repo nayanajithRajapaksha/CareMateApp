@@ -13,5 +13,12 @@ export const authService = {
       method: 'POST',
       body: JSON.stringify(userData),
     });
+  },
+
+  changePassword: async (data: { currentPassword: string; newPassword: string }) => {
+    return apiClient('/auth/change-password', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
   }
 };

@@ -1,6 +1,6 @@
 import { Response } from 'express';
 import { AuthRequest } from '../middleware/authMiddleware';
-import { createChildWithMedicalProfile, getChildrenByParentId, updateChildMedicalProfile, getAllChildren as getAllChildrenDb } from '../models/childModel';
+import { createChildWithMedicalProfile, getChildrenByParentId, updateChildMedicalProfile, updateChildDetails, getAllChildren as getAllChildrenDb } from '../models/childModel';
 
 export const registerChild = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -40,17 +40,61 @@ export const getChildren = async (req: AuthRequest, res: Response): Promise<void
 
 export const updateChild = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    if (req.user?.role?.toLowerCase() !== 'phm') {
-      res.status(403).json({ error: 'Forbidden. Only PHMs can update child records.' });
+    const userRole = req.user?.role?.toLowerCase();
+    const isParent = userRole === 'parent';
+    const isPHM = userRole === 'phm' || userRole === 'midwife';
+
+    if (!isParent && !isPHM) {
+      res.status(403).json({ error: 'Forbidden. Only parents or PHMs can update child records.' });
       return;
     }
 
     const childId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-    const { blood_group, birth_weight_kg, allergies, existing_conditions, primary_clinic } = req.body;
+    const {
+      full_name,
+      dob,
+      gender,
+      relationship,
+      birth_cert_number,
+      blood_group,
+      birth_weight_kg,
+      allergies,
+      existing_conditions,
+      primary_clinic
+    } = req.body;
 
-    await updateChildMedicalProfile(childId, { blood_group, birth_weight_kg, allergies, existing_conditions, primary_clinic });
-    
-    res.status(200).json({ message: 'Child medical profile updated successfully' });
+    if (!full_name || !dob || !gender || !relationship) {
+      res.status(400).json({ error: 'Missing required child fields.' });
+      return;
+    }
+
+    if (isParent) {
+      const parentChildren = await getChildrenByParentId(req.user.id);
+      const isOwnedByParent = parentChildren.some((child: any) => String(child.id) === String(childId));
+
+      if (!isOwnedByParent) {
+        res.status(404).json({ error: 'Child not found for this parent.' });
+        return;
+      }
+    }
+
+    await updateChildDetails(childId, {
+      full_name,
+      dob,
+      gender,
+      relationship,
+      birth_cert_number
+    });
+
+    await updateChildMedicalProfile(childId, {
+      blood_group,
+      birth_weight_kg,
+      allergies,
+      existing_conditions,
+      primary_clinic
+    });
+
+    res.status(200).json({ message: 'Child record updated successfully' });
   } catch (error) {
     console.error('Error updating child:', error);
     res.status(500).json({ error: 'Internal server error while updating child.' });

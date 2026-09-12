@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, TextInput, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { ChevronLeft, User, Calendar, Edit2, CheckCircle2 } from 'lucide-react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { colors, typography, layout } from '../theme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { PrimaryButton } from '../components/PrimaryButton';
@@ -9,10 +9,13 @@ import { childService } from '../services/childService';
 
 export const RegisterChildScreen: React.FC = () => {
   const navigation = useNavigation<any>();
+  const route = useRoute<any>();
+  const isEditMode = route.params?.mode === 'edit';
+  const editingChild = route.params?.child;
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
 
-  const [formData, setFormData] = useState({
+  const defaultForm = {
     full_name: '',
     dob: '',
     gender: 'Male',
@@ -23,7 +26,29 @@ export const RegisterChildScreen: React.FC = () => {
     allergies: '',
     existing_conditions: '',
     primary_clinic: ''
-  });
+  };
+
+  const [formData, setFormData] = useState(defaultForm);
+
+  useEffect(() => {
+    if (!isEditMode || !editingChild) {
+      setFormData(defaultForm);
+      return;
+    }
+
+    setFormData({
+      full_name: editingChild.full_name || '',
+      dob: editingChild.dob || '',
+      gender: editingChild.gender || 'Male',
+      relationship: editingChild.relationship || 'Parent',
+      birth_cert_number: editingChild.birth_cert_number || '',
+      blood_group: editingChild.blood_group || 'O+',
+      birth_weight_kg: editingChild.birth_weight_kg !== null && editingChild.birth_weight_kg !== undefined ? String(editingChild.birth_weight_kg) : '',
+      allergies: editingChild.allergies || '',
+      existing_conditions: editingChild.existing_conditions || '',
+      primary_clinic: editingChild.primary_clinic || ''
+    });
+  }, [isEditMode, editingChild]);
 
   const updateForm = (key: string, value: string) => {
     setFormData(prev => ({ ...prev, [key]: value }));
@@ -50,15 +75,20 @@ export const RegisterChildScreen: React.FC = () => {
     try {
       const payload = {
         ...formData,
-        birth_weight_kg: parseFloat(formData.birth_weight_kg)
+        birth_weight_kg: formData.birth_weight_kg === '' ? 0 : parseFloat(formData.birth_weight_kg)
       };
 
-      await childService.registerChild(payload);
-      
-      navigation.goBack(); // or navigate to a success screen
+      if (isEditMode && editingChild?.id) {
+        await childService.updateChild(editingChild.id, payload);
+        Alert.alert('Success', 'Child details updated successfully.');
+      } else {
+        await childService.registerChild(payload);
+      }
+
+      navigation.goBack();
     } catch (error: any) {
       console.error('Error submitting form:', error);
-      Alert.alert('Error', error.message || 'Failed to register child. Please try again.');
+      Alert.alert('Error', error.message || (isEditMode ? 'Failed to update child details.' : 'Failed to register child. Please try again.'));
     } finally {
       setLoading(false);
     }
@@ -311,7 +341,7 @@ export const RegisterChildScreen: React.FC = () => {
       </View>
       
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.title}>Register Child</Text>
+        <Text style={styles.title}>{isEditMode ? 'Edit Child Details' : 'Register Child'}</Text>
         
         {renderStepIndicator()}
         
@@ -329,7 +359,7 @@ export const RegisterChildScreen: React.FC = () => {
           />
         ) : (
           <PrimaryButton 
-            title={loading ? "Registering..." : "Complete Registration"} 
+            title={loading ? (isEditMode ? 'Saving...' : 'Registering...') : (isEditMode ? 'Save Changes' : 'Complete Registration')} 
             onPress={handleSubmit} 
             disabled={loading}
           />

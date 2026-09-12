@@ -74,13 +74,13 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   try {
     const user = await findUserByEmail(email);
     if (!user) {
-      res.status(401).json({ error: 'Invalid email or password.' });
+      res.status(401).json({ error: 'Wrong password or email.' });
       return;
     }
 
     const passwordMatch = await bcrypt.compare(password, user.password_hash);
     if (!passwordMatch) {
-      res.status(401).json({ error: 'Invalid email or password.' });
+      res.status(401).json({ error: 'Wrong password or email.' });
       return;
     }
 
@@ -93,5 +93,54 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   } catch (error) {
     console.error('Login Error:', error);
     res.status(500).json({ error: 'Internal server error during login.' });
+  }
+};
+
+export const changePassword = async (req: any, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.id;
+    const { currentPassword, newPassword } = req.body;
+
+    if (!userId) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    if (!currentPassword || !newPassword) {
+      res.status(400).json({ error: 'Current password and new password are required.' });
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      res.status(400).json({ error: 'New password must be at least 6 characters long.' });
+      return;
+    }
+
+    const userResult = await pool.query('SELECT password_hash FROM app_users WHERE id = $1', [userId]);
+    const user = userResult.rows[0];
+
+    if (!user) {
+      res.status(404).json({ error: 'User not found.' });
+      return;
+    }
+
+    const passwordMatch = await bcrypt.compare(currentPassword, user.password_hash);
+    if (!passwordMatch) {
+      res.status(401).json({ error: 'Current password is incorrect.' });
+      return;
+    }
+
+    if (currentPassword === newPassword) {
+      res.status(400).json({ error: 'New password must be different from your current password.' });
+      return;
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, 10);
+    await pool.query('UPDATE app_users SET password_hash = $1 WHERE id = $2', [passwordHash, userId]);
+
+    res.status(200).json({ message: 'Password updated successfully.' });
+  } catch (error) {
+    console.error('Change password error:', error);
+    res.status(500).json({ error: 'Internal server error while updating password.' });
   }
 };
