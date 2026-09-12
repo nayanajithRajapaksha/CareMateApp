@@ -4,6 +4,7 @@ export const colors = {
   white: '#FFFFFF',
   textDark: '#0B2B2B', // Dark Navy/Black for headings
   textMuted: '#6B7280', // Gray for subtitles/body
+  textLight: '#9CA3AF',
   border: '#D1D5DB', // Light gray for input borders
   success: '#10B981', // Green for success states
 };

@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Users, Edit2, Check, X, Search } from 'lucide-react';
 import { phmService } from '../services/phmService';
-import { useAuth } from '../contexts/AuthContext';
 
 export const PHMDashboard: React.FC = () => {
-  const { user } = useAuth();
   const [children, setChildren] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
