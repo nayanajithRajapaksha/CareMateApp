@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Activity, ShieldCheck, UserCheck, Stethoscope, Users } from 'lucide-react';
+import logo from '../assets/logo.png';
 
 export const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -43,7 +44,7 @@ export const LoginPage: React.FC = () => {
     <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: 'var(--color-bg)' }}>
       {/* Left branding pane */}
       <div style={{ flex: 1, backgroundColor: 'var(--color-primary)', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: 'white', padding: 40 }}>
-        <Activity size={64} style={{ marginBottom: 24 }} />
+        <img src={logo} alt="CareMate Logo" style={{ marginBottom: 24, width: '128px', height: '128px', objectFit: 'contain' }} />
         <h1 style={{ fontSize: 40, fontWeight: 700, marginBottom: 16 }}>CareMate Portal</h1>
         <p style={{ fontSize: 18, opacity: 0.9, textAlign: 'center', maxWidth: 400 }}>
           Centralized management for Public Health Midwives, MOH Officers, Parents, and System Administrators.
