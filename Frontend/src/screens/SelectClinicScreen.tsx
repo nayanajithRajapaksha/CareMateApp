@@ -1,44 +1,24 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, TextInput, Image } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, TextInput, Image, ActivityIndicator } from 'react-native';
 import { Bell, Search, Map as MapIcon, ChevronRight, Zap, Info, ShieldPlus, PlusSquare, Activity, MapPin } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import { colors, layout } from '../theme';
-
-const MOCK_CLINICS = [
-  {
-    id: '1',
-    name: 'Dediyawala Clinic',
-    type: 'Child health care center',
-    distance: '2.5 km',
-    fastest: true,
-    tags: ['FLU', 'COVID-19', 'HEP B'],
-    status: 'available'
-  },
-  {
-    id: '2',
-    name: 'Teaching Hospital',
-    type: 'Kalutara District',
-    distance: '4.1 km',
-    fastest: false,
-    tags: [],
-    status: 'bookable',
-    nextAvailable: 'Today, 10:30 AM'
-  },
-  {
-    id: '3',
-    name: 'Maternity & Children\'s Hospital',
-    type: 'Katukurunda',
-    distance: '5.8 km',
-    fastest: false,
-    tags: [],
-    status: 'full'
-  }
-];
+import { clinicService, Clinic } from '../services/clinicService';
 
 export const SelectClinicScreen: React.FC = () => {
   const navigation = useNavigation<any>();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState('All Vaccines');
+  
+  const [clinics, setClinics] = useState<Clinic[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    clinicService.getAll()
+      .then(data => setClinics(data))
+      .catch(err => console.error(err))
+      .finally(() => setLoading(false));
+  }, []);
 
   const filters = ['All Vaccines', 'Flu', 'COVID-19'];
 
@@ -96,89 +76,56 @@ export const SelectClinicScreen: React.FC = () => {
         </View>
 
         <View style={styles.clinicsList}>
-          {MOCK_CLINICS.map(clinic => (
+          {loading ? (
+             <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 40 }} />
+          ) : clinics.map(clinic => (
             <TouchableOpacity 
               key={clinic.id} 
               style={[
                 styles.clinicCard, 
-                clinic.status === 'bookable' && styles.clinicCardGreenBg
+                !clinic.open && { opacity: 0.7 }
               ]}
               onPress={() => navigation.navigate('ClinicDetails', { clinic })}
             >
               <View style={styles.clinicCardHeader}>
                 <View style={[
                   styles.clinicIconContainer,
-                  clinic.id === '1' && { backgroundColor: '#CBEBE8' },
-                  clinic.id === '2' && { backgroundColor: '#FFFFFF' },
-                  clinic.id === '3' && { backgroundColor: '#D1E6E6' },
+                  { backgroundColor: '#CBEBE8' }
                 ]}>
-                  {clinic.id === '1' && <ShieldPlus color="#1F4D4F" size={24} />}
-                  {clinic.id === '2' && <PlusSquare color={colors.primary} size={24} />}
-                  {clinic.id === '3' && <Activity color="#4F7375" size={24} />}
+                  <ShieldPlus color="#1F4D4F" size={24} />
                 </View>
                 <View style={styles.clinicMainInfo}>
                   <View style={styles.clinicNameRow}>
                     <Text style={styles.clinicName}>{clinic.name}</Text>
-                    {clinic.fastest && (
+                    {clinic.open && (
                       <View style={styles.fastestBadge}>
                         <Zap color={colors.primary} size={12} fill={colors.primary} />
-                        <Text style={styles.fastestText}>Fastest</Text>
+                        <Text style={styles.fastestText}>Open</Text>
                       </View>
                     )}
                   </View>
                   <View style={styles.locationRow}>
                     <MapPin color={colors.textDark} size={12} />
-                    <Text style={styles.clinicDetails}>
-                      {clinic.type} • {clinic.distance}
+                    <Text style={styles.clinicDetails} numberOfLines={1}>
+                      {clinic.type} • {clinic.address}
                     </Text>
                   </View>
                 </View>
               </View>
 
-              {/* Separator for Card 1 & 2 */}
-              {clinic.status !== 'full' && (
-                <View style={styles.separator} />
-              )}
+              <View style={styles.separator} />
 
-              {clinic.status === 'available' && (
-                <View style={styles.clinicCardFooterRow}>
-                  <View style={styles.tagsContainer}>
-                    {clinic.tags.map(tag => (
-                      <View key={tag} style={styles.tagBadge}>
-                        <Text style={styles.tagText}>{tag}</Text>
-                      </View>
-                    ))}
-                  </View>
-                  <TouchableOpacity style={styles.actionLinkRow} onPress={() => navigation.navigate('ClinicDetails', { clinic })}>
-                    <Text style={styles.actionLinkText}>Select</Text>
-                    <ChevronRight color={colors.primary} size={16} />
-                  </TouchableOpacity>
+              <View style={styles.clinicCardFooterRow}>
+                <View style={styles.tagsContainer}>
+                   <View style={styles.tagBadge}>
+                      <Text style={styles.tagText}>{clinic.open ? 'AVAILABLE' : 'CLOSED'}</Text>
+                   </View>
                 </View>
-              )}
-
-              {clinic.status === 'bookable' && (
-                <View style={styles.clinicCardFooterRow}>
-                  <View>
-                    <Text style={styles.nextAvailableLabel}>Next available</Text>
-                    <Text style={styles.nextAvailableText}>{clinic.nextAvailable}</Text>
-                  </View>
-                  <TouchableOpacity style={styles.bookButton}>
-                    <Text style={styles.bookButtonText}>Book</Text>
-                  </TouchableOpacity>
-                </View>
-              )}
-
-              {clinic.status === 'full' && (
-                <View style={[styles.clinicCardFooterRow, { marginTop: 16 }]}>
-                  <View style={styles.fullStatusRow}>
-                    <Info color="#EF4444" size={16} />
-                    <Text style={styles.fullStatusText}>Fully Booked Today</Text>
-                  </View>
-                  <TouchableOpacity>
-                    <Text style={styles.viewDatesText}>View Dates</Text>
-                  </TouchableOpacity>
-                </View>
-              )}
+                <TouchableOpacity style={styles.actionLinkRow} onPress={() => navigation.navigate('ClinicDetails', { clinic })}>
+                  <Text style={styles.actionLinkText}>Select</Text>
+                  <ChevronRight color={colors.primary} size={16} />
+                </TouchableOpacity>
+              </View>
             </TouchableOpacity>
           ))}
         </View>
