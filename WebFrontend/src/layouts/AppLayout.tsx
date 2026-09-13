@@ -2,6 +2,7 @@ import React from 'react';
 import { Outlet, Navigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { LayoutDashboard, Users, Activity, Settings, LogOut } from 'lucide-react';
+import logo from '../assets/logo.png';
 
 export const AppLayout: React.FC = () => {
   const { user, loading, logout } = useAuth();
@@ -21,7 +22,7 @@ export const AppLayout: React.FC = () => {
     <div className="app-container">
       <aside className="sidebar">
         <div className="sidebar-logo">
-          <Activity color="var(--color-primary)" size={28} />
+          <img src={logo} alt="CareMate Logo" style={{ width: '40px', height: '40px', objectFit: 'contain' }} />
           <span className="sidebar-logo-text">CareMate Staff</span>
         </div>
 
