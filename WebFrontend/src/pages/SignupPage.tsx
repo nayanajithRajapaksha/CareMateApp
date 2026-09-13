@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Activity } from 'lucide-react';
 import { authService } from '../services/authService';
+import logo from '../assets/logo.png';
 
 export const SignupPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -42,7 +42,7 @@ export const SignupPage: React.FC = () => {
     <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: 'var(--color-bg)' }}>
       {/* Left branding pane */}
       <div style={{ flex: 1, backgroundColor: 'var(--color-primary)', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: 'white', padding: 40 }}>
-        <Activity size={64} style={{ marginBottom: 24 }} />
+        <img src={logo} alt="CareMate Logo" style={{ marginBottom: 24, width: '128px', height: '128px', objectFit: 'contain' }} />
         <h1 style={{ fontSize: 40, fontWeight: 700, marginBottom: 16 }}>Join CareMate</h1>
         <p style={{ fontSize: 18, opacity: 0.9, textAlign: 'center', maxWidth: 400 }}>
           Public Health Midwives can register here. Once registered, your MOH Supervisor will assign you to a hospital.
