@@ -19,4 +19,10 @@ export const authService = {
       body: JSON.stringify(data),
     });
   },
+  getAllUsers: async () => {
+    return await apiClient('/users/all', {
+      method: 'GET',
+    });
+  },
 };
+

@@ -18,5 +18,21 @@ export const staffService = {
       method: 'POST',
       body: JSON.stringify({ profile_id: profileId }),
     });
+  },
+  createPHM: async (data: any) => {
+    return await apiClient('/staff/create-phm', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+  getParents: async () => {
+    return await apiClient('/staff/parents');
+  },
+  assignParentHospital: async (profileId: string, hospital: string) => {
+    return await apiClient('/staff/assign-parent', {
+      method: 'POST',
+      body: JSON.stringify({ profile_id: profileId, hospital }),
+    });
   }
 };
+
