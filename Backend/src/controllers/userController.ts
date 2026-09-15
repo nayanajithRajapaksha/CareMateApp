@@ -65,3 +65,20 @@ export const updateProfile = async (req: AuthRequest, res: Response): Promise<vo
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+export const getAllUsers = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const result = await pool.query(
+      `SELECT p.id, u.email, p.full_name, p.contact_number, p.role, p.hospital, p.created_at
+       FROM profiles p
+       JOIN app_users u ON p.id = u.id
+       ORDER BY p.created_at DESC`
+    );
+
+    res.status(200).json({ users: result.rows });
+  } catch (error) {
+    console.error('Error fetching all users:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+

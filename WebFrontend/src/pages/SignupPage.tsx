@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Activity } from 'lucide-react';
 import { authService } from '../services/authService';
 import logo from '../assets/logo.png';
 

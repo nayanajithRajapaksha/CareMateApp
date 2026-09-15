@@ -1,30 +1,66 @@
 import React, { useState, useEffect } from 'react';
-import { Users, CheckCircle, Clock, Map, LayoutDashboard } from 'lucide-react';
+import { Users, CheckCircle, Clock, Map, LayoutDashboard, UserPlus, Search, Building2, Phone, X, Baby } from 'lucide-react';
 import { staffService } from '../services/staffService';
 import { clinicService } from '../services/clinicService';
 import { ClinicManager, type Clinic } from './ClinicManager';
 
-type Tab = 'dashboard' | 'clinics';
+type Tab = 'dashboard' | 'parents' | 'clinics';
+
+interface ParentUser {
+  profile_id: string;
+  email: string;
+  full_name: string;
+  contact_number?: string;
+  hospital?: string;
+  created_at?: string;
+  children_count?: number;
+}
 
 export const MOHDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<Tab>('dashboard');
   const [phms, setPhms] = useState<any[]>([]);
+  const [assignedPhms, setAssignedPhms] = useState<any[]>([]);
+  const [parents, setParents] = useState<ParentUser[]>([]);
+  const [clinics, setClinics] = useState<Clinic[]>([]);
+  
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  
+  // Midwife assignment state
   const [assigningId, setAssigningId] = useState<string | null>(null);
   const [hospital, setHospital] = useState('');
-  const [clinics, setClinics] = useState<Clinic[]>([]);
-  const [assignedPhms, setAssignedPhms] = useState<any[]>([]);
 
-  const fetchPHMs = async () => {
+  // Parent assignment state
+  const [assigningParentId, setAssigningParentId] = useState<string | null>(null);
+  const [parentHospital, setParentHospital] = useState('');
+  const [parentSearch, setParentSearch] = useState('');
+
+  // Add Midwife Modal State
+  const [showAddMidwifeModal, setShowAddMidwifeModal] = useState(false);
+  const [midwifeFullName, setMidwifeFullName] = useState('');
+  const [midwifeEmail, setMidwifeEmail] = useState('');
+  const [midwifePassword, setMidwifePassword] = useState('');
+  const [midwifeContact, setMidwifeContact] = useState('');
+  const [midwifeInitialClinic, setMidwifeInitialClinic] = useState('');
+  const [createError, setCreateError] = useState('');
+  const [createSuccess, setCreateSuccess] = useState('');
+  const [isCreating, setIsCreating] = useState(false);
+
+  const fetchDashboardData = async () => {
     setLoading(true);
+    setError('');
     try {
-      const data = await staffService.getUnassignedPHMs();
-      setPhms(data.phms || []);
-      const assignedData = await staffService.getAssignedPHMs();
+      const [unassignedData, assignedData, clinicsData, parentsData] = await Promise.all([
+        staffService.getUnassignedPHMs(),
+        staffService.getAssignedPHMs(),
+        clinicService.getAll(),
+        staffService.getParents()
+      ]);
+
+      setPhms(unassignedData.phms || []);
       setAssignedPhms(assignedData.phms || []);
-      const clinicsData = await clinicService.getAll();
-      setClinics(clinicsData);
+      setClinics(clinicsData || []);
+      setParents(parentsData.parents || []);
     } catch (err: any) {
       setError(err.message || 'Failed to fetch dashboard data.');
     } finally {
@@ -32,23 +68,22 @@ export const MOHDashboard: React.FC = () => {
     }
   };
 
-  useEffect(() => { fetchPHMs(); }, []);
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
 
-  const handleAssign = async (profileId: string) => {
-    if (!hospital.trim()) { alert('Please select a hospital.'); return; }
+  // Midwife Hospital Assignment
+  const handleAssignMidwife = async (profileId: string) => {
+    if (!hospital.trim()) { alert('Please select a clinic/hospital.'); return; }
     try {
       await staffService.assignHospital(profileId, hospital);
-      
-      // Check if they were unassigned
       const unassignedPhm = phms.find(p => p.profile_id === profileId);
       if (unassignedPhm) {
         setPhms(phms.filter(p => p.profile_id !== profileId));
         setAssignedPhms([{ ...unassignedPhm, hospital }, ...assignedPhms]);
       } else {
-        // They were already assigned, just update their hospital in place
         setAssignedPhms(assignedPhms.map(p => p.profile_id === profileId ? { ...p, hospital } : p));
       }
-
       setAssigningId(null);
       setHospital('');
       alert('Hospital assigned successfully!');
@@ -57,7 +92,7 @@ export const MOHDashboard: React.FC = () => {
     }
   };
 
-  const handleUnassign = async (profileId: string) => {
+  const handleUnassignMidwife = async (profileId: string) => {
     if (!window.confirm("Are you sure you want to remove this midwife's assignment?")) return;
     try {
       await staffService.unassignHospital(profileId);
@@ -72,16 +107,68 @@ export const MOHDashboard: React.FC = () => {
     }
   };
 
-  // ── Tab nav ────────────────────────────────────────────────────────────────
+  // Create Midwife Handler
+  const handleCreateMidwifeSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setCreateError('');
+    setCreateSuccess('');
+    setIsCreating(true);
+
+    try {
+      await staffService.createPHM({
+        full_name: midwifeFullName,
+        email: midwifeEmail,
+        password: midwifePassword,
+        contact_number: midwifeContact,
+        hospital: midwifeInitialClinic || undefined
+      });
+
+      setCreateSuccess('Midwife created successfully!');
+      setMidwifeFullName('');
+      setMidwifeEmail('');
+      setMidwifePassword('');
+      setMidwifeContact('');
+      setMidwifeInitialClinic('');
+      fetchDashboardData();
+      setTimeout(() => setShowAddMidwifeModal(false), 1200);
+    } catch (err: any) {
+      setCreateError(err.message || 'Failed to register midwife.');
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  // Parent Clinic Assignment
+  const handleAssignParentClinic = async (profileId: string) => {
+    if (!parentHospital.trim()) { alert('Please select a clinic/hospital.'); return; }
+    try {
+      await staffService.assignParentHospital(profileId, parentHospital);
+      setParents(parents.map(p => p.profile_id === profileId ? { ...p, hospital: parentHospital } : p));
+      setAssigningParentId(null);
+      setParentHospital('');
+      alert('Parent clinic assigned successfully!');
+    } catch (err: any) {
+      alert(err.message || 'Failed to assign parent clinic.');
+    }
+  };
+
+  // Filter parents by search
+  const filteredParents = parents.filter(p => 
+    (p.full_name?.toLowerCase() || '').includes(parentSearch.toLowerCase()) ||
+    (p.email?.toLowerCase() || '').includes(parentSearch.toLowerCase()) ||
+    (p.contact_number?.toLowerCase() || '').includes(parentSearch.toLowerCase())
+  );
+
   const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
-    { id: 'dashboard', label: 'Supervisor Dashboard', icon: <LayoutDashboard size={16} /> },
-    { id: 'clinics',   label: 'Clinic Map Manager',   icon: <Map size={16} /> },
+    { id: 'dashboard', label: 'Midwives Overview', icon: <LayoutDashboard size={16} /> },
+    { id: 'parents',   label: 'Manage Parents',    icon: <Users size={16} /> },
+    { id: 'clinics',   label: 'Clinic Map Manager',icon: <Map size={16} /> },
   ];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      {/* Tab header */}
-      <div style={{ display: 'flex', gap: 4, padding: '0 0 0 0', borderBottom: '1px solid var(--color-border)', background: 'var(--color-surface)', paddingLeft: 24 }}>
+      {/* Tab Header */}
+      <div style={{ display: 'flex', gap: 4, borderBottom: '1px solid var(--color-border)', background: 'var(--color-surface)', paddingLeft: 24 }}>
         {TABS.map(tab => (
           <button
             key={tab.id}
@@ -102,16 +189,132 @@ export const MOHDashboard: React.FC = () => {
         ))}
       </div>
 
-      {/* Tab content */}
+      {/* Tab 1: Clinic Map Manager */}
       {activeTab === 'clinics' ? (
-        // Full-height, no padding — ClinicManager manages its own layout
         <div style={{ flex: 1, overflow: 'hidden' }}>
           <ClinicManager />
         </div>
-      ) : (
-        // Original supervisor dashboard
+      ) : activeTab === 'parents' ? (
+        /* Tab 2: Manage Parents Section */
         <div style={{ padding: 24, overflowY: 'auto', flex: 1 }}>
-          <h3 className="text-h2" style={{ marginBottom: 24 }}>Supervisor Dashboard</h3>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+            <h3 className="text-h2" style={{ margin: 0 }}>Parent Clinic Assignment</h3>
+            <span style={{ color: 'var(--color-text-muted)', fontSize: 14 }}>
+              Total Registered Parents: <strong>{parents.length}</strong>
+            </span>
+          </div>
+
+          {/* Search bar */}
+          <div className="card" style={{ marginBottom: 24, padding: 16 }}>
+            <div style={{ position: 'relative' }}>
+              <Search size={18} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
+              <input
+                type="text"
+                className="input-field"
+                style={{ paddingLeft: 38 }}
+                placeholder="Search parent by name, email, or contact number..."
+                value={parentSearch}
+                onChange={e => setParentSearch(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+            {loading ? (
+              <div style={{ padding: 40, textAlign: 'center', color: 'var(--color-text-muted)' }}>Loading parents list...</div>
+            ) : filteredParents.length === 0 ? (
+              <div style={{ padding: 40, textAlign: 'center', color: 'var(--color-text-muted)' }}>
+                No parents found.
+              </div>
+            ) : (
+              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: 14 }}>
+                <thead>
+                  <tr style={{ backgroundColor: 'var(--color-bg)', borderBottom: '1px solid var(--color-border)' }}>
+                    <th style={{ padding: '14px 20px', fontWeight: 600 }}>Parent Info</th>
+                    <th style={{ padding: '14px 20px', fontWeight: 600 }}>Contact Info</th>
+                    <th style={{ padding: '14px 20px', fontWeight: 600 }}>Children</th>
+                    <th style={{ padding: '14px 20px', fontWeight: 600 }}>Assigned Clinic / Hospital</th>
+                    <th style={{ padding: '14px 20px', fontWeight: 600, textAlign: 'right' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredParents.map((parent) => (
+                    <tr key={parent.profile_id} style={{ borderBottom: '1px solid var(--color-border)' }}>
+                      <td style={{ padding: '14px 20px' }}>
+                        <div style={{ fontWeight: 600 }}>{parent.full_name || 'N/A'}</div>
+                        <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>{parent.email}</div>
+                      </td>
+                      <td style={{ padding: '14px 20px' }}>
+                        {parent.contact_number ? (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <Phone size={14} color="var(--color-text-muted)" /> {parent.contact_number}
+                          </div>
+                        ) : (
+                          <span style={{ color: 'var(--color-text-muted)' }}>—</span>
+                        )}
+                      </td>
+                      <td style={{ padding: '14px 20px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <Baby size={16} color="var(--color-primary)" />
+                          <span style={{ fontWeight: 600 }}>{parent.children_count || 0}</span>
+                        </div>
+                      </td>
+                      <td style={{ padding: '14px 20px' }}>
+                        {parent.hospital ? (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--color-primary)', fontWeight: 600 }}>
+                            <Building2 size={16} /> {parent.hospital}
+                          </div>
+                        ) : (
+                          <span style={{ color: 'var(--color-warning)', fontWeight: 500 }}>Unassigned</span>
+                        )}
+                      </td>
+                      <td style={{ padding: '14px 20px', textAlign: 'right' }}>
+                        {assigningParentId === parent.profile_id ? (
+                          <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+                            <select
+                              className="input-field"
+                              value={parentHospital}
+                              onChange={e => setParentHospital(e.target.value)}
+                              style={{ padding: '6px 10px', minWidth: 180, fontSize: 13 }}
+                            >
+                              <option value="">Select Clinic...</option>
+                              {clinics.map(c => (
+                                <option key={c.id} value={c.name}>{c.name}</option>
+                              ))}
+                            </select>
+                            <button className="btn btn-primary" style={{ padding: '6px 12px', fontSize: 13 }} onClick={() => handleAssignParentClinic(parent.profile_id)}>Save</button>
+                            <button className="btn btn-secondary" style={{ padding: '6px 12px', fontSize: 13 }} onClick={() => { setAssigningParentId(null); setParentHospital(''); }}>Cancel</button>
+                          </div>
+                        ) : (
+                          <button
+                            className="btn btn-primary"
+                            style={{ padding: '6px 14px', fontSize: 13 }}
+                            onClick={() => { setAssigningParentId(parent.profile_id); setParentHospital(parent.hospital || ''); }}
+                          >
+                            {parent.hospital ? 'Change Clinic' : 'Assign Clinic'}
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </div>
+      ) : (
+        /* Tab 3: Supervisor Dashboard (Midwives Management) */
+        <div style={{ padding: 24, overflowY: 'auto', flex: 1 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+            <h3 className="text-h2" style={{ margin: 0 }}>Midwives Management</h3>
+            <button
+              className="btn btn-primary"
+              style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+              onClick={() => setShowAddMidwifeModal(true)}
+            >
+              <UserPlus size={18} /> Register New Midwife
+            </button>
+          </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '24px', marginBottom: 32 }}>
             <div className="card" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
@@ -135,6 +338,7 @@ export const MOHDashboard: React.FC = () => {
             </div>
           </div>
 
+          {/* Pending Hospital Assignments */}
           <div className="card">
             <h4 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
               <Users size={20} color="var(--color-primary)" /> Pending Hospital Assignments
@@ -170,7 +374,7 @@ export const MOHDashboard: React.FC = () => {
                             <option key={c.id} value={c.name}>{c.name}</option>
                           ))}
                         </select>
-                        <button className="btn btn-primary" style={{ padding: '8px 16px' }} onClick={() => handleAssign(phm.profile_id)}>Assign</button>
+                        <button className="btn btn-primary" style={{ padding: '8px 16px' }} onClick={() => handleAssignMidwife(phm.profile_id)}>Assign</button>
                         <button className="btn btn-secondary" style={{ padding: '8px 16px' }} onClick={() => { setAssigningId(null); setHospital(''); }}>Cancel</button>
                       </div>
                     ) : (
@@ -213,7 +417,7 @@ export const MOHDashboard: React.FC = () => {
                             <option key={c.id} value={c.name}>{c.name}</option>
                           ))}
                         </select>
-                        <button className="btn btn-primary" style={{ padding: '8px 16px' }} onClick={() => handleAssign(phm.profile_id)}>Save</button>
+                        <button className="btn btn-primary" style={{ padding: '8px 16px' }} onClick={() => handleAssignMidwife(phm.profile_id)}>Save</button>
                         <button className="btn btn-secondary" style={{ padding: '8px 16px' }} onClick={() => { setAssigningId(null); setHospital(''); }}>Cancel</button>
                       </div>
                     ) : (
@@ -223,13 +427,125 @@ export const MOHDashboard: React.FC = () => {
                           <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-primary)' }}>{phm.hospital}</span>
                         </div>
                         <button className="btn btn-secondary" style={{ padding: '6px 12px', fontSize: 14 }} onClick={() => { setAssigningId(phm.profile_id); setHospital(phm.hospital); }}>Edit</button>
-                        <button className="btn btn-secondary" style={{ padding: '6px 12px', fontSize: 14, color: 'var(--color-error)', borderColor: 'rgba(239, 68, 68, 0.2)', background: 'rgba(239, 68, 68, 0.05)' }} onClick={() => handleUnassign(phm.profile_id)}>Remove</button>
+                        <button className="btn btn-secondary" style={{ padding: '6px 12px', fontSize: 14, color: 'var(--color-error)', borderColor: 'rgba(239, 68, 68, 0.2)', background: 'rgba(239, 68, 68, 0.05)' }} onClick={() => handleUnassignMidwife(phm.profile_id)}>Remove</button>
                       </div>
                     )}
                   </div>
                 ))}
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Register Midwife Modal */}
+      {showAddMidwifeModal && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1000,
+          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20
+        }}>
+          <div className="card" style={{ width: '100%', maxWidth: 500, padding: 28, position: 'relative' }}>
+            <button
+              onClick={() => setShowAddMidwifeModal(false)}
+              style={{ position: 'absolute', top: 16, right: 16, background: 'none', border: 'none', cursor: 'pointer' }}
+            >
+              <X size={20} color="var(--color-text-muted)" />
+            </button>
+
+            <h4 style={{ fontSize: 20, fontWeight: 700, marginBottom: 16 }}>Register New Midwife (PHM)</h4>
+
+            {createError && (
+              <div style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', color: 'var(--color-error)', padding: '10px 14px', borderRadius: 6, marginBottom: 16, fontSize: 14 }}>
+                {createError}
+              </div>
+            )}
+
+            {createSuccess && (
+              <div style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)', color: 'var(--color-success)', padding: '10px 14px', borderRadius: 6, marginBottom: 16, fontSize: 14 }}>
+                {createSuccess}
+              </div>
+            )}
+
+            <form onSubmit={handleCreateMidwifeSubmit}>
+              <div className="input-group">
+                <label className="input-label">Full Name</label>
+                <input
+                  type="text"
+                  className="input-field"
+                  value={midwifeFullName}
+                  onChange={e => setMidwifeFullName(e.target.value)}
+                  required
+                  placeholder="e.g. Mary Perera"
+                />
+              </div>
+
+              <div className="input-group">
+                <label className="input-label">Email Address</label>
+                <input
+                  type="email"
+                  className="input-field"
+                  value={midwifeEmail}
+                  onChange={e => setMidwifeEmail(e.target.value)}
+                  required
+                  placeholder="e.g. mary.perera@moh.gov"
+                />
+              </div>
+
+              <div className="input-group">
+                <label className="input-label">Contact Number (Optional)</label>
+                <input
+                  type="tel"
+                  className="input-field"
+                  value={midwifeContact}
+                  onChange={e => setMidwifeContact(e.target.value)}
+                  placeholder="e.g. 0771234567"
+                />
+              </div>
+
+              <div className="input-group">
+                <label className="input-label">Assign Hospital/Clinic (Optional)</label>
+                <select
+                  className="input-field"
+                  value={midwifeInitialClinic}
+                  onChange={e => setMidwifeInitialClinic(e.target.value)}
+                >
+                  <option value="">Leave Unassigned</option>
+                  {clinics.map(c => (
+                    <option key={c.id} value={c.name}>{c.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="input-group" style={{ marginBottom: 24 }}>
+                <label className="input-label">Password</label>
+                <input
+                  type="password"
+                  className="input-field"
+                  value={midwifePassword}
+                  onChange={e => setMidwifePassword(e.target.value)}
+                  required
+                  placeholder="••••••••"
+                />
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setShowAddMidwifeModal(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={isCreating}
+                >
+                  {isCreating ? 'Registering...' : 'Register Midwife'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
