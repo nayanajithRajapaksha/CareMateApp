@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Users, CheckCircle, Clock, Map, LayoutDashboard, UserPlus, Search, Building2, Phone, X, Baby } from 'lucide-react';
+import { Users, CheckCircle, Clock, Map, LayoutDashboard, UserPlus, Search, Building2, Phone, X, Baby, BookOpen } from 'lucide-react';
 import { staffService } from '../services/staffService';
 import { clinicService } from '../services/clinicService';
 import { ClinicManager, type Clinic } from './ClinicManager';
+import { BlogManager } from '../components/BlogManager';
 
-type Tab = 'dashboard' | 'parents' | 'clinics';
+type Tab = 'dashboard' | 'parents' | 'clinics' | 'blogs';
 
 interface ParentUser {
   profile_id: string;
@@ -22,10 +23,10 @@ export const MOHDashboard: React.FC = () => {
   const [assignedPhms, setAssignedPhms] = useState<any[]>([]);
   const [parents, setParents] = useState<ParentUser[]>([]);
   const [clinics, setClinics] = useState<Clinic[]>([]);
-  
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  
+
   // Midwife assignment state
   const [assigningId, setAssigningId] = useState<string | null>(null);
   const [hospital, setHospital] = useState('');
@@ -161,6 +162,7 @@ export const MOHDashboard: React.FC = () => {
 
   const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
     { id: 'dashboard', label: 'Midwives Overview', icon: <LayoutDashboard size={16} /> },
+    { id: 'blogs',     label: 'Educational Blogs', icon: <BookOpen size={16} /> },
     { id: 'parents',   label: 'Manage Parents',    icon: <Users size={16} /> },
     { id: 'clinics',   label: 'Clinic Map Manager',icon: <Map size={16} /> },
   ];
@@ -189,8 +191,12 @@ export const MOHDashboard: React.FC = () => {
         ))}
       </div>
 
-      {/* Tab 1: Clinic Map Manager */}
-      {activeTab === 'clinics' ? (
+      {/* Tab Renderers */}
+      {activeTab === 'blogs' ? (
+        <div style={{ flex: 1, overflowY: 'auto' }}>
+          <BlogManager />
+        </div>
+      ) : activeTab === 'clinics' ? (
         <div style={{ flex: 1, overflow: 'hidden' }}>
           <ClinicManager />
         </div>

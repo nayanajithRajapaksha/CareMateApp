@@ -1,36 +1,114 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, TextInput, TouchableOpacity, Image } from 'react-native';
-import { Search, ArrowRight } from 'lucide-react-native';
+import React, { useState, useEffect } from 'react';
+import { 
+  View, Text, StyleSheet, SafeAreaView, ScrollView, TextInput, 
+  TouchableOpacity, Image, ActivityIndicator 
+} from 'react-native';
+import { Search, ArrowRight, BookOpen } from 'lucide-react-native';
 import { colors, typography, layout } from '../theme';
+import { blogService, type Blog } from '../services/blogService';
+import { BlogDetailModal } from '../components/BlogDetailModal';
 
-const filterTopics = ['All Topics', 'Nutrition', 'Vaccinations', 'Mental Health'];
+const filterTopics = ['All Topics', 'Nutrition', 'Vaccinations', 'Mental Health', 'Child Development', 'General Health'];
 
-const recentArticles = [
+// Fallback seed articles in case backend has no records yet
+const fallbackArticles: Blog[] = [
   {
-    id: '1',
+    id: 'f1',
     category: 'Nutrition',
     title: 'The Essential Breastfeeding Guide for New Mothers',
-    readTime: '5 min read',
-    image: 'https://images.unsplash.com/photo-1544928147-79a2dbc1f389?w=300&q=80' // Mock image of mother/baby
+    subtitle: 'Learn optimal positioning, latching techniques, and nutrition advice for newborn care.',
+    read_time: '5 min read',
+    author_name: 'Dr. Perera (MOH)',
+    author_role: 'moh',
+    cover_image: 'https://images.unsplash.com/photo-1544928147-79a2dbc1f389?w=600&q=80',
+    status: 'published',
+    content_blocks: [
+      { id: 'b1', type: 'subtitle', text: 'Why Breastfeeding is Vital' },
+      { id: 'b2', type: 'text', text: 'Breast milk provides the ideal balance of nutrients for your baby. It has antibodies that help your baby fight off viruses and bacteria.' },
+      { id: 'b3', type: 'image', url: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=80', caption: 'Balanced mother & child nutrition meal' }
+    ]
   },
   {
-    id: '2',
-    category: 'Health Basics',
+    id: 'f2',
+    category: 'General Health',
     title: 'Managing Common Fevers in Toddlers at Home',
-    readTime: '4 min read',
-    image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&q=80' // Mock thermometer image
+    subtitle: 'Recognizing high fever warning signs and safe home care remedies.',
+    read_time: '4 min read',
+    author_name: 'CareMate Health Team',
+    author_role: 'admin',
+    cover_image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=600&q=80',
+    status: 'published',
+    content_blocks: [
+      { id: 'b1', type: 'subtitle', text: 'When to Treat a Fever' },
+      { id: 'b2', type: 'text', text: 'A fever is usually a sign that your child’s body is fighting off an infection. Keep your child hydrated and well-rested.' }
+    ]
   },
   {
-    id: '3',
-    category: 'Nutrition',
-    title: 'Healthy Meal Plans for Picky Eaters',
-    readTime: '7 min read',
-    image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=300&q=80' // Mock healthy food
+    id: 'f3',
+    category: 'Vaccinations',
+    title: 'Understanding Childhood Immunization Schedule',
+    subtitle: 'Protecting your child with timely vaccines from birth through 5 years.',
+    read_time: '6 min read',
+    author_name: 'MOH Officer',
+    author_role: 'moh',
+    cover_image: 'https://images.unsplash.com/photo-1631815587646-b85a1bb02246?w=600&q=80',
+    status: 'published',
+    content_blocks: [
+      { id: 'b1', type: 'subtitle', text: 'Importance of Vaccine Timing' },
+      { id: 'b2', type: 'text', text: 'Sticking to the recommended vaccination schedule protects young children before they are exposed to life-threatening diseases.' }
+    ]
   }
 ];
 
 export const LearnScreen: React.FC = () => {
   const [activeTopic, setActiveTopic] = useState('All Topics');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [blogs, setBlogs] = useState<Blog[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Modal State
+  const [selectedBlog, setSelectedBlog] = useState<Blog | null>(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
+  const fetchBlogs = async () => {
+    setLoading(true);
+    try {
+      const fetched = await blogService.getBlogs(
+        activeTopic !== 'All Topics' ? activeTopic : undefined,
+        searchQuery || undefined
+      );
+
+      if (fetched && fetched.length > 0) {
+        setBlogs(fetched);
+      } else {
+        // Filter fallback articles if API returns empty
+        const filtered = fallbackArticles.filter(b => {
+          const matchTopic = activeTopic === 'All Topics' || b.category.toLowerCase() === activeTopic.toLowerCase();
+          const matchSearch = !searchQuery || b.title.toLowerCase().includes(searchQuery.toLowerCase()) || (b.subtitle && b.subtitle.toLowerCase().includes(searchQuery.toLowerCase()));
+          return matchTopic && matchSearch;
+        });
+        setBlogs(filtered);
+      }
+    } catch (err) {
+      console.error('Failed to load blogs in LearnScreen:', err);
+      setBlogs(fallbackArticles);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchBlogs();
+  }, [activeTopic, searchQuery]);
+
+  const handleOpenBlog = (blog: Blog) => {
+    setSelectedBlog(blog);
+    setIsModalVisible(true);
+  };
+
+  // Featured article is either first blog or null
+  const featuredBlog = blogs.length > 0 ? blogs[0] : null;
+  const listBlogs = blogs.length > 1 ? blogs.slice(1) : blogs;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -39,6 +117,7 @@ export const LearnScreen: React.FC = () => {
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Health Education</Text>
+          <Text style={styles.headerSubtitle}>Verified articles & child health guides from MOH officers</Text>
         </View>
 
         {/* Search Bar */}
@@ -48,6 +127,8 @@ export const LearnScreen: React.FC = () => {
             style={styles.searchInput}
             placeholder="Search topics, symptoms, or guides..."
             placeholderTextColor={colors.textMuted}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
           />
         </View>
 
@@ -74,48 +155,90 @@ export const LearnScreen: React.FC = () => {
           })}
         </ScrollView>
 
-        {/* Featured Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Featured</Text>
-          <View style={styles.featuredCard}>
-            <View style={styles.featuredImageContainer}>
-              <Image 
-                source={{ uri: 'https://images.unsplash.com/photo-1631815587646-b85a1bb02246?w=600&q=80' }} // Mock doctor and child image
-                style={styles.featuredImage}
-              />
-              <View style={styles.imageBadge}>
-                <Text style={styles.imageBadgeText}>Vaccinations</Text>
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={colors.primary} />
+            <Text style={styles.loadingText}>Loading articles...</Text>
+          </View>
+        ) : (
+          <>
+            {/* Featured Section */}
+            {featuredBlog && !searchQuery && activeTopic === 'All Topics' && (
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Featured</Text>
+                <TouchableOpacity 
+                  style={styles.featuredCard} 
+                  activeOpacity={0.9}
+                  onPress={() => handleOpenBlog(featuredBlog)}
+                >
+                  <View style={styles.featuredImageContainer}>
+                    <Image 
+                      source={{ uri: featuredBlog.cover_image || 'https://images.unsplash.com/photo-1631815587646-b85a1bb02246?w=600&q=80' }} 
+                      style={styles.featuredImage}
+                    />
+                    <View style={styles.imageBadge}>
+                      <Text style={styles.imageBadgeText}>{featuredBlog.category}</Text>
+                    </View>
+                  </View>
+                  <View style={styles.featuredContent}>
+                    <Text style={styles.featuredTitle}>{featuredBlog.title}</Text>
+                    {featuredBlog.subtitle && (
+                      <Text style={styles.featuredDescription} numberOfLines={2}>
+                        {featuredBlog.subtitle}
+                      </Text>
+                    )}
+                    <View style={styles.readMoreBtn}>
+                      <Text style={styles.readMoreText}>Read Article</Text>
+                      <ArrowRight color={colors.primary} size={16} style={{ marginLeft: 4 }} />
+                    </View>
+                  </View>
+                </TouchableOpacity>
               </View>
-            </View>
-            <View style={styles.featuredContent}>
-              <Text style={styles.featuredTitle}>Understanding Childhood Immunizations</Text>
-              <Text style={styles.featuredDescription}>
-                A comprehensive guide for parents on the recommended vaccine schedule, benefits, and...
-              </Text>
-              <TouchableOpacity style={styles.readMoreBtn}>
-                <Text style={styles.readMoreText}>Read More</Text>
-                <ArrowRight color={colors.primary} size={16} style={{ marginLeft: 4 }} />
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
+            )}
 
-        {/* Recent Articles */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Recent Articles</Text>
-          <View style={styles.articlesList}>
-            {recentArticles.map(article => (
-              <TouchableOpacity key={article.id} style={styles.articleCard}>
-                <Image source={{ uri: article.image }} style={styles.articleImage} />
-                <View style={styles.articleInfo}>
-                  <Text style={styles.articleCategory}>{article.category}</Text>
-                  <Text style={styles.articleTitle} numberOfLines={2}>{article.title}</Text>
-                  <Text style={styles.articleReadTime}>{article.readTime}</Text>
+            {/* Articles List */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>
+                {activeTopic !== 'All Topics' ? `${activeTopic} Articles` : 'All Articles'} ({blogs.length})
+              </Text>
+
+              {blogs.length === 0 ? (
+                <View style={styles.emptyContainer}>
+                  <BookOpen color={colors.textMuted} size={40} />
+                  <Text style={styles.emptyText}>No health articles found matching your criteria.</Text>
                 </View>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
+              ) : (
+                <View style={styles.articlesList}>
+                  {listBlogs.map(article => (
+                    <TouchableOpacity 
+                      key={article.id} 
+                      style={styles.articleCard}
+                      activeOpacity={0.8}
+                      onPress={() => handleOpenBlog(article)}
+                    >
+                      <Image 
+                        source={{ uri: article.cover_image || 'https://images.unsplash.com/photo-1544928147-79a2dbc1f389?w=300&q=80' }} 
+                        style={styles.articleImage} 
+                      />
+                      <View style={styles.articleInfo}>
+                        <Text style={styles.articleCategory}>{article.category}</Text>
+                        <Text style={styles.articleTitle} numberOfLines={2}>{article.title}</Text>
+                        <Text style={styles.articleReadTime}>{article.read_time || '5 min read'}</Text>
+                      </View>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
+            </View>
+          </>
+        )}
+
+        {/* Blog Detail Reader Modal */}
+        <BlogDetailModal
+          blog={selectedBlog}
+          visible={isModalVisible}
+          onClose={() => setIsModalVisible(false)}
+        />
 
       </ScrollView>
     </SafeAreaView>
@@ -137,6 +260,11 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     ...typography.h1,
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    color: colors.textMuted,
+    marginTop: 4,
   },
   searchContainer: {
     flexDirection: 'row',
@@ -163,14 +291,14 @@ const styles = StyleSheet.create({
   },
   filterContainer: {
     paddingHorizontal: layout.padding,
-    gap: 8, // Space between chips
+    gap: 8,
   },
   chip: {
     backgroundColor: '#E6F4F4',
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 20,
-    marginRight: 8, // Fallback for gap
+    marginRight: 8,
   },
   activeChip: {
     backgroundColor: colors.primary,
@@ -182,6 +310,16 @@ const styles = StyleSheet.create({
   },
   activeChipText: {
     color: colors.white,
+  },
+  loadingContainer: {
+    padding: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loadingText: {
+    marginTop: 12,
+    fontSize: 14,
+    color: colors.textMuted,
   },
   section: {
     paddingHorizontal: layout.padding,
@@ -261,6 +399,7 @@ const styles = StyleSheet.create({
     padding: 12,
     borderWidth: 1,
     borderColor: 'rgba(0,0,0,0.05)',
+    marginBottom: 10,
   },
   articleImage: {
     width: 80,
@@ -288,5 +427,18 @@ const styles = StyleSheet.create({
   articleReadTime: {
     fontSize: 12,
     color: colors.textMuted,
+  },
+  emptyContainer: {
+    backgroundColor: colors.white,
+    padding: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyText: {
+    marginTop: 12,
+    fontSize: 14,
+    color: colors.textMuted,
+    textAlign: 'center',
   }
 });

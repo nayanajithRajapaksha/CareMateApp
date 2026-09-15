@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet, Navigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { LayoutDashboard, Users, Activity, Settings, LogOut } from 'lucide-react';
+import { LayoutDashboard, Users, Activity, Settings, LogOut, BookOpen } from 'lucide-react';
 import logo from '../assets/logo.png';
 
 export const AppLayout: React.FC = () => {
@@ -45,6 +45,9 @@ export const AppLayout: React.FC = () => {
               <Link to="/admin/users" className={`nav-item ${location.pathname.startsWith('/admin/users') ? 'active' : ''}`}>
                 <Users size={20} /> Manage Users
               </Link>
+              <Link to="/admin/blogs" className={`nav-item ${location.pathname.startsWith('/admin/blogs') ? 'active' : ''}`}>
+                <BookOpen size={20} /> Educational Blogs
+              </Link>
             </>
           )}
 
@@ -53,6 +56,9 @@ export const AppLayout: React.FC = () => {
             <>
               <Link to="/moh" className={`nav-item ${location.pathname === '/moh' ? 'active' : ''}`}>
                 <Activity size={20} /> Overview
+              </Link>
+              <Link to="/moh/blogs" className={`nav-item ${location.pathname.startsWith('/moh/blogs') ? 'active' : ''}`}>
+                <BookOpen size={20} /> Educational Blogs
               </Link>
               <Link to="/moh/reports" className={`nav-item ${location.pathname.startsWith('/moh/reports') ? 'active' : ''}`}>
                 <LayoutDashboard size={20} /> Analytics

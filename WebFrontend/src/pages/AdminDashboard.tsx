@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { UserPlus, Users, Search, Settings, ShieldCheck, User, Building2, Phone } from 'lucide-react';
+import { UserPlus, Users, Search, Settings, ShieldCheck, User, Building2, Phone, BookOpen } from 'lucide-react';
 import { authService } from '../services/authService';
+import { BlogManager } from '../components/BlogManager';
 
 interface SystemUser {
   id: string;
@@ -18,7 +19,11 @@ export const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
 
   // Determine active view based on URL
-  const activeTab = location.pathname.includes('/users') ? 'users' : 'config';
+  const activeTab = location.pathname.includes('/blogs') 
+    ? 'blogs' 
+    : location.pathname.includes('/users') 
+    ? 'users' 
+    : 'config';
 
   // State for Registration Form
   const [email, setEmail] = useState('');
@@ -130,10 +135,19 @@ export const AdminDashboard: React.FC = () => {
           >
             <Users size={16} /> Manage Users ({totalCount > 0 ? totalCount : '...'})
           </button>
+          <button
+            className={`btn ${activeTab === 'blogs' ? 'btn-primary' : 'btn-secondary'}`}
+            style={{ padding: '8px 16px', fontSize: 14, display: 'flex', alignItems: 'center', gap: 8 }}
+            onClick={() => navigate('/admin/blogs')}
+          >
+            <BookOpen size={16} /> Educational Blogs
+          </button>
         </div>
       </div>
 
-      {activeTab === 'config' ? (
+      {activeTab === 'blogs' ? (
+        <BlogManager />
+      ) : activeTab === 'config' ? (
         /* System Config / Register MOH Section */
         <div className="card" style={{ maxWidth: 650 }}>
           <div style={{ display: 'flex', alignItems: 'center', marginBottom: 24 }}>
