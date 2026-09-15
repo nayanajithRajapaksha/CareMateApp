@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, TextInput, Image, ActivityIndicator } from 'react-native';
 import { Bell, Search, Map as MapIcon, ChevronRight, Zap, Info, ShieldPlus, PlusSquare, Activity, MapPin } from 'lucide-react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { colors, layout } from '../theme';
 import { clinicService, Clinic } from '../services/clinicService';
 
 export const SelectClinicScreen: React.FC = () => {
   const navigation = useNavigation<any>();
+  const route = useRoute<any>();
+  const mode = route.params?.mode;
+  
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState('All Vaccines');
   
@@ -85,7 +88,13 @@ export const SelectClinicScreen: React.FC = () => {
                 styles.clinicCard, 
                 !clinic.open && { opacity: 0.7 }
               ]}
-              onPress={() => navigation.navigate('ClinicDetails', { clinic })}
+              onPress={() => {
+                if (mode === 'select') {
+                  navigation.navigate('Main', { screen: 'ScheduleTab', params: { clinic } });
+                } else {
+                  navigation.navigate('ClinicDetails', { clinic });
+                }
+              }}
             >
               <View style={styles.clinicCardHeader}>
                 <View style={[

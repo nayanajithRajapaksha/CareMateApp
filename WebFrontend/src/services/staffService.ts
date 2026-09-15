@@ -13,10 +13,10 @@ export const staffService = {
       body: JSON.stringify({ profile_id: profileId, hospital }),
     });
   },
-  unassignHospital: async (profileId: string) => {
+  unassignHospital: async (profileId: string, hospital?: string) => {
     return await apiClient('/staff/unassign-hospital', {
       method: 'POST',
-      body: JSON.stringify({ profile_id: profileId }),
+      body: JSON.stringify({ profile_id: profileId, hospital }),
     });
   },
   createPHM: async (data: any) => {

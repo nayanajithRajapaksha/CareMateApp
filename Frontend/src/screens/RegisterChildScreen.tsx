@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TextInput, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native';
-import { ChevronLeft, User, Calendar, Edit2, CheckCircle2 } from 'lucide-react-native';
+import { View, Text, StyleSheet, SafeAreaView, TextInput, TouchableOpacity, ScrollView, Alert, ActivityIndicator, Modal, FlatList } from 'react-native';
+import { ChevronLeft, User, Calendar, Edit2, CheckCircle2, ChevronDown, MapPin, X } from 'lucide-react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { colors, typography, layout } from '../theme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { childService } from '../services/childService';
+import { clinicService, Clinic } from '../services/clinicService';
 
 export const RegisterChildScreen: React.FC = () => {
   const navigation = useNavigation<any>();
@@ -14,6 +15,14 @@ export const RegisterChildScreen: React.FC = () => {
   const editingChild = route.params?.child;
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [clinics, setClinics] = useState<Clinic[]>([]);
+  const [isClinicModalVisible, setIsClinicModalVisible] = useState(false);
+
+  useEffect(() => {
+    clinicService.getAll()
+      .then(data => setClinics(data))
+      .catch(err => console.error('Failed to load clinics', err));
+  }, []);
 
   const defaultForm = {
     full_name: '',
@@ -241,14 +250,15 @@ export const RegisterChildScreen: React.FC = () => {
       </View>
 
       <Text style={styles.label}>Primary Doctor/Clinic Name</Text>
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          placeholder="e.g. City General Pediatrics"
-          value={formData.primary_clinic}
-          onChangeText={(val) => updateForm('primary_clinic', val)}
-        />
-      </View>
+      <TouchableOpacity 
+        style={[styles.inputContainer, { justifyContent: 'space-between' }]}
+        onPress={() => setIsClinicModalVisible(true)}
+      >
+        <Text style={{ fontSize: 16, color: formData.primary_clinic ? colors.textDark : colors.textMuted }}>
+          {formData.primary_clinic || 'Select a registered clinic'}
+        </Text>
+        <ChevronDown color={colors.textMuted} size={20} />
+      </TouchableOpacity>
     </View>
   );
 
@@ -365,6 +375,50 @@ export const RegisterChildScreen: React.FC = () => {
           />
         )}
       </View>
+
+      {/* Clinic Selection Modal */}
+      <Modal
+        visible={isClinicModalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setIsClinicModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Select Clinic</Text>
+              <TouchableOpacity onPress={() => setIsClinicModalVisible(false)} style={styles.modalCloseBtn}>
+                <X color={colors.textDark} size={24} />
+              </TouchableOpacity>
+            </View>
+            <FlatList
+              data={clinics}
+              keyExtractor={(item) => item.id.toString()}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={styles.modalOption}
+                  onPress={() => {
+                    updateForm('primary_clinic', item.name);
+                    setIsClinicModalVisible(false);
+                  }}
+                >
+                  <View style={styles.modalOptionIcon}>
+                    <MapPin color={colors.primary} size={20} />
+                  </View>
+                  <View style={styles.modalOptionContent}>
+                    <Text style={styles.modalOptionTitle}>{item.name}</Text>
+                    {item.address && <Text style={styles.modalOptionSubtitle} numberOfLines={1}>{item.address}</Text>}
+                  </View>
+                </TouchableOpacity>
+              )}
+              contentContainerStyle={{ padding: 24, paddingBottom: 40 }}
+              ListEmptyComponent={
+                <Text style={{ textAlign: 'center', color: colors.textMuted, marginTop: 20 }}>No clinics found.</Text>
+              }
+            />
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -586,5 +640,61 @@ const styles = StyleSheet.create({
     color: colors.primary,
     fontWeight: 'bold',
     fontSize: 13,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: colors.white,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    height: '70%',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 24,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0,0,0,0.05)',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: colors.textDark,
+  },
+  modalCloseBtn: {
+    padding: 4,
+  },
+  modalOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0,0,0,0.05)',
+  },
+  modalOptionIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#F0F9F9',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  modalOptionContent: {
+    flex: 1,
+  },
+  modalOptionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.textDark,
+    marginBottom: 4,
+  },
+  modalOptionSubtitle: {
+    fontSize: 13,
+    color: colors.textMuted,
   }
 });

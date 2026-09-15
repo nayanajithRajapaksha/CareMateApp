@@ -4,9 +4,17 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import app from './app';
+import { ensureSchedulingSchema } from './config/schedulingSchema';
 
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
-  console.log(`CareMate Custom Authentication Backend running on port ${PORT}`);
-});
+ensureSchedulingSchema()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`CareMate Custom Authentication Backend running on port ${PORT}`);
+    });
+  })
+  .catch(error => {
+    console.error('Failed to initialize scheduling tables:', error);
+    process.exit(1);
+  });

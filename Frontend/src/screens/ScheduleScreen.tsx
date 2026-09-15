@@ -1,360 +1,261 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity } from 'react-native';
-import { BriefcaseMedical, ChevronLeft, ChevronRight, Sun, ArrowRight } from 'lucide-react-native';
-import { colors, typography, layout } from '../theme';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
+import { ArrowRight, BriefcaseMedical, ChevronRight, Clock, UserRound } from 'lucide-react-native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { colors, layout } from '../theme';
+import { childService } from '../services/childService';
+import { appointmentService } from '../services/appointmentService';
 
-const daysOfWeek = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-// Mock static calendar days for October 2023 snippet
-const calendarDays = [
-  { day: 29, currentMonth: false },
-  { day: 30, currentMonth: false },
-  { day: 1, currentMonth: true },
-  { day: 2, currentMonth: true },
-  { day: 3, currentMonth: true },
-  { day: 4, currentMonth: true },
-  { day: 5, currentMonth: true },
-  { day: 6, currentMonth: true },
-  { day: 7, currentMonth: true },
-  { day: 8, currentMonth: true },
-  { day: 9, currentMonth: true },
-  { day: 10, currentMonth: true },
-  { day: 11, currentMonth: true },
-  { day: 12, currentMonth: true },
-  { day: 13, currentMonth: true },
-  { day: 14, currentMonth: true }, // Selected
-  { day: 15, currentMonth: true },
-  { day: 16, currentMonth: true },
-  { day: 17, currentMonth: true },
-  { day: 18, currentMonth: true },
-  { day: 19, currentMonth: true },
-];
-
-const timeSlots = [
-  { time: '09:00 AM', available: true },
-  { time: '09:30 AM', available: false },
-  { time: '10:00 AM', available: true },
-  { time: '10:30 AM', available: true }, // Selected
-  { time: '11:00 AM', available: true },
-  { time: '11:30 AM', available: true },
-];
+const formatDate = (date: Date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+const formatTime = (time: string) => {
+  const [hourText, minute] = time.slice(0, 5).split(':');
+  const hour = Number(hourText);
+  return `${hour % 12 || 12}:${minute} ${hour >= 12 ? 'PM' : 'AM'}`;
+};
+const dateLabel = (date: Date) => date.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
 
 export const ScheduleScreen: React.FC = () => {
-  const [selectedDate, setSelectedDate] = useState(14);
-  const [selectedTime, setSelectedTime] = useState('10:30 AM');
+  const navigation = useNavigation<any>();
+  const route = useRoute<any>();
+  const clinic = route.params?.clinic;
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedTime, setSelectedTime] = useState('');
+  const [children, setChildren] = useState<any[]>([]);
+  const [selectedChildId, setSelectedChildId] = useState<string | null>(route.params?.childId || null);
+  const [slots, setSlots] = useState<any[]>([]);
+  const [myAppointments, setMyAppointments] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [booking, setBooking] = useState(false);
+  const dates = useMemo(() => Array.from({ length: 14 }, (_, index) => {
+    const date = new Date();
+    date.setHours(0, 0, 0, 0);
+    date.setDate(date.getDate() + index);
+    return date;
+  }), []);
+
+  useEffect(() => {
+    childService.getChildren().then(data => {
+      setChildren(data.children || []);
+      if (!selectedChildId && data.children?.[0]) setSelectedChildId(data.children[0].id);
+    }).catch(error => Alert.alert('Unable to load children', error.message));
+  }, [selectedChildId]);
+
+  const loadAvailability = useCallback(async () => {
+    if (!clinic?.id) {
+      setSlots([]);
+      return;
+    }
+    setLoading(true);
+    setSelectedTime('');
+    try {
+      const [data, myAppsData] = await Promise.all([
+        appointmentService.getAvailability(clinic.id, formatDate(selectedDate)),
+        appointmentService.getMine().catch(() => ({ appointments: [] }))
+      ]);
+      setSlots(data.slots || []);
+      setMyAppointments(myAppsData.appointments || []);
+    } catch (error: any) {
+      Alert.alert('Unable to load times', error.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [clinic?.id, selectedDate]);
+
+  useEffect(() => { loadAvailability(); }, [loadAvailability]);
+
+  const handleBooking = async () => {
+    if (!clinic?.id) {
+      navigation.navigate('SelectClinic', { mode: 'select' });
+      return;
+    }
+    if (!selectedChildId || !selectedTime) {
+      Alert.alert('Choose details', 'Select a child and an available 30-minute time slot.');
+      return;
+    }
+    setBooking(true);
+    try {
+      await appointmentService.book({ clinic_id: clinic.id, child_id: selectedChildId, appointment_date: formatDate(selectedDate), start_time: selectedTime });
+      Alert.alert('Booking confirmed', `${dateLabel(selectedDate)} at ${formatTime(selectedTime)}.`, [{ text: 'Done', onPress: () => loadAvailability() }]);
+    } catch (error: any) {
+      Alert.alert('Booking failed', error.message);
+      loadAvailability();
+    } finally {
+      setBooking(false);
+    }
+  };
+
+  const handleCancel = async (appointmentId: number) => {
+    setBooking(true);
+    try {
+      await appointmentService.cancel(appointmentId);
+      Alert.alert('Appointment Cancelled', 'Your appointment has been cancelled successfully.', [{ text: 'Done', onPress: () => loadAvailability() }]);
+    } catch (error: any) {
+      Alert.alert('Cancellation failed', error.message);
+    } finally {
+      setBooking(false);
+    }
+  };
+
+  const selectedChild = children.find(child => String(child.id) === String(selectedChildId));
 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Schedule Appointment</Text>
-        </View>
-
-        {/* Selected Clinic */}
-        <View style={styles.clinicCard}>
-          <View style={styles.clinicIconContainer}>
-            <BriefcaseMedical color={colors.primary} size={24} />
+        <Text style={styles.headerTitle}>Schedule Appointment</Text>
+        {clinic ? (
+          <View style={styles.clinicCard}>
+            <View style={styles.clinicIcon}><BriefcaseMedical color={colors.primary} size={24} /></View>
+            <View style={styles.flex}>
+              <Text style={styles.muted}>Selected Clinic</Text>
+              <Text style={styles.clinicName}>{clinic.name}</Text>
+              <Text style={styles.muted}>{clinic.address || clinic.type}</Text>
+            </View>
           </View>
-          <View style={styles.clinicInfo}>
-            <Text style={styles.clinicLabel}>Selected Clinic</Text>
-            <Text style={styles.clinicName}>Dediyawala Clinic</Text>
-            <Text style={styles.clinicDoctor}>Dr. Sarah Jenkins • General Practice</Text>
-          </View>
-        </View>
+        ) : (
+          <TouchableOpacity style={styles.chooseClinic} onPress={() => navigation.navigate('SelectClinic', { mode: 'select' })}>
+            <BriefcaseMedical color={colors.primary} size={22} />
+            <Text style={styles.chooseClinicText}>Choose a clinic to see available times</Text>
+            <ChevronRight color={colors.primary} size={20} />
+          </TouchableOpacity>
+        )}
 
-        {/* Date Selector */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Select Date</Text>
-            <View style={styles.monthSelector}>
-              <TouchableOpacity style={styles.monthArrow}>
-                <ChevronLeft color={colors.textDark} size={16} />
+        <Text style={styles.sectionTitle}>For which child?</Text>
+        {children.length === 0 ? (
+          <TouchableOpacity style={styles.emptyChild} onPress={() => navigation.navigate('RegisterChild')}>
+            <Text style={styles.muted}>Add a child before booking an appointment.</Text>
+          </TouchableOpacity>
+        ) : (
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.childScroll}>
+            {children.map(child => (
+              <TouchableOpacity key={child.id} style={[styles.childChip, String(child.id) === String(selectedChildId) && styles.childChipSelected]} onPress={() => setSelectedChildId(child.id)}>
+                <UserRound size={16} color={String(child.id) === String(selectedChildId) ? colors.white : colors.primary} />
+                <Text style={[styles.childChipText, String(child.id) === String(selectedChildId) && styles.selectedText]}>{child.full_name}</Text>
               </TouchableOpacity>
-              <Text style={styles.monthText}>October 2023</Text>
-              <TouchableOpacity style={styles.monthArrow}>
-                <ChevronRight color={colors.textDark} size={16} />
-              </TouchableOpacity>
-            </View>
-          </View>
+            ))}
+          </ScrollView>
+        )}
 
-          <View style={styles.calendarContainer}>
-            {/* Days of Week */}
-            <View style={styles.daysRow}>
-              {daysOfWeek.map((day, index) => (
-                <Text key={`dow-${index}`} style={styles.dowText}>{day}</Text>
-              ))}
-            </View>
+        <Text style={styles.sectionTitle}>Select date</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.dateScroll}>
+          {dates.map(date => {
+            const selected = formatDate(date) === formatDate(selectedDate);
+            return <TouchableOpacity key={formatDate(date)} style={[styles.dateChip, selected && styles.dateChipSelected]} onPress={() => setSelectedDate(date)}>
+              <Text style={[styles.dateDay, selected && styles.selectedText]}>{date.toLocaleDateString(undefined, { weekday: 'short' })}</Text>
+              <Text style={[styles.dateNumber, selected && styles.selectedText]}>{date.getDate()}</Text>
+            </TouchableOpacity>;
+          })}
+        </ScrollView>
 
-            {/* Calendar Grid */}
-            <View style={styles.calendarGrid}>
-              {calendarDays.map((item, index) => {
-                const isSelected = item.currentMonth && item.day === selectedDate;
-                return (
-                  <TouchableOpacity 
-                    key={`day-${index}`} 
-                    style={[styles.dayCell, isSelected && styles.selectedDayCell]}
-                    onPress={() => item.currentMonth && setSelectedDate(item.day)}
-                    disabled={!item.currentMonth}
-                  >
-                    <Text style={[
-                      styles.dayText, 
-                      !item.currentMonth && styles.disabledDayText,
-                      isSelected && styles.selectedDayText
-                    ]}>
-                      {item.day}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          </View>
-        </View>
-
-        {/* Time Slots */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Available Times</Text>
-          <View style={styles.timeSectionHeader}>
-            <Sun color={colors.textMuted} size={16} />
-            <Text style={styles.timeSectionText}>Morning</Text>
-          </View>
-
+        <View style={styles.timeHeading}><Text style={styles.sectionTitle}>Available times</Text><Clock color={colors.textMuted} size={18} /></View>
+        {loading ? <ActivityIndicator color={colors.primary} style={styles.loader} /> : !clinic ? <Text style={styles.muted}>Select a clinic first.</Text> : slots.length === 0 ? <Text style={styles.muted}>No midwife availability is configured for this clinic yet.</Text> : (
           <View style={styles.timeGrid}>
-            {timeSlots.map((slot, index) => {
-              const isSelected = slot.time === selectedTime;
-              return (
-                <TouchableOpacity 
-                  key={`time-${index}`}
-                  style={[
-                    styles.timeButton,
-                    !slot.available && styles.disabledTimeButton,
-                    isSelected && styles.selectedTimeButton
-                  ]}
-                  onPress={() => slot.available && setSelectedTime(slot.time)}
-                  disabled={!slot.available}
-                >
-                  <Text style={[
-                    styles.timeButtonText,
-                    !slot.available && styles.disabledTimeButtonText,
-                    isSelected && styles.selectedTimeButtonText
-                  ]}>
-                    {slot.time}
-                  </Text>
-                </TouchableOpacity>
+            {slots.map(slot => {
+              const selected = selectedTime === slot.start_time;
+              const userAppt = myAppointments.find(a => 
+                a.status === 'booked' && 
+                String(a.child_id) === String(selectedChildId) && 
+                a.start_time.slice(0, 5) === slot.start_time && 
+                formatDate(new Date(a.appointment_date)) === formatDate(selectedDate) &&
+                Number(a.clinic_id) === Number(clinic.id)
               );
+              const isUserBooked = !!userAppt;
+
+              return <TouchableOpacity 
+                key={slot.start_time} 
+                disabled={!slot.available && !isUserBooked} 
+                onPress={() => setSelectedTime(slot.start_time)} 
+                style={[
+                  styles.timeButton, 
+                  !slot.available && !isUserBooked && styles.timeDisabled, 
+                  isUserBooked && !selected && { backgroundColor: '#15803D', borderColor: '#15803D' },
+                  selected && !isUserBooked && styles.timeSelected,
+                  selected && isUserBooked && { backgroundColor: '#DC2626', borderColor: '#DC2626' }
+                ]}>
+                <Text style={[
+                  styles.timeText, 
+                  !slot.available && !isUserBooked && styles.disabledText, 
+                  isUserBooked && !selected && { color: '#FFFFFF' }, 
+                  selected && styles.selectedText
+                ]}>{formatTime(slot.start_time)}</Text>
+                <Text style={[
+                  styles.remainingText, 
+                  !slot.available && !isUserBooked && styles.disabledText, 
+                  isUserBooked && !selected && { color: '#DCFCE7' }, 
+                  selected && styles.selectedText
+                ]}>
+                  {isUserBooked ? 'Booked' : (slot.available ? `${slot.remaining} left` : 'Full')}
+                </Text>
+              </TouchableOpacity>;
             })}
           </View>
-        </View>
-
+        )}
+        {selectedChild && selectedTime && <Text style={styles.summary}>Selected {selectedChild.full_name} for {formatTime(selectedTime)} on {dateLabel(selectedDate)}.</Text>}
       </ScrollView>
-
-      {/* Footer Button */}
       <View style={styles.footer}>
-        <TouchableOpacity style={styles.continueBtn}>
-          <Text style={styles.continueBtnText}>Continue</Text>
-          <ArrowRight color={colors.white} size={20} style={{ marginLeft: 8 }} />
-        </TouchableOpacity>
+        {(() => {
+          const selectedUserAppt = myAppointments.find(a => 
+            a.status === 'booked' && 
+            String(a.child_id) === String(selectedChildId) && 
+            a.start_time.slice(0, 5) === selectedTime && 
+            formatDate(new Date(a.appointment_date)) === formatDate(selectedDate) &&
+            Number(a.clinic_id) === Number(clinic?.id)
+          );
+          const isSelectedTimeBooked = !!selectedUserAppt;
+
+          return (
+            <TouchableOpacity 
+              style={[styles.continueButton, isSelectedTimeBooked && { backgroundColor: '#DC2626' }]} 
+              onPress={isSelectedTimeBooked ? () => handleCancel(selectedUserAppt.id) : handleBooking} 
+              disabled={booking}
+            >
+              {booking ? <ActivityIndicator color={colors.white} /> : <><Text style={styles.continueText}>{!clinic ? 'Choose Clinic' : isSelectedTimeBooked ? 'Cancel Appointment' : 'Book Appointment'}</Text><ArrowRight color={colors.white} size={20} /></>}
+            </TouchableOpacity>
+          );
+        })()}
       </View>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F4FAFA',
-  },
-  scrollContent: {
-    padding: layout.padding,
-    paddingBottom: 100, // Space for footer
-  },
-  header: {
-    marginTop: 20,
-    marginBottom: 24,
-  },
-  headerTitle: {
-    ...typography.h1,
-  },
-  clinicCard: {
-    flexDirection: 'row',
-    backgroundColor: colors.white,
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 24,
-    borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.05)',
-    alignItems: 'center',
-  },
-  clinicIconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 12,
-    backgroundColor: '#E6F4F4',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 16,
-  },
-  clinicInfo: {
-    flex: 1,
-  },
-  clinicLabel: {
-    fontSize: 12,
-    color: colors.textMuted,
-    marginBottom: 2,
-  },
-  clinicName: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: colors.textDark,
-    marginBottom: 2,
-  },
-  clinicDoctor: {
-    fontSize: 13,
-    color: colors.textMuted,
-  },
-  section: {
-    marginBottom: 24,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: colors.textDark,
-  },
-  monthSelector: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  monthArrow: {
-    padding: 4,
-  },
-  monthText: {
-    fontSize: 14,
-    color: colors.textDark,
-    fontWeight: '500',
-    marginHorizontal: 8,
-  },
-  calendarContainer: {
-    backgroundColor: colors.white,
-    borderRadius: 16,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.05)',
-  },
-  daysRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 16,
-  },
-  dowText: {
-    width: 32,
-    textAlign: 'center',
-    fontSize: 13,
-    fontWeight: 'bold',
-    color: colors.textDark,
-  },
-  calendarGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'flex-start',
-  },
-  dayCell: {
-    width: `${100 / 7}%`,
-    aspectRatio: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  selectedDayCell: {
-    backgroundColor: colors.primary,
-    borderRadius: 20, // Circular highlight
-  },
-  dayText: {
-    fontSize: 16,
-    color: colors.textDark,
-  },
-  disabledDayText: {
-    color: '#D1D5DB', // Very light grey for non-current month
-  },
-  selectedDayText: {
-    color: colors.white,
-    fontWeight: 'bold',
-  },
-  timeSectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-    marginTop: 8,
-  },
-  timeSectionText: {
-    fontSize: 14,
-    color: colors.textMuted,
-    marginLeft: 6,
-  },
-  timeGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    gap: 12, // Requires RN 0.71+, else we use margins. Let's use standard spacing.
-  },
-  timeButton: {
-    width: '48%', // 2 columns with a bit of space
-    backgroundColor: colors.white,
-    borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.1)',
-    borderRadius: 12,
-    paddingVertical: 14,
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  selectedTimeButton: {
-    backgroundColor: '#B2DFDB', // Light teal fill
-    borderColor: colors.primary,
-    borderWidth: 1.5,
-  },
-  disabledTimeButton: {
-    backgroundColor: '#E5E7EB',
-    borderColor: '#E5E7EB',
-  },
-  timeButtonText: {
-    fontSize: 15,
-    color: colors.textDark,
-    fontWeight: '500',
-  },
-  selectedTimeButtonText: {
-    color: colors.textDark,
-    fontWeight: '600',
-  },
-  disabledTimeButtonText: {
-    color: '#9CA3AF',
-  },
-  footer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    padding: layout.padding,
-    paddingBottom: 32, // Extra padding for safe area
-    backgroundColor: '#F4FAFA', // Match background
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(0,0,0,0.05)',
-  },
-  continueBtn: {
-    flexDirection: 'row',
-    backgroundColor: colors.primary,
-    borderRadius: 12,
-    paddingVertical: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  continueBtnText: {
-    color: colors.white,
-    fontSize: 16,
-    fontWeight: 'bold',
-  }
+  container: { flex: 1, backgroundColor: '#F4FAFA' },
+  flex: { flex: 1 },
+  scrollContent: { padding: layout.padding, paddingBottom: 120 },
+  headerTitle: { fontSize: 26, fontWeight: '700', color: colors.textDark, marginTop: 16, marginBottom: 22 },
+  clinicCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.white, borderRadius: 16, padding: 16, borderWidth: 1, borderColor: '#D7E1E3', marginBottom: 24 },
+  clinicIcon: { width: 48, height: 48, borderRadius: 12, backgroundColor: '#D9F3F6', alignItems: 'center', justifyContent: 'center', marginRight: 14 },
+  clinicName: { fontSize: 16, fontWeight: '700', color: colors.textDark, marginVertical: 3 },
+  muted: { color: colors.textMuted, fontSize: 14 },
+  chooseClinic: { flexDirection: 'row', alignItems: 'center', padding: 18, gap: 12, backgroundColor: colors.white, borderRadius: 16, marginBottom: 24 },
+  chooseClinicText: { flex: 1, color: colors.textDark, fontWeight: '600' },
+  sectionTitle: { fontSize: 17, fontWeight: '700', color: colors.textDark, marginBottom: 12 },
+  childScroll: { marginBottom: 24 },
+  childChip: { flexDirection: 'row', alignItems: 'center', gap: 7, paddingVertical: 11, paddingHorizontal: 14, borderRadius: 20, backgroundColor: colors.white, borderWidth: 1, borderColor: '#CBD5E1', marginRight: 8 },
+  childChipSelected: { backgroundColor: colors.primary, borderColor: colors.primary },
+  childChipText: { color: colors.textDark, fontWeight: '600' },
+  selectedText: { color: colors.white },
+  emptyChild: { backgroundColor: colors.white, padding: 16, borderRadius: 12, marginBottom: 24 },
+  dateScroll: { marginBottom: 24 },
+  dateChip: { alignItems: 'center', minWidth: 58, paddingVertical: 10, borderRadius: 14, backgroundColor: colors.white, marginRight: 8, borderWidth: 1, borderColor: '#D7E1E3' },
+  dateChipSelected: { backgroundColor: colors.primary, borderColor: colors.primary },
+  dateDay: { fontSize: 12, color: colors.textMuted, marginBottom: 4 },
+  dateNumber: { fontSize: 18, fontWeight: '700', color: colors.textDark },
+  timeHeading: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  timeGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
+  timeButton: { width: '48%', backgroundColor: colors.white, borderWidth: 1, borderColor: '#CBD5E1', borderRadius: 12, paddingVertical: 12, alignItems: 'center', marginBottom: 12 },
+  timeSelected: { backgroundColor: '#B2DFDB', borderColor: colors.primary },
+  timeDisabled: { backgroundColor: '#E5E7EB', borderColor: '#E5E7EB' },
+  timeText: { color: colors.textDark, fontWeight: '600' },
+  remainingText: { color: colors.textMuted, fontSize: 12, marginTop: 3 },
+  disabledText: { color: '#9CA3AF' },
+  loader: { marginTop: 16 },
+  summary: { color: colors.primary, fontWeight: '600', marginTop: 8, lineHeight: 20 },
+  footer: { position: 'absolute', bottom: 0, left: 0, right: 0, padding: layout.padding, paddingBottom: 28, backgroundColor: '#F4FAFA', borderTopWidth: 1, borderTopColor: '#D7E1E3' },
+  continueButton: { minHeight: 54, borderRadius: 12, backgroundColor: colors.primary, flexDirection: 'row', gap: 8, justifyContent: 'center', alignItems: 'center' },
+  continueText: { color: colors.white, fontSize: 16, fontWeight: '700' },
 });

@@ -17,6 +17,59 @@
   }
 }
 
+.midwife-page {
+  width: 100%;
+  flex: 1;
+  padding: 32px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.children-section-page .midwife-workspace {
+  display: none;
+}
+
+.midwife-workspace {
+  display: grid;
+  grid-template-columns: minmax(360px, 0.9fr) minmax(520px, 1.1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.midwife-workspace-left,
+.midwife-workspace-right {
+  min-width: 0;
+}
+
+
+
+.calendar-inline-editor {
+  display: flex !important;
+}
+
+.midwife-side-card {
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+  @media (max-width: 900px) {
+    .midwife-workspace {
+      grid-template-columns: 1fr;
+    }
+  
+    .calendar-inline-editor {
+      display: flex !important;
+    }
+  }
+
+@media (max-width: 700px) {
+  .midwife-page {
+    margin: -20px;
+    padding: 20px;
+  }
+}
+
 .hero {
   position: relative;
 

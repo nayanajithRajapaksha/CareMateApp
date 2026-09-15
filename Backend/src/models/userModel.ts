@@ -6,6 +6,6 @@ export const findUserByEmail = async (email: string) => {
 };
 
 export const findProfileById = async (id: number) => {
-  const result = await clientQuery('SELECT role, full_name FROM profiles WHERE id = $1', [id]);
+  const result = await clientQuery('SELECT role, full_name, hospital FROM profiles WHERE id = $1', [id]);
   return result.rows[0] || null;
 };

@@ -96,29 +96,29 @@ const BLANK_FORM: Omit<Clinic, 'id'> = {
 };
 
 export const ClinicManager: React.FC = () => {
-  const mapRef     = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<HTMLDivElement>(null);
   const leafletRef = useRef<L.Map | null>(null);
   const markersRef = useRef<Map<number, L.Marker>>(new Map());
-  const newPinRef  = useRef<L.Marker | null>(null);
+  const newPinRef = useRef<L.Marker | null>(null);
 
-  const [clinics, setClinics]             = useState<Clinic[]>([]);
+  const [clinics, setClinics] = useState<Clinic[]>([]);
   const [loadingClinics, setLoadingClinics] = useState(true);
-  const [selectedId, setSelectedId]       = useState<number | null>(null);
-  const [search, setSearch]               = useState('');
-  const [filter, setFilter]               = useState<'all' | 'open' | 'closed'>('all');
-  const [mode, setMode]                   = useState<'view' | 'add' | 'edit'>('view');
-  const [form, setForm]                   = useState<Omit<Clinic, 'id'>>(BLANK_FORM);
-  const [formErrors, setFormErrors]       = useState<Partial<Record<keyof Clinic, string>>>({});
-  const [saving, setSaving]               = useState(false);
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [search, setSearch] = useState('');
+  const [filter, setFilter] = useState<'all' | 'open' | 'closed'>('all');
+  const [mode, setMode] = useState<'view' | 'add' | 'edit'>('view');
+  const [form, setForm] = useState<Omit<Clinic, 'id'>>(BLANK_FORM);
+  const [formErrors, setFormErrors] = useState<Partial<Record<keyof Clinic, string>>>({});
+  const [saving, setSaving] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
-  const [toast, setToast]                 = useState<{ msg: string; type: 'success' | 'error' } | null>(null);
+  const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null);
 
   // ─── Refs ───────────────────────────────────────────────────────────────────
-  const formRef       = useRef(form);
-  const modeRef       = useRef(mode);
+  const formRef = useRef(form);
+  const modeRef = useRef(mode);
   const selectedIdRef = useRef(selectedId);
-  formRef.current       = form;
-  modeRef.current       = mode;
+  formRef.current = form;
+  modeRef.current = mode;
   selectedIdRef.current = selectedId;
 
   // ── Load clinics from DB on mount ─────────────────────────────────────
@@ -234,9 +234,9 @@ export const ClinicManager: React.FC = () => {
   // ── Form validation ───────────────────────────────────────────────────────
   const validate = () => {
     const errs: typeof formErrors = {};
-    if (!form.name.trim())    errs.name    = 'Name is required';
+    if (!form.name.trim()) errs.name = 'Name is required';
     if (!form.address.trim()) errs.address = 'Address is required';
-    if (!form.lat || !form.lng) errs.lat   = 'Click a location on the map';
+    if (!form.lat || !form.lng) errs.lat = 'Click a location on the map';
     setFormErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -261,8 +261,8 @@ export const ClinicManager: React.FC = () => {
   const handleSave = async () => {
     if (!validate()) return;
     setSaving(true);
-    const currentMode       = modeRef.current;
-    const currentForm       = formRef.current;
+    const currentMode = modeRef.current;
+    const currentForm = formRef.current;
     const currentSelectedId = selectedIdRef.current;
     try {
       if (currentMode === 'add') {
@@ -307,7 +307,7 @@ export const ClinicManager: React.FC = () => {
 
   // ─────────────────────────────────────────────────────────────────────────
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 72px)', gap: 0 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 27px)', gap: 0 }}>
 
       {/* ── Top bar ─────────────────────────────────────────────────────── */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 24px', background: 'var(--color-surface)', borderBottom: '1px solid var(--color-border)' }}>
@@ -324,9 +324,9 @@ export const ClinicManager: React.FC = () => {
         <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
           {/* Stats pills */}
           <div style={{ display: 'flex', gap: 8 }}>
-            <span style={statPill('#E6F4F1', '#167979')}><Building2 size={12}/>{clinics.filter(c=>c.name.toLowerCase().includes('moh') || c.type.toLowerCase().includes('moh')).length} MOH</span>
-            <span style={statPill('#E6F4F1', '#167979')}><CheckCircle2 size={12}/>{clinics.filter(c=>c.open).length} Open</span>
-            <span style={statPill('#FEF2F2', '#EF4444')}><AlertCircle size={12}/>{clinics.filter(c=>!c.open).length} Closed</span>
+            <span style={statPill('#E6F4F1', '#167979')}><Building2 size={12} />{clinics.filter(c => c.name.toLowerCase().includes('moh') || c.type.toLowerCase().includes('moh')).length} MOH</span>
+            <span style={statPill('#E6F4F1', '#167979')}><CheckCircle2 size={12} />{clinics.filter(c => c.open).length} Open</span>
+            <span style={statPill('#FEF2F2', '#EF4444')}><AlertCircle size={12} />{clinics.filter(c => !c.open).length} Closed</span>
           </div>
           <button className="btn btn-primary" onClick={handleAddStart} style={{ gap: 6 }}>
             <Plus size={16} /> Add Clinic
@@ -351,10 +351,10 @@ export const ClinicManager: React.FC = () => {
                 onChange={e => setSearch(e.target.value)}
                 style={{ paddingLeft: 36, paddingTop: 9, paddingBottom: 9, fontSize: 14, width: '100%' }}
               />
-              {search && <button onClick={() => setSearch('')} style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-muted)' }}><X size={14}/></button>}
+              {search && <button onClick={() => setSearch('')} style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-muted)' }}><X size={14} /></button>}
             </div>
             <div style={{ display: 'flex', gap: 6 }}>
-              {(['all','open','closed'] as const).map(f => (
+              {(['all', 'open', 'closed'] as const).map(f => (
                 <button key={f} onClick={() => setFilter(f)} style={{ flex: 1, padding: '6px 0', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer', border: '1px solid', transition: 'all .15s', background: filter === f ? 'var(--color-primary)' : 'transparent', color: filter === f ? '#fff' : 'var(--color-text-muted)', borderColor: filter === f ? 'var(--color-primary)' : 'var(--color-border)' }}>
                   {f.charAt(0).toUpperCase() + f.slice(1)}
                 </button>
@@ -378,47 +378,47 @@ export const ClinicManager: React.FC = () => {
             ) : displayed.map(clinic => {
               const isMOH = clinic.name.toLowerCase().includes('moh') || clinic.type.toLowerCase().includes('moh');
               return (
-              <div
-                key={clinic.id}
-                onClick={() => { setSelectedId(clinic.id); setMode('view'); }}
-                style={{
-                  padding: 14, borderRadius: 12, marginBottom: 8, cursor: 'pointer',
-                  border: `1px solid ${selectedId === clinic.id ? 'var(--color-primary)' : 'var(--color-border)'}`,
-                  background: selectedId === clinic.id ? 'rgba(22,121,121,0.06)' : 'var(--color-surface)',
-                  transition: 'all .15s',
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1 }}>
-                    <div style={{ fontWeight: 600, fontSize: 14, color: 'var(--color-text-dark)' }}>{clinic.name}</div>
-                    {isMOH && (
-                      <span style={{ background: 'rgba(22,121,121,0.1)', color: 'var(--color-primary)', fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 6 }}>MOH</span>
-                    )}
+                <div
+                  key={clinic.id}
+                  onClick={() => { setSelectedId(clinic.id); setMode('view'); }}
+                  style={{
+                    padding: 14, borderRadius: 12, marginBottom: 8, cursor: 'pointer',
+                    border: `1px solid ${selectedId === clinic.id ? 'var(--color-primary)' : 'var(--color-border)'}`,
+                    background: selectedId === clinic.id ? 'rgba(22,121,121,0.06)' : 'var(--color-surface)',
+                    transition: 'all .15s',
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1 }}>
+                      <div style={{ fontWeight: 600, fontSize: 14, color: 'var(--color-text-dark)' }}>{clinic.name}</div>
+                      {isMOH && (
+                        <span style={{ background: 'rgba(22,121,121,0.1)', color: 'var(--color-primary)', fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 6 }}>MOH</span>
+                      )}
+                    </div>
+                    <span style={{ ...badgeStyle(clinic.open), marginLeft: 8 }}>{clinic.open ? 'Open' : 'Closed'}</span>
                   </div>
-                  <span style={{ ...badgeStyle(clinic.open), marginLeft: 8 }}>{clinic.open ? 'Open' : 'Closed'}</span>
-                </div>
-                <div style={{ fontSize: 12, color: 'var(--color-text-muted)', marginBottom: 4 }}>{clinic.type}</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: 'var(--color-text-muted)' }}>
-                  <MapPin size={11}/>{clinic.address}
-                </div>
-                {selectedId === clinic.id && (
-                  <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
-                    <button className="btn btn-secondary" style={{ flex: 1, padding: '6px 0', fontSize: 12, gap: 4 }} onClick={e => { e.stopPropagation(); handleEditStart(clinic); }}>
-                      <Pencil size={12}/> Edit
-                    </button>
-                    <button style={{ flex: 1, padding: '6px 0', fontSize: 12, gap: 4, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8, fontWeight: 600, border: '1px solid #FCA5A5', background: '#FEF2F2', color: '#EF4444', cursor: 'pointer' }} onClick={e => { e.stopPropagation(); setDeleteConfirm(clinic.id); }}>
-                      <Trash2 size={12}/> Delete
-                    </button>
+                  <div style={{ fontSize: 12, color: 'var(--color-text-muted)', marginBottom: 4 }}>{clinic.type}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: 'var(--color-text-muted)' }}>
+                    <MapPin size={11} />{clinic.address}
                   </div>
-                )}
-              </div>
-            );
+                  {selectedId === clinic.id && (
+                    <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+                      <button className="btn btn-secondary" style={{ flex: 1, padding: '6px 0', fontSize: 12, gap: 4 }} onClick={e => { e.stopPropagation(); handleEditStart(clinic); }}>
+                        <Pencil size={12} /> Edit
+                      </button>
+                      <button style={{ flex: 1, padding: '6px 0', fontSize: 12, gap: 4, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8, fontWeight: 600, border: '1px solid #FCA5A5', background: '#FEF2F2', color: '#EF4444', cursor: 'pointer' }} onClick={e => { e.stopPropagation(); setDeleteConfirm(clinic.id); }}>
+                        <Trash2 size={12} /> Delete
+                      </button>
+                    </div>
+                  )}
+                </div>
+              );
             })}
           </div>
         </div>
 
         {/* RIGHT: Map + form overlay */}
-        <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
+        <div style={{ flex: 1, position: 'relative', overflow: 'hidden', margin: '24px', borderRadius: '16px', border: '1px solid var(--color-border)', boxShadow: 'var(--shadow-sm)' }}>
 
           {/* Leaflet map */}
           <div ref={mapRef} style={{ width: '100%', height: '100%' }} />
@@ -443,7 +443,7 @@ export const ClinicManager: React.FC = () => {
                       {mode === 'add' ? 'Click the map to set location, then fill the form.' : 'Update the clinic details below.'}
                     </div>
                   </div>
-                  <button onClick={handleCancel} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}><X size={20} color="var(--color-text-muted)"/></button>
+                  <button onClick={handleCancel} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}><X size={20} color="var(--color-text-muted)" /></button>
                 </div>
 
                 {/* Location pin display */}
@@ -459,7 +459,7 @@ export const ClinicManager: React.FC = () => {
                 {/* Name */}
                 <div className="input-group">
                   <label className="input-label">Clinic Name *</label>
-                  <input className="input-field" placeholder="e.g. Kandy Clinic" value={form.name} onChange={e => setForm(f => ({...f, name: e.target.value}))} />
+                  <input className="input-field" placeholder="e.g. Kandy Clinic" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
                   {formErrors.name && <p style={errStyle}>{formErrors.name}</p>}
                 </div>
 
@@ -467,7 +467,7 @@ export const ClinicManager: React.FC = () => {
                 <div className="input-group">
                   <label className="input-label">Clinic Type *</label>
                   <div style={{ position: 'relative' }}>
-                    <select className="input-field" value={form.type} onChange={e => setForm(f => ({...f, type: e.target.value as ClinicType}))} style={{ appearance: 'none', paddingRight: 36, width: '100%' }}>
+                    <select className="input-field" value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value as ClinicType }))} style={{ appearance: 'none', paddingRight: 36, width: '100%' }}>
                       {CLINIC_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
                     </select>
                     <ChevronDown size={16} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: 'var(--color-text-muted)' }} />
@@ -477,20 +477,20 @@ export const ClinicManager: React.FC = () => {
                 {/* Address */}
                 <div className="input-group">
                   <label className="input-label">Address *</label>
-                  <input className="input-field" placeholder="Street, City" value={form.address} onChange={e => setForm(f => ({...f, address: e.target.value}))} />
+                  <input className="input-field" placeholder="Street, City" value={form.address} onChange={e => setForm(f => ({ ...f, address: e.target.value }))} />
                   {formErrors.address && <p style={errStyle}>{formErrors.address}</p>}
                 </div>
 
                 {/* Phone */}
                 <div className="input-group">
                   <label className="input-label">Phone Number</label>
-                  <input className="input-field" placeholder="011-XXXXXXX" value={form.phone || ''} onChange={e => setForm(f => ({...f, phone: e.target.value}))} />
+                  <input className="input-field" placeholder="011-XXXXXXX" value={form.phone || ''} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} />
                 </div>
 
                 {/* Hours */}
                 <div className="input-group">
                   <label className="input-label">Opening Hours</label>
-                  <input className="input-field" placeholder="08:00 – 17:00" value={form.hours || ''} onChange={e => setForm(f => ({...f, hours: e.target.value}))} />
+                  <input className="input-field" placeholder="08:00 – 17:00" value={form.hours || ''} onChange={e => setForm(f => ({ ...f, hours: e.target.value }))} />
                 </div>
 
                 {/* Open/Closed toggle */}
@@ -500,7 +500,7 @@ export const ClinicManager: React.FC = () => {
                     <span style={{ fontSize: 14, fontWeight: 500 }}>Currently Open</span>
                   </div>
                   <label style={{ position: 'relative', display: 'inline-block', width: 44, height: 24 }}>
-                    <input type="checkbox" checked={form.open} onChange={e => setForm(f => ({...f, open: e.target.checked}))} style={{ opacity: 0, width: 0, height: 0 }} />
+                    <input type="checkbox" checked={form.open} onChange={e => setForm(f => ({ ...f, open: e.target.checked }))} style={{ opacity: 0, width: 0, height: 0 }} />
                     <span style={{ position: 'absolute', cursor: 'pointer', inset: 0, background: form.open ? 'var(--color-primary)' : '#CBD5E1', borderRadius: 24, transition: 'all .2s' }}>
                       <span style={{ position: 'absolute', content: '""', height: 18, width: 18, left: form.open ? 22 : 3, bottom: 3, background: '#fff', borderRadius: '50%', transition: 'all .2s' }} />
                     </span>
@@ -511,7 +511,7 @@ export const ClinicManager: React.FC = () => {
                 <div style={{ display: 'flex', gap: 12 }}>
                   <button className="btn btn-secondary" style={{ flex: 1 }} onClick={handleCancel} disabled={saving}>Cancel</button>
                   <button className="btn btn-primary" style={{ flex: 1, opacity: saving ? 0.7 : 1 }} onClick={handleSave} disabled={saving}>
-                    {saving ? '⏳ Saving...' : <><Check size={16}/> {mode === 'add' ? 'Add Clinic' : 'Save Changes'}</>}
+                    {saving ? '⏳ Saving...' : <><Check size={16} /> {mode === 'add' ? 'Add Clinic' : 'Save Changes'}</>}
                   </button>
                 </div>
               </div>
@@ -522,28 +522,28 @@ export const ClinicManager: React.FC = () => {
           {mode === 'view' && selectedClinic && (() => {
             const isMOH = selectedClinic.name.toLowerCase().includes('moh') || selectedClinic.type.toLowerCase().includes('moh');
             return (
-            <div style={{ position: 'absolute', bottom: 24, right: 24, width: 320, background: 'var(--color-surface)', borderRadius: 16, boxShadow: '0 8px 32px rgba(0,0,0,0.14)', border: '1px solid var(--color-border)', zIndex: 800, overflow: 'hidden' }}>
-              <div style={{ padding: '14px 16px 10px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                    <span style={badgeStyle(selectedClinic.open)}>{selectedClinic.open ? 'Open' : 'Closed'}</span>
-                    {isMOH && (
-                      <span style={{ background: 'rgba(22,121,121,0.1)', color: 'var(--color-primary)', fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 6 }}>MOH</span>
-                    )}
+              <div style={{ position: 'absolute', bottom: 24, right: 24, width: 320, background: 'var(--color-surface)', borderRadius: 16, boxShadow: '0 8px 32px rgba(0,0,0,0.14)', border: '1px solid var(--color-border)', zIndex: 800, overflow: 'hidden' }}>
+                <div style={{ padding: '14px 16px 10px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                      <span style={badgeStyle(selectedClinic.open)}>{selectedClinic.open ? 'Open' : 'Closed'}</span>
+                      {isMOH && (
+                        <span style={{ background: 'rgba(22,121,121,0.1)', color: 'var(--color-primary)', fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 6 }}>MOH</span>
+                      )}
+                    </div>
+                    <div style={{ fontWeight: 700, fontSize: 16, color: 'var(--color-text-dark)', marginBottom: 2 }}>{selectedClinic.name}</div>
+                    <div style={{ fontSize: 13, color: 'var(--color-primary)', fontWeight: 500, marginBottom: 4 }}>{selectedClinic.type}</div>
+                    <div style={{ fontSize: 12, color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center', gap: 4 }}><MapPin size={11} />{selectedClinic.address}</div>
+                    {selectedClinic.phone && <div style={{ fontSize: 12, color: 'var(--color-text-muted)', marginTop: 4 }}>📞 {selectedClinic.phone}</div>}
+                    {selectedClinic.hours && <div style={{ fontSize: 12, color: 'var(--color-text-muted)', marginTop: 2 }}>🕐 {selectedClinic.hours}</div>}
                   </div>
-                  <div style={{ fontWeight: 700, fontSize: 16, color: 'var(--color-text-dark)', marginBottom: 2 }}>{selectedClinic.name}</div>
-                  <div style={{ fontSize: 13, color: 'var(--color-primary)', fontWeight: 500, marginBottom: 4 }}>{selectedClinic.type}</div>
-                  <div style={{ fontSize: 12, color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center', gap: 4 }}><MapPin size={11}/>{selectedClinic.address}</div>
-                  {selectedClinic.phone && <div style={{ fontSize: 12, color: 'var(--color-text-muted)', marginTop: 4 }}>📞 {selectedClinic.phone}</div>}
-                  {selectedClinic.hours && <div style={{ fontSize: 12, color: 'var(--color-text-muted)', marginTop: 2 }}>🕐 {selectedClinic.hours}</div>}
+                  <button onClick={() => setSelectedId(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2, marginLeft: 8 }}><X size={16} color="var(--color-text-muted)" /></button>
                 </div>
-                <button onClick={() => setSelectedId(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2, marginLeft: 8 }}><X size={16} color="var(--color-text-muted)"/></button>
+                <div style={{ display: 'flex', borderTop: '1px solid var(--color-border)' }}>
+                  <button style={infoActionBtn} onClick={() => handleEditStart(selectedClinic)}><Pencil size={14} /> Edit</button>
+                  <button style={{ ...infoActionBtn, color: '#EF4444' }} onClick={() => setDeleteConfirm(selectedClinic.id)}><Trash2 size={14} /> Delete</button>
+                </div>
               </div>
-              <div style={{ display: 'flex', borderTop: '1px solid var(--color-border)' }}>
-                <button style={infoActionBtn} onClick={() => handleEditStart(selectedClinic)}><Pencil size={14}/> Edit</button>
-                <button style={{ ...infoActionBtn, color: '#EF4444' }} onClick={() => setDeleteConfirm(selectedClinic.id)}><Trash2 size={14}/> Delete</button>
-              </div>
-            </div>
             );
           })()}
         </div>
@@ -554,16 +554,16 @@ export const ClinicManager: React.FC = () => {
         <div style={modalOverlay}>
           <div style={modalCard}>
             <div style={{ width: 56, height: 56, borderRadius: '50%', background: '#FEF2F2', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
-              <Trash2 color="#EF4444" size={24}/>
+              <Trash2 color="#EF4444" size={24} />
             </div>
             <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 8, textAlign: 'center' }}>Delete Clinic?</h3>
             <p style={{ color: 'var(--color-text-muted)', textAlign: 'center', fontSize: 14, marginBottom: 24 }}>
-              <strong>{clinics.find(c=>c.id===deleteConfirm)?.name}</strong> will be permanently removed from the registry.
+              <strong>{clinics.find(c => c.id === deleteConfirm)?.name}</strong> will be permanently removed from the registry.
             </p>
             <div style={{ display: 'flex', gap: 12 }}>
               <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setDeleteConfirm(null)}>Cancel</button>
               <button style={{ flex: 1, padding: '10px 20px', borderRadius: 12, fontWeight: 600, fontSize: 14, cursor: 'pointer', border: 'none', background: '#EF4444', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, opacity: saving ? 0.7 : 1 }} onClick={() => handleDelete(deleteConfirm)} disabled={saving}>
-                <Trash2 size={14}/> {saving ? 'Deleting...' : 'Yes, Delete'}
+                <Trash2 size={14} /> {saving ? 'Deleting...' : 'Yes, Delete'}
               </button>
             </div>
           </div>
@@ -573,7 +573,7 @@ export const ClinicManager: React.FC = () => {
       {/* ── Toast notification ───────────────────────────────────────────── */}
       {toast && (
         <div style={{ position: 'fixed', bottom: 24, left: '50%', transform: 'translateX(-50%)', background: toast.type === 'success' ? '#167979' : '#EF4444', color: '#fff', padding: '12px 24px', borderRadius: 50, fontSize: 14, fontWeight: 600, zIndex: 9999, boxShadow: '0 4px 20px rgba(0,0,0,0.2)', display: 'flex', alignItems: 'center', gap: 8 }}>
-          {toast.type === 'success' ? <CheckCircle2 size={16}/> : <AlertCircle size={16}/>}
+          {toast.type === 'success' ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
           {toast.msg}
         </div>
       )}

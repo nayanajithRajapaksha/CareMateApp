@@ -142,6 +142,7 @@ export const ClinicDetailsScreen: React.FC = () => {
                     styles.specialistActionBtn, 
                     specialist.isPrimary ? styles.specialistActionBtnPrimary : styles.specialistActionBtnSecondary
                   ]}
+                  onPress={() => specialist.isPrimary && navigation.navigate('Main', { screen: 'ScheduleTab', params: { clinic: route.params?.clinic } })}
                 >
                   <Text 
                     style={[

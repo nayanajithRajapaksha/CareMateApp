@@ -16,7 +16,7 @@ router.use(verifyToken);
 
 router.get('/unassigned-phms', requireRole('moh'), getUnassignedPHMs);
 router.get('/assigned-phms', requireRole('moh'), getAssignedPHMs);
-router.post('/assign-hospital', requireAnyRole(['moh', 'phm', 'midwife']), assignHospital);
+router.post('/assign-hospital', requireRole('moh'), assignHospital);
 router.post('/unassign-hospital', requireRole('moh'), unassignHospital);
 
 router.post('/create-phm', requireRole('moh'), createPHMByMOH);

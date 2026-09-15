@@ -115,7 +115,7 @@ export const AdminDashboard: React.FC = () => {
   };
 
   return (
-    <div>
+    <div style={{ padding: '32px', flex: 1, display: 'flex', flexDirection: 'column' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
         <h3 className="text-h2">System Administration</h3>
 

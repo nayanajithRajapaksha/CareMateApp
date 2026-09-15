@@ -7,6 +7,9 @@ export const authService = {
       body: JSON.stringify(credentials),
     });
   },
+  getProfile: async () => {
+    return await apiClient('/users/profile');
+  },
   registerPHM: async (data: any) => {
     return await apiClient('/auth/register-phm', {
       method: 'POST',
