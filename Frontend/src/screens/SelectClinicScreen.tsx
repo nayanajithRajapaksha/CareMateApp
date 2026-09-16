@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, TextInput, Image, ActivityIndicator } from 'react-native';
-import { Bell, Search, Map as MapIcon, ChevronRight, Zap, Info, ShieldPlus, PlusSquare, Activity, MapPin } from 'lucide-react-native';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
+import { Search, Map as MapIcon, ChevronRight, Zap, Info, ShieldPlus, PlusSquare, Activity, MapPin } from 'lucide-react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { colors, layout } from '../theme';
 import { clinicService, Clinic } from '../services/clinicService';
@@ -27,18 +27,6 @@ export const SelectClinicScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header (same as Dashboard) */}
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <Image source={{ uri: 'https://i.pravatar.cc/150?img=47' }} style={styles.profilePic} />
-          <Text style={styles.headerTitle}>CareMate</Text>
-        </View>
-        <TouchableOpacity style={styles.notificationBtn}>
-          <Bell color={colors.primary} size={24} />
-          <View style={styles.notificationBadge} />
-        </TouchableOpacity>
-      </View>
-
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <Text style={styles.pageTitle}>Select Clinic</Text>
         <Text style={styles.pageSubtitle}>Find a nearby clinic for your vaccination.</Text>
@@ -152,42 +140,6 @@ const styles = StyleSheet.create({
   scrollContent: {
     padding: layout.padding,
     paddingBottom: 40,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 0,
-    paddingTop: 10,
-    marginBottom: 20,
-  },
-  headerLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  profilePic: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    marginRight: 12,
-  },
-  headerTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: colors.primary,
-  },
-  notificationBtn: {
-    position: 'relative',
-    padding: 8,
-  },
-  notificationBadge: {
-    position: 'absolute',
-    top: 6,
-    right: 8,
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#EF4444',
   },
   pageTitle: {
     fontSize: 28,
