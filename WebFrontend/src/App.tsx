@@ -32,6 +32,21 @@ const RoleBasedRedirect: React.FC = () => {
   return <div>Unknown role</div>;
 };
 
+// A component to protect routes based on role
+const ProtectedRoute: React.FC<{ allowedRoles: string[], children: React.ReactNode }> = ({ allowedRoles, children }) => {
+  const { user } = useAuth();
+  if (!user) return <Navigate to="/login" replace />;
+  const role = user.role.toLowerCase();
+  
+  // Normalize roles
+  const normalizedRole = role === 'midwife' ? 'phm' : (role === 'supervisor' ? 'moh' : role);
+  
+  if (!allowedRoles.includes(normalizedRole)) {
+    return <Navigate to="/" replace />;
+  }
+  return <>{children}</>;
+};
+
 export const App: React.FC = () => {
   return (
     <AuthProvider>
@@ -42,9 +57,21 @@ export const App: React.FC = () => {
 
           <Route element={<AppLayout />}>
             <Route path="/" element={<RoleBasedRedirect />} />
-            <Route path="/phm/*" element={<PHMDashboard />} />
-            <Route path="/admin/*" element={<AdminDashboard />} />
-            <Route path="/moh/*" element={<MOHDashboard />} />
+            <Route path="/phm/*" element={
+              <ProtectedRoute allowedRoles={['phm']}>
+                <PHMDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/*" element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AdminDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/moh/*" element={
+              <ProtectedRoute allowedRoles={['moh']}>
+                <MOHDashboard />
+              </ProtectedRoute>
+            } />
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />
