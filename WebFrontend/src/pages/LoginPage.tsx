@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { ShieldCheck, UserCheck, Stethoscope, Users } from 'lucide-react';
 import logo from '../assets/logo.png';
@@ -11,8 +11,6 @@ export const LoginPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const { login } = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
 
   const handleQuickFill = (demoEmail: string, demoPass: string) => {
     setEmail(demoEmail);
