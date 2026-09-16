@@ -63,9 +63,7 @@ export const AppLayout: React.FC = () => {
               <Link to="/moh/blogs" className={`nav-item ${location.pathname.startsWith('/moh/blogs') ? 'active' : ''}`}>
                 <BookOpen size={20} /> Educational Blogs
               </Link>
-              <Link to="/moh/reports" className={`nav-item ${location.pathname.startsWith('/moh/reports') ? 'active' : ''}`}>
-                <LayoutDashboard size={20} /> Analytics
-              </Link>
+
               <Link to="/moh/parents" className={`nav-item ${location.pathname.startsWith('/moh/parents') ? 'active' : ''}`}>
                 <Users size={20} /> Manage Parents
               </Link>
