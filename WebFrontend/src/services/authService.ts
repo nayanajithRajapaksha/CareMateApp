@@ -10,6 +10,12 @@ export const authService = {
   getProfile: async () => {
     return await apiClient('/users/profile');
   },
+  updateProfile: async (data: { full_name: string, contact_number?: string }) => {
+    return await apiClient('/users/profile', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
   registerPHM: async (data: any) => {
     return await apiClient('/auth/register-phm', {
       method: 'POST',

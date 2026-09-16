@@ -1,12 +1,43 @@
 import React from 'react';
 import { Outlet, Navigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { LayoutDashboard, Users, Settings, LogOut, BookOpen, Baby, UserCheck, Building2, Map } from 'lucide-react';
+import { LayoutDashboard, Users, Settings, LogOut, BookOpen, Baby, UserCheck, Building2, Map, Edit2, X } from 'lucide-react';
 import logo from '../assets/logo.png';
 
+import { authService } from '../services/authService';
+
 export const AppLayout: React.FC = () => {
-  const { user, activeHospital, setActiveHospital, loading, logout } = useAuth();
+  const { user, activeHospital, setActiveHospital, loading, logout, updateUser } = useAuth();
   const location = useLocation();
+
+  const [isProfileModalOpen, setIsProfileModalOpen] = React.useState(false);
+  const [profileForm, setProfileForm] = React.useState({ full_name: '', contact_number: '' });
+  const [isSavingProfile, setIsSavingProfile] = React.useState(false);
+
+  // Initialize form when modal opens
+  React.useEffect(() => {
+    if (isProfileModalOpen && user) {
+      setProfileForm({
+        full_name: user.full_name || '',
+        contact_number: (user as any).contact_number || '' // Fallback if type doesn't have it
+      });
+    }
+  }, [isProfileModalOpen, user]);
+
+  const handleUpdateProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSavingProfile(true);
+    try {
+      const { profile } = await authService.updateProfile(profileForm);
+      updateUser({ full_name: profile.full_name, contact_number: profile.contact_number } as any);
+      setIsProfileModalOpen(false);
+      alert('Profile updated successfully!');
+    } catch (err: any) {
+      alert(err.message || 'Failed to update profile');
+    } finally {
+      setIsSavingProfile(false);
+    }
+  };
 
   if (loading) {
     return <div style={{ padding: 40, textAlign: 'center' }}>Loading...</div>;
@@ -89,9 +120,12 @@ export const AppLayout: React.FC = () => {
               <div style={{ backgroundColor: 'var(--color-primary)', padding: 10, borderRadius: '50%', color: '#fff', display: 'flex' }}>
                 <UserCheck size={20} />
               </div>
-              <div>
-                <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--color-text-dark)', lineHeight: 1.2, marginBottom: 2 }}>
-                  {user.full_name || 'Staff Member'}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--color-text-dark)', lineHeight: 1.2, marginBottom: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.full_name || 'Staff Member'}</span>
+                  <button onClick={() => setIsProfileModalOpen(true)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-primary)', borderRadius: 4 }}>
+                    <Edit2 size={14} />
+                  </button>
                 </div>
                 <div style={{ fontSize: 12, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>
                   {user.role}
@@ -136,6 +170,52 @@ export const AppLayout: React.FC = () => {
           <Outlet />
         </div>
       </main>
+
+      {/* Edit Profile Modal */}
+      {isProfileModalOpen && (
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 16 }}>
+          <div className="card" style={{ width: '100%', maxWidth: 400, animation: 'fadeIn 0.2s ease-out' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <h2 className="text-h2" style={{ fontSize: 20 }}>Edit Profile</h2>
+              <button onClick={() => setIsProfileModalOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-muted)' }}>
+                <X size={20} />
+              </button>
+            </div>
+            
+            <form onSubmit={handleUpdateProfile}>
+              <div className="input-group">
+                <label className="input-label">Full Name</label>
+                <input 
+                  type="text" 
+                  className="input-field" 
+                  required
+                  value={profileForm.full_name}
+                  onChange={e => setProfileForm({...profileForm, full_name: e.target.value})}
+                  placeholder="E.g. Dr. Jane Smith"
+                />
+              </div>
+
+              <div className="input-group">
+                <label className="input-label">Contact Number (Optional)</label>
+                <input 
+                  type="text" 
+                  className="input-field" 
+                  value={profileForm.contact_number}
+                  onChange={e => setProfileForm({...profileForm, contact_number: e.target.value})}
+                  placeholder="E.g. 0771234567"
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: 12, marginTop: 24 }}>
+                <button type="button" className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setIsProfileModalOpen(false)}>Cancel</button>
+                <button type="submit" className="btn btn-primary" style={{ flex: 1 }} disabled={isSavingProfile}>
+                  {isSavingProfile ? 'Saving...' : 'Save Changes'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
