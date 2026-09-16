@@ -24,7 +24,12 @@ export const verifyToken = (req: AuthRequest, res: Response, next: NextFunction)
     return;
   }
 
-  const token = authHeader.split(' ')[1];
+  const token = authHeader.replace(/^Bearer\s+/i, '').trim();
+
+  if (!token) {
+    res.status(401).json({ error: 'Access denied. Token is missing.' });
+    return;
+  }
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);

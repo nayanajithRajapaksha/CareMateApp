@@ -50,6 +50,11 @@ export const updateChild = async (req: AuthRequest, res: Response): Promise<void
     }
 
     const childId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    if (!childId) {
+      res.status(400).json({ error: 'Child ID is required.' });
+      return;
+    }
+
     const {
       full_name,
       dob,

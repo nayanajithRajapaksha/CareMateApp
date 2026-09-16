@@ -5,7 +5,9 @@ import { AuthRequest } from '../middleware/authMiddleware';
 const SLOT_MINUTES = 30;
 
 const toMinutes = (time: string): number => {
-  const [hours, minutes] = time.slice(0, 5).split(':').map(Number);
+  const [hoursText, minutesText] = time.slice(0, 5).split(':');
+  const hours = Number(hoursText ?? '0');
+  const minutes = Number(minutesText ?? '0');
   return hours * 60 + minutes;
 };
 
