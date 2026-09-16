@@ -26,13 +26,7 @@ export const LoginPage: React.FC = () => {
 
     try {
       await login({ email, password });
-
-      const from = (location.state as any)?.from?.pathname;
-      if (from && from !== '/') {
-        navigate(from, { replace: true });
-      } else {
-        window.location.href = '/';
-      }
+      window.location.href = '/';
     } catch (err: any) {
       setError(err.message || 'Login failed. Please check your credentials.');
     } finally {
