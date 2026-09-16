@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { AppLayout } from './layouts/AppLayout';
 import { LoginPage } from './pages/LoginPage';
@@ -50,7 +50,7 @@ const ProtectedRoute: React.FC<{ allowedRoles: string[], children: React.ReactNo
 export const App: React.FC = () => {
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <HashRouter>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
@@ -76,7 +76,7 @@ export const App: React.FC = () => {
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
-      </BrowserRouter>
+      </HashRouter>
     </AuthProvider>
   );
 };
