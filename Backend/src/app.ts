@@ -6,8 +6,9 @@ import staffRoutes from './routes/staffRoutes';
 import userRoutes from './routes/userRoutes';
 import clinicRoutes from './routes/clinicRoutes';
 import blogRoutes from './routes/blogRoutes';
-import { createBlogTableIfNotExists } from './models/blogModel';
 import appointmentRoutes from './routes/appointmentRoutes';
+import notificationRoutes from './routes/notificationRoutes';
+import { createBlogTableIfNotExists } from './models/blogModel';
 
 const app = express();
 
@@ -27,6 +28,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/clinics', clinicRoutes);
 app.use('/api/blogs', blogRoutes);
 app.use('/api/appointments', appointmentRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 export default app;
 

@@ -8,6 +8,9 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { authService } from '../services/authService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import { usePushNotifications } from '../hooks/usePushNotifications';
+import { profileService } from '../services/profileService';
+
 type RootStackParamList = {
   SignIn: undefined;
   SignInSuccess: undefined;
@@ -26,6 +29,7 @@ export const SignInScreen: React.FC<Props> = ({ navigation }) => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [signInMessage, setSignInMessage] = useState('');
+  const { expoPushToken } = usePushNotifications();
 
   const handleSignIn = async () => {
     if (!email.trim()) {
@@ -47,6 +51,16 @@ export const SignInScreen: React.FC<Props> = ({ navigation }) => {
 
       // Store JWT token (Assuming you have AsyncStorage setup, for now we just navigate)
       await AsyncStorage.setItem('userToken', data.token);
+
+      // Send push token to backend if available
+      if (expoPushToken?.data) {
+        try {
+          await profileService.updatePushToken(expoPushToken.data);
+          console.log('Push token sent to backend successfully');
+        } catch (e) {
+          console.warn('Failed to send push token to backend:', e);
+        }
+      }
 
       navigation.navigate('SignInSuccess');
     } catch (error: any) {

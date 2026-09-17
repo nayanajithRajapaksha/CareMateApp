@@ -17,5 +17,11 @@ export const profileService = {
       method: 'PUT',
       body: JSON.stringify(data),
     });
+  },
+  updatePushToken: async (expo_push_token: string): Promise<{ message: string }> => {
+    return await apiClient('/users/push-token', {
+      method: 'PUT',
+      body: JSON.stringify({ expo_push_token }),
+    });
   }
 };

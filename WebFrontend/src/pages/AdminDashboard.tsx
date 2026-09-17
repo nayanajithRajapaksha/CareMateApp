@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { UserPlus, Users, Search, Settings, ShieldCheck, User, Building2, Phone, BookOpen } from 'lucide-react';
+import { UserPlus, Users, Search, Settings, ShieldCheck, User, Building2, Phone, BookOpen, Bell } from 'lucide-react';
 import { authService } from '../services/authService';
 import { BlogManager } from '../components/BlogManager';
+import { NotificationManager } from './NotificationManager';
 
 interface SystemUser {
   id: string;
@@ -23,6 +24,8 @@ export const AdminDashboard: React.FC = () => {
     ? 'blogs' 
     : location.pathname.includes('/users') 
     ? 'users' 
+    : location.pathname.includes('/notifications')
+    ? 'notifications'
     : 'config';
 
   // State for Registration Form
@@ -120,7 +123,7 @@ export const AdminDashboard: React.FC = () => {
         <h3 className="text-h2">System Administration</h3>
 
         {/* Tab Switcher */}
-        <div style={{ display: 'flex', gap: 8, backgroundColor: 'var(--color-surface)', padding: 4, borderRadius: 8, border: '1px solid var(--color-border)' }}>
+        <div style={{ display: 'flex', gap: 8, backgroundColor: 'var(--color-surface)', padding: 4, borderRadius: 8, border: '1px solid var(--color-border)', flexWrap: 'wrap' }}>
           <button
             className={`btn ${activeTab === 'config' ? 'btn-primary' : 'btn-secondary'}`}
             style={{ padding: '8px 16px', fontSize: 14, display: 'flex', alignItems: 'center', gap: 8 }}
@@ -142,11 +145,20 @@ export const AdminDashboard: React.FC = () => {
           >
             <BookOpen size={16} /> Educational Blogs
           </button>
+          <button
+            className={`btn ${activeTab === 'notifications' ? 'btn-primary' : 'btn-secondary'}`}
+            style={{ padding: '8px 16px', fontSize: 14, display: 'flex', alignItems: 'center', gap: 8 }}
+            onClick={() => navigate('/admin/notifications')}
+          >
+            <Bell size={16} /> Notifications
+          </button>
         </div>
       </div>
 
       {activeTab === 'blogs' ? (
         <BlogManager />
+      ) : activeTab === 'notifications' ? (
+        <NotificationManager />
       ) : activeTab === 'config' ? (
         /* System Config / Register MOH Section */
         <div className="card" style={{ maxWidth: 650 }}>
