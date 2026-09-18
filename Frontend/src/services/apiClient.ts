@@ -13,7 +13,9 @@ export const apiClient = async (endpoint: string, options: RequestInit = {}) => 
     ...(options.headers || {}),
   };
 
-  if (!(options.body instanceof FormData)) {
+  const isFormData = options.body && (options.body instanceof FormData || (options.body as any)._parts);
+  
+  if (!isFormData) {
     headers['Content-Type'] = headers['Content-Type'] || 'application/json';
   }
 
