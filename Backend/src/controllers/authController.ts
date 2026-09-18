@@ -179,13 +179,37 @@ export const forgotPassword = async (req: Request, res: Response): Promise<void>
     );
 
     const emailHtml = `
-      <div style="font-family: sans-serif; color: #333; padding: 20px;">
-        <h2>Password Reset Code</h2>
-        <p>You requested a password reset for your CareMate account.</p>
-        <p>Your 6-digit reset code is: <strong>${otp}</strong></p>
-        <p>This code will expire in 15 minutes.</p>
-        <p>If you did not request this, please ignore this email.</p>
-      </div>
+      <!DOCTYPE html>
+      <html>
+      <body style="margin: 0; padding: 0; background-color: #f4f7f6; font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+        <div style="max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+          <!-- Header -->
+          <div style="background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%); padding: 30px 20px; text-align: center;">
+            <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 600; letter-spacing: 1px;">CareMate</h1>
+            <p style="color: #e0e7ff; margin: 10px 0 0 0; font-size: 16px;">Password Reset Request</p>
+          </div>
+          
+          <!-- Body -->
+          <div style="padding: 40px 30px;">
+            <h2 style="color: #2c3e50; font-size: 20px; margin-top: 0;">Hello,</h2>
+            <p style="color: #596a7a; font-size: 16px; line-height: 1.6;">We received a request to reset your password for your CareMate account. Your password reset code is:</p>
+            
+            <!-- Details Card -->
+            <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 25px; margin: 30px 0; text-align: center;">
+              <h1 style="color: #1e293b; font-size: 36px; letter-spacing: 4px; margin: 0;">${otp}</h1>
+            </div>
+            
+            <p style="color: #596a7a; font-size: 16px; line-height: 1.6;">This code will expire in <strong>15 minutes</strong>.</p>
+            <p style="color: #94a3b8; font-size: 14px; line-height: 1.6; margin-top: 30px;">If you didn't request a password reset, you can safely ignore this email.</p>
+          </div>
+          
+          <!-- Footer -->
+          <div style="background-color: #f8fafc; padding: 20px; text-align: center; border-top: 1px solid #edf2f7;">
+            <p style="color: #94a3b8; font-size: 14px; margin: 0;">&copy; ${new Date().getFullYear()} CareMate. All rights reserved.</p>
+          </div>
+        </div>
+      </body>
+      </html>
     `;
 
     await sendEmailReminder(normalizedEmail, 'CareMate Password Reset', emailHtml);
