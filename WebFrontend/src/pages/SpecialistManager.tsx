@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Users, Plus } from 'lucide-react';
 import { clinicService } from '../services/clinicService';
+import { apiClient } from '../services/apiClient';
 import type { Clinic } from './ClinicManager';
 
 export const SpecialistManager: React.FC = () => {
@@ -30,11 +31,8 @@ export const SpecialistManager: React.FC = () => {
   const fetchSpecialists = async (clinicId: number) => {
     setLoading(true);
     try {
-      const res = await fetch(`https://caremateapp.onrender.com/api/clinics/${clinicId}/specialists`);
-      if (res.ok) {
-        const data = await res.json();
-        setSpecialists(data.specialists);
-      }
+      const data = await apiClient(`/clinics/${clinicId}/specialists`);
+      setSpecialists(data.specialists || []);
     } catch (e) {
       console.error(e);
     } finally {
@@ -47,13 +45,8 @@ export const SpecialistManager: React.FC = () => {
     if (!selectedClinicId) return alert('Select a clinic first');
     
     try {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`https://caremateapp.onrender.com/api/clinics/${selectedClinicId}/specialists`, {
+      await apiClient(`/clinics/${selectedClinicId}/specialists`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
         body: JSON.stringify({
           full_name: fullName,
           specialty,
@@ -62,8 +55,6 @@ export const SpecialistManager: React.FC = () => {
         })
       });
 
-      if (!res.ok) throw new Error('Failed to create specialist');
-      
       setFullName('');
       setSpecialty('');
       setContactNumber('');
