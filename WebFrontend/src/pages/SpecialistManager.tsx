@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Plus, Trash2, Map } from 'lucide-react';
-import { clinicService, type Clinic } from '../services/clinicService';
+import { Users, Plus } from 'lucide-react';
+import { clinicService } from '../services/clinicService';
+import type { Clinic } from './ClinicManager';
 
 export const SpecialistManager: React.FC = () => {
   const [clinics, setClinics] = useState<Clinic[]>([]);
