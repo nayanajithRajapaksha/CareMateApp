@@ -142,27 +142,29 @@ export const AppLayout: React.FC = () => {
               </div>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, backgroundColor: 'var(--color-surface)', padding: '8px 12px', borderRadius: 8, border: '1px solid var(--color-border)' }}>
-              <Building2 size={16} color="var(--color-primary)" style={{ flexShrink: 0 }} />
-              <div style={{ flex: 1, minWidth: 0 }}>
-                {user.hospital && user.hospital.includes(',') ? (
-                  <select 
-                    className="input-field" 
-                    style={{ padding: '4px 8px', height: 'auto', fontSize: 13, fontWeight: 600, color: 'var(--color-text-dark)', width: '100%' }}
-                    value={activeHospital || ''}
-                    onChange={(e) => setActiveHospital(e.target.value)}
-                  >
-                    {user.hospital.split(',').map(h => (
-                      <option key={h.trim()} value={h.trim()}>{h.trim()}</option>
-                    ))}
-                  </select>
-                ) : (
-                  <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-text-dark)', lineHeight: 1.2 }}>
-                    {activeHospital ? activeHospital : <span style={{ color: 'var(--color-warning)' }}>No Facility</span>}
-                  </span>
-                )}
+            {role === 'phm' && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, backgroundColor: 'var(--color-surface)', padding: '8px 12px', borderRadius: 8, border: '1px solid var(--color-border)' }}>
+                <Building2 size={16} color="var(--color-primary)" style={{ flexShrink: 0 }} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  {user.hospital && user.hospital.includes(',') ? (
+                    <select 
+                      className="input-field" 
+                      style={{ padding: '4px 8px', height: 'auto', fontSize: 13, fontWeight: 600, color: 'var(--color-text-dark)', width: '100%' }}
+                      value={activeHospital || ''}
+                      onChange={(e) => setActiveHospital(e.target.value)}
+                    >
+                      {user.hospital.split(',').map(h => (
+                        <option key={h.trim()} value={h.trim()}>{h.trim()}</option>
+                      ))}
+                    </select>
+                  ) : (
+                    <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-text-dark)', lineHeight: 1.2 }}>
+                      {activeHospital ? activeHospital : <span style={{ color: 'var(--color-warning)' }}>No Facility</span>}
+                    </span>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
             <div style={{ fontSize: 11, color: 'var(--color-text-muted)', textAlign: 'center', wordBreak: 'break-all' }}>
               {user.email}
             </div>
