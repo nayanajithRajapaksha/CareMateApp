@@ -7,11 +7,13 @@ const processReminders = async (intervalDays: number) => {
   try {
     const query = `
       SELECT a.id, a.appointment_date, a.start_time, c.name AS clinic_name, 
-             u.email, p.full_name AS parent_name, p.expo_push_token
+             u.email, p.full_name AS parent_name, p.expo_push_token,
+             ch.full_name AS child_name, ch.dob AS child_dob
       FROM appointments a
       JOIN clinics c ON c.id = a.clinic_id
       JOIN app_users u ON u.id::text = a.parent_id
       JOIN profiles p ON p.id::text = a.parent_id
+      LEFT JOIN children ch ON ch.id::text = a.child_id
       WHERE a.status = 'booked' 
         AND a.appointment_date = CURRENT_DATE + INTERVAL '${intervalDays} days'
     `;
@@ -19,9 +21,38 @@ const processReminders = async (intervalDays: number) => {
     const result = await pool.query(query);
 
     for (const row of result.rows) {
-      const { email, parent_name, expo_push_token, clinic_name, appointment_date, start_time } = row;
+      const { email, parent_name, expo_push_token, clinic_name, appointment_date, start_time, child_name, child_dob } = row;
       const dateStr = new Date(appointment_date).toLocaleDateString();
       const timeStr = start_time;
+
+      let childDetailsHTML = '';
+      if (child_name) {
+        let ageText = '';
+        if (child_dob) {
+          const birthDate = new Date(child_dob);
+          const today = new Date();
+          let years = today.getFullYear() - birthDate.getFullYear();
+          let months = today.getMonth() - birthDate.getMonth();
+          if (months < 0 || (months === 0 && today.getDate() < birthDate.getDate())) {
+            years--;
+            months += 12;
+          }
+          if (today.getDate() < birthDate.getDate()) {
+            months--;
+            if (months < 0) {
+              months += 12;
+            }
+          }
+          ageText = years === 0 ? ` (${months} months)` : ` (${years} years, ${months} months)`;
+        }
+        
+        childDetailsHTML = `
+          <p style="margin: 0 0 10px 0; color: #334155; font-size: 16px;">
+            <strong style="color: #64748b; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 4px;">Patient (Child)</strong> 
+            ${child_name}${ageText}
+          </p>
+        `;
+      }
 
       const title = 'Clinic Appointment Reminder';
       const body = `Hi ${parent_name}, you have an appointment at ${clinic_name} on ${dateStr} at ${timeStr}.`;
@@ -44,6 +75,7 @@ const processReminders = async (intervalDays: number) => {
               
               <!-- Details Card -->
               <div style="background-color: #f8fafc; border-left: 4px solid #0ba360; border-radius: 4px; padding: 20px; margin: 30px 0;">
+                ${childDetailsHTML}
                 <p style="margin: 0 0 10px 0; color: #334155; font-size: 16px;">
                   <strong style="color: #64748b; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 4px;">Clinic</strong> 
                   ${clinic_name}
