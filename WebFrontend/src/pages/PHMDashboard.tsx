@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Users, Edit2, Check, X, Search, Building2, Phone, Baby, Clock } from 'lucide-react';
+import { Users, Edit2, Check, X, Search, Building2, Phone, Baby, Clock, BellRing } from 'lucide-react';
 import { phmService } from '../services/phmService';
 import { staffService } from '../services/staffService';
 
@@ -94,6 +94,7 @@ export const PHMDashboard: React.FC = () => {
 
   // Parent Assignment State
   const [parentSearch, setParentSearch] = useState('');
+  const [notifyingId, setNotifyingId] = useState<number | null>(null);
   const [availabilityDates, setAvailabilityDates] = useState<Record<string, { start_time: string; end_time: string; max_bookings: number; active: boolean }>>({});
   const [selectedAvailabilityDate, setSelectedAvailabilityDate] = useState(formatDate(new Date()));
   const [availabilityForm, setAvailabilityForm] = useState({ start_time: '09:00', end_time: '15:00', max_bookings: 1, active: false });
@@ -233,6 +234,21 @@ export const PHMDashboard: React.FC = () => {
       fetchDashboardData();
     } catch (err: any) {
       alert(err.message || 'Failed to update child.');
+    }
+  };
+
+  const handleNotifySingle = async (appointmentId: number) => {
+    if (!window.confirm('Send an immediate reminder email for this appointment?')) return;
+    
+    setNotifyingId(appointmentId);
+    try {
+      const { notificationService } = await import('../services/notificationService');
+      await notificationService.triggerSingleReminder(appointmentId);
+      alert('Reminder sent successfully!');
+    } catch (err: any) {
+      alert(err.message || 'Failed to send reminder.');
+    } finally {
+      setNotifyingId(null);
     }
   };
 
@@ -588,6 +604,7 @@ export const PHMDashboard: React.FC = () => {
                     <th style={{ padding: '12px 16px', fontWeight: 600 }}>Parent Profile</th>
                     <th style={{ padding: '12px 16px', fontWeight: 600 }}>Contact Info</th>
                     <th style={{ padding: '12px 16px', fontWeight: 600 }}>Registered Children (Age)</th>
+                    <th style={{ padding: '12px 16px', fontWeight: 600 }}>Next Appointment</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -610,7 +627,7 @@ export const PHMDashboard: React.FC = () => {
                         {p.children_list && p.children_list.length > 0 ? (
                           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                             {p.children_list.map((child: any) => (
-                              <div key={child.id} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                              <div key={child.id} style={{ display: 'flex', alignItems: 'center', gap: 6, minHeight: 24 }}>
                                 <Baby size={16} color="var(--color-primary)" />
                                 <span style={{ fontWeight: 600 }}>{child.name}</span>
                                 <span style={{ color: 'var(--color-text-muted)', fontSize: 13 }}>({childAge(child.dob)})</span>
@@ -619,6 +636,44 @@ export const PHMDashboard: React.FC = () => {
                           </div>
                         ) : (
                           <span style={{ color: 'var(--color-text-muted)' }}>No children registered</span>
+                        )}
+                      </td>
+                      <td style={{ padding: '14px 16px' }}>
+                        {p.children_list && p.children_list.length > 0 ? (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                            {p.children_list.map((child: any) => (
+                              <div key={`appt-${child.id}`} style={{ display: 'flex', alignItems: 'center', minHeight: 24 }}>
+                                {child.next_appointment_date ? (
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                    <span style={{ fontSize: 13, color: 'var(--color-primary)', fontWeight: 600, background: 'rgba(22, 121, 121, 0.1)', padding: '2px 8px', borderRadius: 4 }}>
+                                      {new Date(child.next_appointment_date).toLocaleDateString()} at {child.next_appointment_time}
+                                    </span>
+                                    {child.next_appointment_id && (
+                                      <button 
+                                        onClick={() => handleNotifySingle(child.next_appointment_id)}
+                                        disabled={notifyingId === child.next_appointment_id}
+                                        style={{ 
+                                          background: 'none', border: 'none', cursor: 'pointer', 
+                                          color: notifyingId === child.next_appointment_id ? 'var(--color-text-muted)' : 'var(--color-primary)', 
+                                          display: 'flex', alignItems: 'center', padding: 4, borderRadius: '50%',
+                                          transition: 'background-color 0.2s'
+                                        }}
+                                        onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(22, 121, 121, 0.1)'}
+                                        onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                                        title="Send reminder now"
+                                      >
+                                        <BellRing size={16} />
+                                      </button>
+                                    )}
+                                  </div>
+                                ) : (
+                                  <span style={{ fontSize: 13, color: 'var(--color-text-muted)' }}>None booked</span>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <span style={{ color: 'var(--color-text-muted)' }}>—</span>
                         )}
                       </td>
                     </tr>

@@ -11,8 +11,9 @@ const staffRoutes_1 = __importDefault(require("./routes/staffRoutes"));
 const userRoutes_1 = __importDefault(require("./routes/userRoutes"));
 const clinicRoutes_1 = __importDefault(require("./routes/clinicRoutes"));
 const blogRoutes_1 = __importDefault(require("./routes/blogRoutes"));
-const blogModel_1 = require("./models/blogModel");
 const appointmentRoutes_1 = __importDefault(require("./routes/appointmentRoutes"));
+const notificationRoutes_1 = __importDefault(require("./routes/notificationRoutes"));
+const blogModel_1 = require("./models/blogModel");
 const app = (0, express_1.default)();
 // Initialize Database Tables
 (0, blogModel_1.createBlogTableIfNotExists)();
@@ -28,5 +29,6 @@ app.use('/api/users', userRoutes_1.default);
 app.use('/api/clinics', clinicRoutes_1.default);
 app.use('/api/blogs', blogRoutes_1.default);
 app.use('/api/appointments', appointmentRoutes_1.default);
+app.use('/api/notifications', notificationRoutes_1.default);
 exports.default = app;
 //# sourceMappingURL=app.js.map

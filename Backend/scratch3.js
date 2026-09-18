@@ -3,10 +3,10 @@ const pool = new Pool({ connectionString: 'postgresql://postgres.brurxutqthyejlr
 async function check() {
   try {
     const query = `
-      SELECT CURRENT_DATE, (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Colombo')::date as sl_date;
+      SELECT id, role, hospital FROM profiles WHERE role = 'phm';
     `;
     const res = await pool.query(query);
-    console.log(res.rows[0]);
+    console.log(res.rows);
   } catch(e) {
     console.error(e);
   } finally {

@@ -21,5 +21,12 @@ export const notificationService = {
     return await apiClient('/notifications/trigger', {
       method: 'POST',
     });
+  },
+  
+  triggerSingleReminder: async (appointmentId: number): Promise<{ message: string }> => {
+    return await apiClient('/notifications/trigger-single', {
+      method: 'POST',
+      body: JSON.stringify({ appointmentId })
+    });
   }
 };

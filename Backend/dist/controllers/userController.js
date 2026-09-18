@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAllUsers = exports.updateProfile = exports.getProfile = void 0;
+exports.updatePushToken = exports.getAllUsers = exports.updateProfile = exports.getProfile = void 0;
 const db_1 = __importDefault(require("../config/db"));
 const getProfile = async (req, res) => {
     try {
@@ -71,4 +71,25 @@ const getAllUsers = async (req, res) => {
     }
 };
 exports.getAllUsers = getAllUsers;
+const updatePushToken = async (req, res) => {
+    try {
+        const userId = req.user?.id;
+        if (!userId) {
+            res.status(401).json({ error: 'Unauthorized' });
+            return;
+        }
+        const { expo_push_token } = req.body;
+        if (!expo_push_token) {
+            res.status(400).json({ error: 'expo_push_token is required' });
+            return;
+        }
+        await db_1.default.query(`UPDATE profiles SET expo_push_token = $1 WHERE id = $2`, [expo_push_token, userId]);
+        res.status(200).json({ message: 'Push token updated successfully' });
+    }
+    catch (error) {
+        console.error('Error updating push token:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+exports.updatePushToken = updatePushToken;
 //# sourceMappingURL=userController.js.map

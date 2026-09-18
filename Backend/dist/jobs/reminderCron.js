@@ -1,46 +1,47 @@
-import cron from 'node-cron';
-import pool from '../config/db';
-import { sendEmailReminder, sendPushNotification } from '../services/notificationService';
-
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.initCronJobs = exports.runReminders = exports.runSingleReminder = exports.runAllFutureReminders = void 0;
+const node_cron_1 = __importDefault(require("node-cron"));
+const db_1 = __importDefault(require("../config/db"));
+const notificationService_1 = require("../services/notificationService");
 // Helper function to send email and push notification for a single appointment row
-const sendReminderForAppointment = async (row: any) => {
-  const { email, parent_name, expo_push_token, clinic_name, appointment_date, start_time, child_name, child_dob } = row;
-  const dateStr = new Date(appointment_date).toLocaleDateString();
-  const timeStr = start_time;
-
-  let childDetailsHTML = '';
-  if (child_name) {
-    let ageText = '';
-    if (child_dob) {
-      const birthDate = new Date(child_dob);
-      const today = new Date();
-      let years = today.getFullYear() - birthDate.getFullYear();
-      let months = today.getMonth() - birthDate.getMonth();
-      if (months < 0 || (months === 0 && today.getDate() < birthDate.getDate())) {
-        years--;
-        months += 12;
-      }
-      if (today.getDate() < birthDate.getDate()) {
-        months--;
-        if (months < 0) {
-          months += 12;
+const sendReminderForAppointment = async (row) => {
+    const { email, parent_name, expo_push_token, clinic_name, appointment_date, start_time, child_name, child_dob } = row;
+    const dateStr = new Date(appointment_date).toLocaleDateString();
+    const timeStr = start_time;
+    let childDetailsHTML = '';
+    if (child_name) {
+        let ageText = '';
+        if (child_dob) {
+            const birthDate = new Date(child_dob);
+            const today = new Date();
+            let years = today.getFullYear() - birthDate.getFullYear();
+            let months = today.getMonth() - birthDate.getMonth();
+            if (months < 0 || (months === 0 && today.getDate() < birthDate.getDate())) {
+                years--;
+                months += 12;
+            }
+            if (today.getDate() < birthDate.getDate()) {
+                months--;
+                if (months < 0) {
+                    months += 12;
+                }
+            }
+            ageText = years === 0 ? ` (${months} months)` : ` (${years} years, ${months} months)`;
         }
-      }
-      ageText = years === 0 ? ` (${months} months)` : ` (${years} years, ${months} months)`;
-    }
-    
-    childDetailsHTML = `
+        childDetailsHTML = `
       <p style="margin: 0 0 10px 0; color: #334155; font-size: 16px;">
         <strong style="color: #64748b; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 4px;">Patient (Child)</strong> 
         ${child_name}${ageText}
       </p>
     `;
-  }
-
-  const title = 'Clinic Appointment Reminder';
-  const body = `Hi ${parent_name}, you have an appointment at ${clinic_name} on ${dateStr} at ${timeStr}.`;
-  
-  const html = `
+    }
+    const title = 'Clinic Appointment Reminder';
+    const body = `Hi ${parent_name}, you have an appointment at ${clinic_name} on ${dateStr} at ${timeStr}.`;
+    const html = `
     <!DOCTYPE html>
     <html>
     <body style="margin: 0; padding: 0; background-color: #f4f7f6; font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;">
@@ -84,22 +85,19 @@ const sendReminderForAppointment = async (row: any) => {
     </body>
     </html>
   `;
-
-  // Send Email
-  if (email) {
-    await sendEmailReminder(email, title, html);
-  }
-
-  // Send Push Notification
-  if (expo_push_token) {
-    await sendPushNotification(expo_push_token, title, body, { appointmentId: row.id });
-  }
+    // Send Email
+    if (email) {
+        await (0, notificationService_1.sendEmailReminder)(email, title, html);
+    }
+    // Send Push Notification
+    if (expo_push_token) {
+        await (0, notificationService_1.sendPushNotification)(expo_push_token, title, body, { appointmentId: row.id });
+    }
 };
-
 // Function to process reminders for a specific interval
-const processReminders = async (intervalDays: number) => {
-  try {
-    const query = `
+const processReminders = async (intervalDays) => {
+    try {
+        const query = `
       SELECT a.id, a.appointment_date, a.start_time, c.name AS clinic_name, 
              u.email, p.full_name AS parent_name, p.expo_push_token,
              ch.full_name AS child_name, ch.dob AS child_dob
@@ -111,22 +109,20 @@ const processReminders = async (intervalDays: number) => {
       WHERE a.status = 'booked' 
         AND a.appointment_date = (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Colombo')::date + INTERVAL '${intervalDays} days'
     `;
-
-    const result = await pool.query(query);
-
-    for (const row of result.rows) {
-      await sendReminderForAppointment(row);
+        const result = await db_1.default.query(query);
+        for (const row of result.rows) {
+            await sendReminderForAppointment(row);
+        }
     }
-  } catch (error) {
-    console.error(`Error processing ${intervalDays}-day reminders:`, error);
-  }
+    catch (error) {
+        console.error(`Error processing ${intervalDays}-day reminders:`, error);
+    }
 };
-
 // Function to process ALL future reminders regardless of interval (for manual trigger)
-export const runAllFutureReminders = async () => {
-  console.log('Manually triggering all future reminders...');
-  try {
-    const query = `
+const runAllFutureReminders = async () => {
+    console.log('Manually triggering all future reminders...');
+    try {
+        const query = `
       SELECT a.id, a.appointment_date, a.start_time, c.name AS clinic_name, 
              u.email, p.full_name AS parent_name, p.expo_push_token,
              ch.full_name AS child_name, ch.dob AS child_dob
@@ -138,23 +134,22 @@ export const runAllFutureReminders = async () => {
       WHERE a.status = 'booked' 
         AND a.appointment_date >= (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Colombo')::date
     `;
-
-    const result = await pool.query(query);
-    console.log(`Found ${result.rows.length} future appointments to send reminders for.`);
-
-    for (const row of result.rows) {
-      await sendReminderForAppointment(row);
+        const result = await db_1.default.query(query);
+        console.log(`Found ${result.rows.length} future appointments to send reminders for.`);
+        for (const row of result.rows) {
+            await sendReminderForAppointment(row);
+        }
+        console.log('Manual reminder process completed.');
     }
-    console.log('Manual reminder process completed.');
-  } catch (error) {
-    console.error('Error in runAllFutureReminders:', error);
-  }
+    catch (error) {
+        console.error('Error in runAllFutureReminders:', error);
+    }
 };
-
-export const runSingleReminder = async (appointmentId: string | number) => {
-  console.log(`Manually triggering reminder for appointment ${appointmentId}...`);
-  try {
-    const query = `
+exports.runAllFutureReminders = runAllFutureReminders;
+const runSingleReminder = async (appointmentId) => {
+    console.log(`Manually triggering reminder for appointment ${appointmentId}...`);
+    try {
+        const query = `
       SELECT a.id, a.appointment_date, a.start_time, c.name AS clinic_name, 
              u.email, p.full_name AS parent_name, p.expo_push_token,
              ch.full_name AS child_name, ch.dob AS child_dob
@@ -165,44 +160,44 @@ export const runSingleReminder = async (appointmentId: string | number) => {
       LEFT JOIN children ch ON ch.id::text = a.child_id
       WHERE a.id = $1
     `;
-
-    const result = await pool.query(query, [appointmentId]);
-    if (result.rows.length === 0) {
-      console.log(`No appointment found with ID ${appointmentId}`);
-      return;
+        const result = await db_1.default.query(query, [appointmentId]);
+        if (result.rows.length === 0) {
+            console.log(`No appointment found with ID ${appointmentId}`);
+            return;
+        }
+        await sendReminderForAppointment(result.rows[0]);
+        console.log(`Manual single reminder for ${appointmentId} sent.`);
     }
-
-    await sendReminderForAppointment(result.rows[0]);
-    console.log(`Manual single reminder for ${appointmentId} sent.`);
-  } catch (error) {
-    console.error(`Error in runSingleReminder for ${appointmentId}:`, error);
-  }
-};
-
-export const runReminders = async () => {
-  console.log('Running automated reminder process...');
-  try {
-    const settings = await pool.query('SELECT days_before FROM notification_settings');
-    const intervals = settings.rows.map(row => row.days_before);
-    
-    for (const interval of intervals) {
-      console.log(`Processing reminders for ${interval} days before...`);
-      await processReminders(interval);
+    catch (error) {
+        console.error(`Error in runSingleReminder for ${appointmentId}:`, error);
     }
-    console.log('Automated reminder process completed.');
-  } catch (error) {
-    console.error('Error in runReminders:', error);
-  }
 };
-
-export const initCronJobs = () => {
-  // Run daily at 8:00 AM
-  cron.schedule('0 8 * * *', async () => {
-    console.log('Cron triggered: Running daily reminder cron job...');
-    await runReminders();
-  }, {
-    timezone: "Asia/Colombo"
-  });
-  
-  console.log('Reminder cron jobs initialized.');
+exports.runSingleReminder = runSingleReminder;
+const runReminders = async () => {
+    console.log('Running automated reminder process...');
+    try {
+        const settings = await db_1.default.query('SELECT days_before FROM notification_settings');
+        const intervals = settings.rows.map(row => row.days_before);
+        for (const interval of intervals) {
+            console.log(`Processing reminders for ${interval} days before...`);
+            await processReminders(interval);
+        }
+        console.log('Automated reminder process completed.');
+    }
+    catch (error) {
+        console.error('Error in runReminders:', error);
+    }
 };
+exports.runReminders = runReminders;
+const initCronJobs = () => {
+    // Run daily at 8:00 AM
+    node_cron_1.default.schedule('0 8 * * *', async () => {
+        console.log('Cron triggered: Running daily reminder cron job...');
+        await (0, exports.runReminders)();
+    }, {
+        timezone: "Asia/Colombo"
+    });
+    console.log('Reminder cron jobs initialized.');
+};
+exports.initCronJobs = initCronJobs;
+//# sourceMappingURL=reminderCron.js.map

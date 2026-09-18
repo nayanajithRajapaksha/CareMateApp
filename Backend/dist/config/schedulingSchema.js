@@ -47,6 +47,15 @@ const ensureSchedulingSchema = async () => {
       ON appointments (midwife_id, appointment_date, start_time, status);
     CREATE INDEX IF NOT EXISTS appointments_parent_idx
       ON appointments (parent_id, appointment_date);
+
+    CREATE TABLE IF NOT EXISTS notification_settings (
+      id SERIAL PRIMARY KEY,
+      days_before INTEGER NOT NULL UNIQUE
+    );
+    
+    INSERT INTO notification_settings (days_before) 
+    VALUES (1), (7) 
+    ON CONFLICT DO NOTHING;
   `);
 };
 exports.ensureSchedulingSchema = ensureSchedulingSchema;

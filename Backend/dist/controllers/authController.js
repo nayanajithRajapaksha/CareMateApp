@@ -3,11 +3,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.changePassword = exports.login = exports.register = void 0;
+exports.resetPassword = exports.forgotPassword = exports.changePassword = exports.login = exports.register = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const db_1 = __importDefault(require("../config/db"));
 const userModel_1 = require("../models/userModel");
+const notificationService_1 = require("../services/notificationService");
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret';
 const register = async (req, res) => {
     const { password, full_name, contact_number } = req.body;
@@ -120,4 +121,103 @@ const changePassword = async (req, res) => {
     }
 };
 exports.changePassword = changePassword;
+const forgotPassword = async (req, res) => {
+    const { email } = req.body;
+    if (!email) {
+        res.status(400).json({ error: 'Email is required.' });
+        return;
+    }
+    const normalizedEmail = email.toLowerCase().trim();
+    try {
+        const user = await (0, userModel_1.findUserByEmail)(normalizedEmail);
+        if (!user) {
+            // Don't leak whether user exists for security reasons
+            res.status(200).json({ message: 'If that email is in our system, we have sent a reset code.' });
+            return;
+        }
+        // Generate 6 digit OTP
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        const expiresAt = new Date();
+        expiresAt.setMinutes(expiresAt.getMinutes() + 15);
+        // Delete any existing tokens for this email
+        await db_1.default.query('DELETE FROM password_reset_tokens WHERE email = $1', [normalizedEmail]);
+        // Save new token
+        await db_1.default.query('INSERT INTO password_reset_tokens (email, token, expires_at) VALUES ($1, $2, $3)', [normalizedEmail, otp, expiresAt]);
+        const emailHtml = `
+      <!DOCTYPE html>
+      <html>
+      <body style="margin: 0; padding: 0; background-color: #f4f7f6; font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+        <div style="max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+          <!-- Header -->
+          <div style="background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%); padding: 30px 20px; text-align: center;">
+            <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 600; letter-spacing: 1px;">CareMate</h1>
+            <p style="color: #e0e7ff; margin: 10px 0 0 0; font-size: 16px;">Password Reset Request</p>
+          </div>
+          
+          <!-- Body -->
+          <div style="padding: 40px 30px;">
+            <h2 style="color: #2c3e50; font-size: 20px; margin-top: 0;">Hello,</h2>
+            <p style="color: #596a7a; font-size: 16px; line-height: 1.6;">We received a request to reset your password for your CareMate account. Your password reset code is:</p>
+            
+            <!-- Details Card -->
+            <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 25px; margin: 30px 0; text-align: center;">
+              <h1 style="color: #1e293b; font-size: 36px; letter-spacing: 4px; margin: 0;">${otp}</h1>
+            </div>
+            
+            <p style="color: #596a7a; font-size: 16px; line-height: 1.6;">This code will expire in <strong>15 minutes</strong>.</p>
+            <p style="color: #94a3b8; font-size: 14px; line-height: 1.6; margin-top: 30px;">If you didn't request a password reset, you can safely ignore this email.</p>
+          </div>
+          
+          <!-- Footer -->
+          <div style="background-color: #f8fafc; padding: 20px; text-align: center; border-top: 1px solid #edf2f7;">
+            <p style="color: #94a3b8; font-size: 14px; margin: 0;">&copy; ${new Date().getFullYear()} CareMate. All rights reserved.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+        await (0, notificationService_1.sendEmailReminder)(normalizedEmail, 'CareMate Password Reset', emailHtml);
+        res.status(200).json({ message: 'If that email is in our system, we have sent a reset code.' });
+    }
+    catch (error) {
+        console.error('Forgot password error:', error);
+        res.status(500).json({ error: 'Internal server error.' });
+    }
+};
+exports.forgotPassword = forgotPassword;
+const resetPassword = async (req, res) => {
+    const { email, token, newPassword } = req.body;
+    if (!email || !token || !newPassword) {
+        res.status(400).json({ error: 'Email, token, and new password are required.' });
+        return;
+    }
+    if (newPassword.length < 6) {
+        res.status(400).json({ error: 'New password must be at least 6 characters long.' });
+        return;
+    }
+    const normalizedEmail = email.toLowerCase().trim();
+    try {
+        const tokenResult = await db_1.default.query('SELECT * FROM password_reset_tokens WHERE email = $1 AND token = $2', [normalizedEmail, token]);
+        if (tokenResult.rows.length === 0) {
+            res.status(400).json({ error: 'Invalid or expired reset code.' });
+            return;
+        }
+        const resetRecord = tokenResult.rows[0];
+        if (new Date() > new Date(resetRecord.expires_at)) {
+            await db_1.default.query('DELETE FROM password_reset_tokens WHERE email = $1', [normalizedEmail]);
+            res.status(400).json({ error: 'Reset code has expired. Please request a new one.' });
+            return;
+        }
+        const passwordHash = await bcrypt_1.default.hash(newPassword, 10);
+        await db_1.default.query('UPDATE app_users SET password_hash = $1 WHERE email = $2', [passwordHash, normalizedEmail]);
+        // Clean up the token
+        await db_1.default.query('DELETE FROM password_reset_tokens WHERE email = $1', [normalizedEmail]);
+        res.status(200).json({ message: 'Password has been reset successfully. You can now log in.' });
+    }
+    catch (error) {
+        console.error('Reset password error:', error);
+        res.status(500).json({ error: 'Internal server error.' });
+    }
+};
+exports.resetPassword = resetPassword;
 //# sourceMappingURL=authController.js.map

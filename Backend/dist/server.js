@@ -8,9 +8,11 @@ const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const app_1 = __importDefault(require("./app"));
 const schedulingSchema_1 = require("./config/schedulingSchema");
+const reminderCron_1 = require("./jobs/reminderCron");
 const PORT = process.env.PORT || 3000;
 (0, schedulingSchema_1.ensureSchedulingSchema)()
     .then(() => {
+    (0, reminderCron_1.initCronJobs)();
     app_1.default.listen(PORT, () => {
         console.log(`CareMate Custom Authentication Backend running on port ${PORT}`);
     });

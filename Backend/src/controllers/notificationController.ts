@@ -54,3 +54,45 @@ export const triggerReminders = async (req: AuthRequest, res: Response): Promise
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+export const triggerSingleReminder = async (req: AuthRequest, res: Response): Promise<void> => {
+  const { appointmentId } = req.body;
+  if (!appointmentId) {
+    res.status(400).json({ error: 'Appointment ID is required.' });
+    return;
+  }
+
+  try {
+    // Permission check for midwives (phm)
+    if (req.user?.role === 'phm' || req.user?.role === 'midwife') {
+      const appointmentRes = await pool.query(
+        `SELECT c.name as clinic_name 
+         FROM appointments a 
+         JOIN clinics c ON a.clinic_id = c.id 
+         WHERE a.id = $1`, 
+        [appointmentId]
+      );
+      
+      if (appointmentRes.rows.length === 0) {
+        res.status(404).json({ error: 'Appointment not found.' });
+        return;
+      }
+      
+      const clinicName = appointmentRes.rows[0].clinic_name;
+      const midwifeRes = await pool.query('SELECT hospital FROM profiles WHERE id = $1', [req.user.id]);
+      const assignedHospitals = midwifeRes.rows[0]?.hospital || '';
+      
+      if (!assignedHospitals.includes(clinicName)) {
+        res.status(403).json({ error: 'You can only notify parents assigned to your hospital.' });
+        return;
+      }
+    }
+
+    const { runSingleReminder } = await import('../jobs/reminderCron');
+    runSingleReminder(appointmentId).catch(error => console.error(`Error triggering single reminder for ${appointmentId}:`, error));
+    res.status(200).json({ message: 'Single reminder process started successfully.' });
+  } catch (error) {
+    console.error('Error triggering single reminder:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};

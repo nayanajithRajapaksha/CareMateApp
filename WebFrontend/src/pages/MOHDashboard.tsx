@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Clock, Map, UserPlus, Search, Phone, X, Baby, CheckCircle } from 'lucide-react';
+import { Users, Clock, Map, UserPlus, Search, Phone, X, Baby, CheckCircle, BellRing } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import { staffService } from '../services/staffService';
 import { clinicService } from '../services/clinicService';
@@ -19,6 +19,7 @@ interface ParentUser {
     id: number, 
     name: string, 
     dob: string,
+    next_appointment_id?: number | null,
     next_appointment_date?: string | null,
     next_appointment_time?: string | null
   }[];
@@ -45,6 +46,7 @@ export const MOHDashboard: React.FC = () => {
 
   // Parent assignment state
   const [parentSearch, setParentSearch] = useState('');
+  const [notifyingId, setNotifyingId] = useState<number | null>(null);
 
   // Add Midwife Modal State
   const [showAddMidwifeModal, setShowAddMidwifeModal] = useState(false);
@@ -149,6 +151,21 @@ export const MOHDashboard: React.FC = () => {
     return years > 0 ? `${years}y ${months}m` : `${months}m`;
   };
 
+  const handleNotifySingle = async (appointmentId: number) => {
+    if (!window.confirm('Send an immediate reminder email for this appointment?')) return;
+    
+    setNotifyingId(appointmentId);
+    try {
+      const { notificationService } = await import('../services/notificationService');
+      await notificationService.triggerSingleReminder(appointmentId);
+      alert('Reminder sent successfully!');
+    } catch (err: any) {
+      alert(err.message || 'Failed to send reminder.');
+    } finally {
+      setNotifyingId(null);
+    }
+  };
+
   // Filter parents by search
   const filteredParents = parents.filter(p => 
     (p.full_name?.toLowerCase() || '').includes(parentSearch.toLowerCase()) ||
@@ -245,9 +262,28 @@ export const MOHDashboard: React.FC = () => {
                             {parent.children_list.map((child: any) => (
                               <div key={`appt-${child.id}`} style={{ display: 'flex', alignItems: 'center', minHeight: 24 }}>
                                 {child.next_appointment_date ? (
-                                  <span style={{ fontSize: 13, color: 'var(--color-primary)', fontWeight: 600, background: 'rgba(22, 121, 121, 0.1)', padding: '2px 8px', borderRadius: 4 }}>
-                                    {new Date(child.next_appointment_date).toLocaleDateString()} at {child.next_appointment_time}
-                                  </span>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                    <span style={{ fontSize: 13, color: 'var(--color-primary)', fontWeight: 600, background: 'rgba(22, 121, 121, 0.1)', padding: '2px 8px', borderRadius: 4 }}>
+                                      {new Date(child.next_appointment_date).toLocaleDateString()} at {child.next_appointment_time}
+                                    </span>
+                                    {child.next_appointment_id && (
+                                      <button 
+                                        onClick={() => handleNotifySingle(child.next_appointment_id)}
+                                        disabled={notifyingId === child.next_appointment_id}
+                                        style={{ 
+                                          background: 'none', border: 'none', cursor: 'pointer', 
+                                          color: notifyingId === child.next_appointment_id ? 'var(--color-text-muted)' : 'var(--color-primary)', 
+                                          display: 'flex', alignItems: 'center', padding: 4, borderRadius: '50%',
+                                          transition: 'background-color 0.2s'
+                                        }}
+                                        onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(22, 121, 121, 0.1)'}
+                                        onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                                        title="Send reminder now"
+                                      >
+                                        <BellRing size={16} />
+                                      </button>
+                                    )}
+                                  </div>
                                 ) : (
                                   <span style={{ fontSize: 13, color: 'var(--color-text-muted)' }}>None booked</span>
                                 )}
