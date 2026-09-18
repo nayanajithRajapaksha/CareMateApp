@@ -96,7 +96,7 @@ export const PHMDashboard: React.FC = () => {
   const [parentSearch, setParentSearch] = useState('');
   const [availabilityDates, setAvailabilityDates] = useState<Record<string, { start_time: string; end_time: string; max_bookings: number; active: boolean }>>({});
   const [selectedAvailabilityDate, setSelectedAvailabilityDate] = useState(formatDate(new Date()));
-  const [availabilityForm, setAvailabilityForm] = useState({ start_time: '09:00', end_time: '15:00', max_bookings: 1, active: true });
+  const [availabilityForm, setAvailabilityForm] = useState({ start_time: '09:00', end_time: '15:00', max_bookings: 1, active: false });
   const [savingAvailability, setSavingAvailability] = useState(false);
   const [bookings, setBookings] = useState<any[]>([]);
   const [calendarYear, setCalendarYear] = useState(new Date().getFullYear());
@@ -144,7 +144,11 @@ export const PHMDashboard: React.FC = () => {
         dateMap[date] = { start_time: String(item.start_time).slice(0, 5), end_time: String(item.end_time).slice(0, 5), max_bookings: Number(item.max_bookings), active: item.active };
       });
       setAvailabilityDates(dateMap);
-      if (dateMap[selectedAvailabilityDate]) setAvailabilityForm(dateMap[selectedAvailabilityDate]);
+      if (dateMap[selectedAvailabilityDate]) {
+        setAvailabilityForm(dateMap[selectedAvailabilityDate]);
+      } else {
+        setAvailabilityForm({ start_time: '09:00', end_time: '15:00', max_bookings: 1, active: false });
+      }
       setBookings(bookingsData.appointments || []);
     } catch (err: any) {
       setError(err.message || 'Failed to fetch midwife dashboard data.');
@@ -180,7 +184,7 @@ export const PHMDashboard: React.FC = () => {
 
   const selectAvailabilityDate = (date: string) => {
     setSelectedAvailabilityDate(date);
-    setAvailabilityForm(availabilityDates[date] || { start_time: '09:00', end_time: '15:00', max_bookings: 1, active: true });
+    setAvailabilityForm(availabilityDates[date] || { start_time: '09:00', end_time: '15:00', max_bookings: 1, active: false });
   };
 
   const childAge = (dob: string) => {

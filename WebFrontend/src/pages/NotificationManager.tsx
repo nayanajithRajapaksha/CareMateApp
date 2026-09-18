@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { notificationService, NotificationSetting } from '../services/notificationService';
+import { notificationService, type NotificationSetting } from '../services/notificationService';
 import { Bell, BellRing, Plus, Trash2, CalendarClock } from 'lucide-react';
 
 export const NotificationManager: React.FC = () => {
