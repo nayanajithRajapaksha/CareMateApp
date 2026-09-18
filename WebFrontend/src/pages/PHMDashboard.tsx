@@ -306,20 +306,26 @@ export const PHMDashboard: React.FC = () => {
             const isWeekend = date.getDay() === 0 || date.getDay() === 6;
             const holiday = getSriLankaHoliday(date);
             const holidayWatermark = holiday ? getHolidayWatermark(holiday) : null;
-            const statusColor = configured?.active ? '#16805B' : holiday ? (holidayWatermark?.color || '#D97706') : isWeekend ? '#94A3B8' : '#DC4C4C';
-            const statusBackground = configured?.active ? 'rgba(22,128,91,0.13)' : holiday ? (holidayWatermark?.background || 'rgba(217,119,6,0.14)') : isWeekend ? '#EEF1F3' : 'rgba(220,76,76,0.10)';
-            const borderColor = holiday ? (holidayWatermark?.borderColor || statusColor) : statusColor;
+            const isUnsaved = selected && (
+              (configured?.active ?? false) !== availabilityForm.active || 
+              (configured?.start_time ?? '09:00') !== availabilityForm.start_time ||
+              (configured?.end_time ?? '15:00') !== availabilityForm.end_time ||
+              (configured?.max_bookings ?? 1) !== availabilityForm.max_bookings
+            );
+            const statusColor = isUnsaved ? '#D97706' : configured?.active ? '#16805B' : holiday ? (holidayWatermark?.color || '#D97706') : isWeekend ? '#94A3B8' : '#DC4C4C';
+            const statusBackground = isUnsaved ? 'rgba(217,119,6,0.14)' : configured?.active ? 'rgba(22,128,91,0.13)' : holiday ? (holidayWatermark?.background || 'rgba(217,119,6,0.14)') : isWeekend ? '#EEF1F3' : 'rgba(220,76,76,0.10)';
+            const borderColor = isUnsaved ? statusColor : holiday ? (holidayWatermark?.borderColor || statusColor) : statusColor;
             return <button key={dateKey} type="button" disabled={!editable} title={holiday || (editable ? undefined : 'Outside the editable 30-day window')} onClick={() => selectAvailabilityDate(dateKey)} style={{ position: 'relative', height: '100%', minWidth: 0, boxSizing: 'border-box', cursor: editable ? 'pointer' : 'default', opacity: editable ? 1 : 0.45, borderRadius: 10, border: isToday ? '2px solid #2563EB' : selected ? `2px solid ${borderColor}` : `1px solid ${borderColor}`, background: statusBackground, color: 'var(--color-text)', padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-              {holidayWatermark && <span aria-hidden="true" style={holidayWatermark.fullTile ? { position: 'absolute', inset: 0, opacity: 0.15, pointerEvents: 'none', display: 'flex' } : { position: 'absolute', right: 2, bottom: -2, fontSize: 42, lineHeight: 1, fontFamily: 'Georgia, serif', fontWeight: 700, color: holidayWatermark.color, opacity: 0.24, pointerEvents: 'none' }}>{holidayWatermark.icon}</span>}
+              {holidayWatermark && !isUnsaved && <span aria-hidden="true" style={holidayWatermark.fullTile ? { position: 'absolute', inset: 0, opacity: 0.15, pointerEvents: 'none', display: 'flex' } : { position: 'absolute', right: 2, bottom: -2, fontSize: 42, lineHeight: 1, fontFamily: 'Georgia, serif', fontWeight: 700, color: holidayWatermark.color, opacity: 0.24, pointerEvents: 'none' }}>{holidayWatermark.icon}</span>}
               {(() => {
                 const dateBookingsCount = bookings.filter(b => String(b.appointment_date).slice(0, 10) === dateKey).length;
-                const statusLabel = dateBookingsCount > 0 
+                const statusLabel = isUnsaved ? 'Unsaved' : dateBookingsCount > 0 
                   ? `${dateBookingsCount} booked` 
                   : (holidayWatermark?.label || (configured?.active ? 'Open' : isWeekend ? 'Weekend' : 'Closed'));
                 return (
                   <>
-                    <strong style={{ position: 'relative', display: 'block', fontSize: 20, lineHeight: 1, margin: '2px 0 4px', color: holiday ? (holidayWatermark?.color || statusColor) : undefined, zIndex: 1 }}>{date.getDate()}</strong>
-                    <span style={{ position: 'relative', display: 'block', fontSize: 9, lineHeight: 1, color: holidayWatermark?.color || statusColor, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', zIndex: 1, width: '100%', padding: '0 2px', boxSizing: 'border-box', textAlign: 'center', fontWeight: dateBookingsCount > 0 ? 700 : 'normal' }}>
+                    <strong style={{ position: 'relative', display: 'block', fontSize: 20, lineHeight: 1, margin: '2px 0 4px', color: (holiday && !isUnsaved) ? (holidayWatermark?.color || statusColor) : undefined, zIndex: 1 }}>{date.getDate()}</strong>
+                    <span style={{ position: 'relative', display: 'block', fontSize: 9, lineHeight: 1, color: (holiday && !isUnsaved) ? (holidayWatermark?.color || statusColor) : statusColor, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', zIndex: 1, width: '100%', padding: '0 2px', boxSizing: 'border-box', textAlign: 'center', fontWeight: dateBookingsCount > 0 ? 700 : 'normal' }}>
                       {statusLabel}
                     </span>
                   </>
