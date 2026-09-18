@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { UserPlus, Users, Search, Settings, ShieldCheck, User, Building2, Phone, BookOpen, Bell } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
+import { UserPlus, Users, Search, ShieldCheck, User, Building2, Phone } from 'lucide-react';
 import { authService } from '../services/authService';
 import { BlogManager } from '../components/BlogManager';
 import { NotificationManager } from './NotificationManager';
@@ -17,7 +17,7 @@ interface SystemUser {
 
 export const AdminDashboard: React.FC = () => {
   const location = useLocation();
-  const navigate = useNavigate();
+
 
   // Determine active view based on URL
   const activeTab = location.pathname.includes('/blogs') 
