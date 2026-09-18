@@ -5,11 +5,10 @@ import { verifyToken, requireRole } from '../middleware/authMiddleware';
 const router = Router();
 
 router.use(verifyToken);
-router.use(requireRole(['admin', 'moh'])); // Admins and MOH can trigger notifications
 
-router.get('/settings', getNotificationSettings);
-router.put('/settings', updateNotificationSettings);
-router.post('/trigger', triggerReminders);
-router.post('/trigger-single', triggerSingleReminder);
+router.get('/settings', requireRole(['admin', 'moh']), getNotificationSettings);
+router.put('/settings', requireRole(['admin', 'moh']), updateNotificationSettings);
+router.post('/trigger', requireRole(['admin', 'moh']), triggerReminders);
+router.post('/trigger-single', requireRole(['admin', 'moh', 'midwife']), triggerSingleReminder);
 
 export default router;
