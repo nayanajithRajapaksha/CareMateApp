@@ -604,7 +604,6 @@ export const PHMDashboard: React.FC = () => {
                     <th style={{ padding: '12px 16px', fontWeight: 600 }}>Parent Profile</th>
                     <th style={{ padding: '12px 16px', fontWeight: 600 }}>Contact Info</th>
                     <th style={{ padding: '12px 16px', fontWeight: 600 }}>Registered Children (Age)</th>
-                    <th style={{ padding: '12px 16px', fontWeight: 600 }}>Next Appointment</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -627,7 +626,7 @@ export const PHMDashboard: React.FC = () => {
                         {p.children_list && p.children_list.length > 0 ? (
                           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                             {p.children_list.map((child: any) => (
-                              <div key={child.id} style={{ display: 'flex', alignItems: 'center', gap: 6, minHeight: 24 }}>
+                              <div key={child.id} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                                 <Baby size={16} color="var(--color-primary)" />
                                 <span style={{ fontWeight: 600 }}>{child.name}</span>
                                 <span style={{ color: 'var(--color-text-muted)', fontSize: 13 }}>({childAge(child.dob)})</span>
@@ -636,44 +635,6 @@ export const PHMDashboard: React.FC = () => {
                           </div>
                         ) : (
                           <span style={{ color: 'var(--color-text-muted)' }}>No children registered</span>
-                        )}
-                      </td>
-                      <td style={{ padding: '14px 16px' }}>
-                        {p.children_list && p.children_list.length > 0 ? (
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                            {p.children_list.map((child: any) => (
-                              <div key={`appt-${child.id}`} style={{ display: 'flex', alignItems: 'center', minHeight: 24 }}>
-                                {child.next_appointment_date ? (
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                    <span style={{ fontSize: 13, color: 'var(--color-primary)', fontWeight: 600, background: 'rgba(22, 121, 121, 0.1)', padding: '2px 8px', borderRadius: 4 }}>
-                                      {new Date(child.next_appointment_date).toLocaleDateString()} at {child.next_appointment_time}
-                                    </span>
-                                    {child.next_appointment_id && (
-                                      <button 
-                                        onClick={() => handleNotifySingle(child.next_appointment_id)}
-                                        disabled={notifyingId === child.next_appointment_id}
-                                        style={{ 
-                                          background: 'none', border: 'none', cursor: 'pointer', 
-                                          color: notifyingId === child.next_appointment_id ? 'var(--color-text-muted)' : 'var(--color-primary)', 
-                                          display: 'flex', alignItems: 'center', padding: 4, borderRadius: '50%',
-                                          transition: 'background-color 0.2s'
-                                        }}
-                                        onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(22, 121, 121, 0.1)'}
-                                        onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                                        title="Send reminder now"
-                                      >
-                                        <BellRing size={16} />
-                                      </button>
-                                    )}
-                                  </div>
-                                ) : (
-                                  <span style={{ fontSize: 13, color: 'var(--color-text-muted)' }}>None booked</span>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        ) : (
-                          <span style={{ color: 'var(--color-text-muted)' }}>—</span>
                         )}
                       </td>
                     </tr>
@@ -698,7 +659,7 @@ export const PHMDashboard: React.FC = () => {
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
                 <thead><tr style={{ borderBottom: '2px solid var(--color-border)', textAlign: 'left', backgroundColor: 'var(--color-bg)' }}>
-                  <th style={{ padding: '12px 16px' }}>Date & time</th><th style={{ padding: '12px 16px' }}>Parent</th><th style={{ padding: '12px 16px' }}>Child</th><th style={{ padding: '12px 16px' }}>Age</th><th style={{ padding: '12px 16px' }}>Contact</th>
+                  <th style={{ padding: '12px 16px' }}>Date & time</th><th style={{ padding: '12px 16px' }}>Parent</th><th style={{ padding: '12px 16px' }}>Child</th><th style={{ padding: '12px 16px' }}>Age</th><th style={{ padding: '12px 16px' }}>Contact</th><th style={{ padding: '12px 16px' }}>Action</th>
                 </tr></thead>
                 <tbody>{bookings.map(booking => <tr key={booking.id} style={{ borderBottom: '1px solid var(--color-border)' }}>
                   <td style={{ padding: '14px 16px', fontWeight: 600 }}>{new Date(booking.appointment_date).toLocaleDateString()}<div style={{ color: 'var(--color-primary)', fontWeight: 500 }}>{String(booking.start_time).slice(0, 5)} - {String(booking.end_time).slice(0, 5)}</div></td>
@@ -706,6 +667,24 @@ export const PHMDashboard: React.FC = () => {
                   <td style={{ padding: '14px 16px' }}>{booking.child_name}</td>
                   <td style={{ padding: '14px 16px' }}>{childAge(booking.child_dob)}</td>
                   <td style={{ padding: '14px 16px' }}>{booking.parent_contact || '—'}</td>
+                  <td style={{ padding: '14px 16px' }}>
+                    <button 
+                      onClick={() => handleNotifySingle(booking.id)}
+                      disabled={notifyingId === booking.id}
+                      style={{ 
+                        border: 'none', cursor: 'pointer', 
+                        color: notifyingId === booking.id ? 'var(--color-text-muted)' : 'var(--color-primary)', 
+                        display: 'flex', alignItems: 'center', padding: 8, borderRadius: '50%',
+                        transition: 'background-color 0.2s',
+                        background: notifyingId === booking.id ? 'transparent' : 'rgba(22, 121, 121, 0.1)'
+                      }}
+                      onMouseOver={(e) => { if (notifyingId !== booking.id) e.currentTarget.style.backgroundColor = 'rgba(22, 121, 121, 0.2)'; }}
+                      onMouseOut={(e) => { if (notifyingId !== booking.id) e.currentTarget.style.backgroundColor = 'rgba(22, 121, 121, 0.1)'; }}
+                      title="Send reminder now"
+                    >
+                      <BellRing size={18} />
+                    </button>
+                  </td>
                 </tr>)}</tbody>
               </table>
             </div>

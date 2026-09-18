@@ -3,7 +3,11 @@ const pool = new Pool({ connectionString: 'postgresql://postgres.brurxutqthyejlr
 async function check() {
   try {
     const query = `
-      SELECT id, role, hospital FROM profiles WHERE role = 'phm';
+      SELECT a.id as appointment_id, c.name as clinic_name, p.hospital as midwife_hospital
+      FROM appointments a
+      JOIN clinics c ON a.clinic_id = c.id
+      CROSS JOIN (SELECT hospital FROM profiles WHERE role = 'phm' AND hospital IS NOT NULL LIMIT 1) p
+      LIMIT 5;
     `;
     const res = await pool.query(query);
     console.log(res.rows);
