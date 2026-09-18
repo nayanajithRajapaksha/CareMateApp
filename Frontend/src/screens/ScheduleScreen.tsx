@@ -108,14 +108,15 @@ export const ScheduleScreen: React.FC = () => {
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <Text style={styles.headerTitle}>Schedule Appointment</Text>
         {clinic ? (
-          <View style={styles.clinicCard}>
+          <TouchableOpacity style={styles.clinicCard} onPress={() => navigation.navigate('SelectClinic', { mode: 'select' })}>
             <View style={styles.clinicIcon}><BriefcaseMedical color={colors.primary} size={24} /></View>
             <View style={styles.flex}>
               <Text style={styles.muted}>Selected Clinic</Text>
               <Text style={styles.clinicName}>{clinic.name}</Text>
               <Text style={styles.muted}>{clinic.address || clinic.type}</Text>
             </View>
-          </View>
+            <Text style={{ color: colors.primary, fontWeight: '600', fontSize: 14 }}>Change</Text>
+          </TouchableOpacity>
         ) : (
           <TouchableOpacity style={styles.chooseClinic} onPress={() => navigation.navigate('SelectClinic', { mode: 'select' })}>
             <BriefcaseMedical color={colors.primary} size={22} />

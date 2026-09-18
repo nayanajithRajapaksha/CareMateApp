@@ -69,7 +69,14 @@ export const SelectClinicScreen: React.FC = () => {
         <View style={styles.clinicsList}>
           {loading ? (
              <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 40 }} />
-          ) : clinics.map(clinic => (
+          ) : clinics
+              .filter(c => {
+                const searchLower = searchQuery.toLowerCase();
+                return c.name.toLowerCase().includes(searchLower) || 
+                       (c.address && c.address.toLowerCase().includes(searchLower)) ||
+                       (c.type && c.type.toLowerCase().includes(searchLower));
+              })
+              .map(clinic => (
             <TouchableOpacity 
               key={clinic.id} 
               style={[
@@ -118,7 +125,13 @@ export const SelectClinicScreen: React.FC = () => {
                       <Text style={styles.tagText}>{clinic.open ? 'AVAILABLE' : 'CLOSED'}</Text>
                    </View>
                 </View>
-                <TouchableOpacity style={styles.actionLinkRow} onPress={() => navigation.navigate('ClinicDetails', { clinic })}>
+                <TouchableOpacity style={styles.actionLinkRow} onPress={() => {
+                  if (mode === 'select') {
+                    navigation.navigate('Main', { screen: 'ScheduleTab', params: { clinic } });
+                  } else {
+                    navigation.navigate('ClinicDetails', { clinic });
+                  }
+                }}>
                   <Text style={styles.actionLinkText}>Select</Text>
                   <ChevronRight color={colors.primary} size={16} />
                 </TouchableOpacity>
