@@ -141,23 +141,51 @@ export const SpecialistManager: React.FC = () => {
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {specialists.map(s => (
-                  <div key={s.id} style={{ padding: 12, border: '1px solid var(--color-border)', borderRadius: 8 }}>
+                  <div key={s.id} style={{ 
+                    padding: 16, 
+                    border: '1px solid var(--color-border)', 
+                    borderRadius: 12,
+                    backgroundColor: '#FAFAFA',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 12
+                  }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                      <div>
-                        <div style={{ fontWeight: 600 }}>Dr. {s.full_name}</div>
-                        <div style={{ fontSize: 13, color: 'var(--color-primary)' }}>{s.specialty}</div>
+                      <div style={{ flex: 1, paddingRight: 16 }}>
+                        <div style={{ fontWeight: 600, fontSize: 16, color: 'var(--color-text-dark)', marginBottom: 4 }}>Dr. {s.full_name}</div>
+                        <div style={{ 
+                          display: 'inline-block',
+                          fontSize: 12, 
+                          fontWeight: 500,
+                          color: 'var(--color-primary)',
+                          backgroundColor: 'rgba(22, 121, 121, 0.1)',
+                          padding: '2px 8px',
+                          borderRadius: 12
+                        }}>
+                          {s.specialty}
+                        </div>
                       </div>
-                      <div style={{ display: 'flex', gap: 8 }}>
-                        <button onClick={() => handleEditClick(s)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: 'var(--color-text-muted)' }}>
+                      <div style={{ display: 'flex', gap: 4 }}>
+                        <button onClick={() => handleEditClick(s)} className="btn-secondary" style={{ padding: '6px', minWidth: 0, borderRadius: 6 }}>
                           <Edit2 size={16} />
                         </button>
-                        <button onClick={() => handleDelete(s.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: '#ef4444' }}>
+                        <button onClick={() => handleDelete(s.id)} style={{ padding: '6px', minWidth: 0, borderRadius: 6, background: 'transparent', border: '1px solid #fca5a5', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                           <Trash2 size={16} />
                         </button>
                       </div>
                     </div>
-                    {s.contact_number && <div style={{ fontSize: 13, marginTop: 8 }}>Contact: {s.contact_number}</div>}
-                    {s.availability && <div style={{ fontSize: 13, marginTop: 4 }}>Availability: {s.availability}</div>}
+                    {(s.contact_number || s.availability) && (
+                      <div style={{ 
+                        borderTop: '1px solid var(--color-border)', 
+                        paddingTop: 12, 
+                        display: 'flex', 
+                        flexDirection: 'column', 
+                        gap: 4 
+                      }}>
+                        {s.contact_number && <div style={{ fontSize: 13, color: 'var(--color-text-muted)' }}><strong>Contact:</strong> {s.contact_number}</div>}
+                        {s.availability && <div style={{ fontSize: 13, color: 'var(--color-text-muted)' }}><strong>Availability:</strong> {s.availability}</div>}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -178,21 +206,21 @@ export const SpecialistManager: React.FC = () => {
             </div>
             
             <form onSubmit={handleCreateOrUpdate} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <div>
-                <label className="label">Full Name</label>
+              <div className="input-group">
+                <label className="input-label">Full Name</label>
                 <input required className="input-field" value={fullName} onChange={e => setFullName(e.target.value)} placeholder="e.g. John Doe" />
               </div>
-              <div>
-                <label className="label">Specialty</label>
+              <div className="input-group">
+                <label className="input-label">Specialty</label>
                 <input required className="input-field" value={specialty} onChange={e => setSpecialty(e.target.value)} placeholder="e.g. Pediatrician" />
               </div>
-              <div>
-                <label className="label">Contact Number (Optional)</label>
+              <div className="input-group">
+                <label className="input-label">Contact Number (Optional)</label>
                 <input className="input-field" value={contactNumber} onChange={e => setContactNumber(e.target.value)} placeholder="e.g. 0712345678" />
               </div>
-              <div>
-                <label className="label">Availability (Optional)</label>
-                <textarea className="input-field" value={availability} onChange={e => setAvailability(e.target.value)} placeholder="e.g. Mon, Wed, Fri 9 AM - 12 PM" style={{ minHeight: 80 }} />
+              <div className="input-group">
+                <label className="input-label">Availability (Optional)</label>
+                <textarea className="input-field" value={availability} onChange={e => setAvailability(e.target.value)} placeholder="e.g. Mon, Wed, Fri 9 AM - 12 PM" style={{ minHeight: 80, resize: 'vertical' }} />
               </div>
               <button type="submit" className="btn btn-primary" style={{ marginTop: 8 }}>
                 {editingSpecialistId ? 'Save Changes' : 'Add Specialist'}
