@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import pool, { clientQuery } from '../config/db';
 import { findUserByEmail, findProfileById } from '../models/userModel';
+import { sendEmailReminder } from '../services/notificationService';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret';
 
@@ -144,3 +145,101 @@ export const changePassword = async (req: any, res: Response): Promise<void> => 
     res.status(500).json({ error: 'Internal server error while updating password.' });
   }
 };
+
+export const forgotPassword = async (req: Request, res: Response): Promise<void> => {
+  const { email } = req.body;
+  
+  if (!email) {
+    res.status(400).json({ error: 'Email is required.' });
+    return;
+  }
+
+  const normalizedEmail = email.toLowerCase().trim();
+
+  try {
+    const user = await findUserByEmail(normalizedEmail);
+    if (!user) {
+      // Don't leak whether user exists for security reasons
+      res.status(200).json({ message: 'If that email is in our system, we have sent a reset code.' });
+      return;
+    }
+
+    // Generate 6 digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date();
+    expiresAt.setMinutes(expiresAt.getMinutes() + 15);
+
+    // Delete any existing tokens for this email
+    await pool.query('DELETE FROM password_reset_tokens WHERE email = $1', [normalizedEmail]);
+    
+    // Save new token
+    await pool.query(
+      'INSERT INTO password_reset_tokens (email, token, expires_at) VALUES ($1, $2, $3)',
+      [normalizedEmail, otp, expiresAt]
+    );
+
+    const emailHtml = `
+      <div style="font-family: sans-serif; color: #333; padding: 20px;">
+        <h2>Password Reset Code</h2>
+        <p>You requested a password reset for your CareMate account.</p>
+        <p>Your 6-digit reset code is: <strong>${otp}</strong></p>
+        <p>This code will expire in 15 minutes.</p>
+        <p>If you did not request this, please ignore this email.</p>
+      </div>
+    `;
+
+    await sendEmailReminder(normalizedEmail, 'CareMate Password Reset', emailHtml);
+
+    res.status(200).json({ message: 'If that email is in our system, we have sent a reset code.' });
+  } catch (error) {
+    console.error('Forgot password error:', error);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+};
+
+export const resetPassword = async (req: Request, res: Response): Promise<void> => {
+  const { email, token, newPassword } = req.body;
+
+  if (!email || !token || !newPassword) {
+    res.status(400).json({ error: 'Email, token, and new password are required.' });
+    return;
+  }
+
+  if (newPassword.length < 6) {
+    res.status(400).json({ error: 'New password must be at least 6 characters long.' });
+    return;
+  }
+
+  const normalizedEmail = email.toLowerCase().trim();
+
+  try {
+    const tokenResult = await pool.query(
+      'SELECT * FROM password_reset_tokens WHERE email = $1 AND token = $2',
+      [normalizedEmail, token]
+    );
+
+    if (tokenResult.rows.length === 0) {
+      res.status(400).json({ error: 'Invalid or expired reset code.' });
+      return;
+    }
+
+    const resetRecord = tokenResult.rows[0];
+    if (new Date() > new Date(resetRecord.expires_at)) {
+      await pool.query('DELETE FROM password_reset_tokens WHERE email = $1', [normalizedEmail]);
+      res.status(400).json({ error: 'Reset code has expired. Please request a new one.' });
+      return;
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, 10);
+    await pool.query('UPDATE app_users SET password_hash = $1 WHERE email = $2', [passwordHash, normalizedEmail]);
+    
+    // Clean up the token
+    await pool.query('DELETE FROM password_reset_tokens WHERE email = $1', [normalizedEmail]);
+
+    res.status(200).json({ message: 'Password has been reset successfully. You can now log in.' });
+  } catch (error) {
+    console.error('Reset password error:', error);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+};
+

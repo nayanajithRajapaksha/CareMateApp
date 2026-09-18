@@ -10,6 +10,7 @@ import { SignInScreen } from './src/screens/SignInScreen';
 import { SignUpScreen } from './src/screens/SignUpScreen';
 import { SignInSuccessScreen } from './src/screens/SignInSuccessScreen';
 import { ForgotPasswordScreen } from './src/screens/ForgotPasswordScreen';
+import { ResetPasswordScreen } from './src/screens/ResetPasswordScreen';
 import { CheckEmailScreen } from './src/screens/CheckEmailScreen';
 import { MainTabNavigator } from './src/navigation/MainTabNavigator';
 import { RegisterChildScreen } from './src/screens/RegisterChildScreen';
@@ -35,6 +36,7 @@ export default function App() {
           <Stack.Screen name="SignIn" component={SignInScreen} />
           <Stack.Screen name="SignInSuccess" component={SignInSuccessScreen} />
           <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+          <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
           <Stack.Screen name="CheckEmail" component={CheckEmailScreen} />
           <Stack.Screen name="Main" component={MainTabNavigator} />
           <Stack.Screen name="RegisterChild" component={RegisterChildScreen} />
