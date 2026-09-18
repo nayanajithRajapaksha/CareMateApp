@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Users, Edit2, Check, X, Search, Building2, Phone, Baby, Clock, BellRing } from 'lucide-react';
+import { Edit2, Check, X, Search, Building2, Phone, Baby, Clock, BellRing } from 'lucide-react';
 import { phmService } from '../services/phmService';
 import { staffService } from '../services/staffService';
 
 import { appointmentService } from '../services/appointmentService';
 import { useAuth } from '../contexts/AuthContext';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 
 type PHMTab = 'children' | 'parents' | 'appointments';
@@ -71,9 +71,15 @@ const getHolidayWatermark = (holiday: string) => {
 export const PHMDashboard: React.FC = () => {
   const { user, activeHospital } = useAuth();
   const location = useLocation();
-  const isChildrenSection = location.pathname.startsWith('/phm/children');
+  const navigate = useNavigate();
+  const isChildrenSection = location.pathname.startsWith('/phm/children') || location.pathname.startsWith('/phm/parents') || location.pathname.startsWith('/phm/appointments');
 
-  const [activeTab, setActiveTab] = useState<PHMTab>(isChildrenSection ? 'children' : 'appointments');
+  const activeTab = useMemo<PHMTab>(() => {
+    if (location.pathname.startsWith('/phm/parents')) return 'parents';
+    if (location.pathname.startsWith('/phm/appointments')) return 'appointments';
+    return 'children'; // default fallback for /phm/children
+  }, [location.pathname]);
+
   const [children, setChildren] = useState<any[]>([]);
   const [parents, setParents] = useState<ParentUser[]>([]);
 
@@ -163,9 +169,6 @@ export const PHMDashboard: React.FC = () => {
     if (user && activeHospital) fetchDashboardData();
   }, [user, activeHospital]);
 
-  useEffect(() => {
-    setActiveTab(isChildrenSection ? 'children' : 'appointments');
-  }, [isChildrenSection]);
 
   const handleSaveAvailability = async () => {
     setSavingAvailability(true);
@@ -423,41 +426,14 @@ export const PHMDashboard: React.FC = () => {
               <div><div style={{ fontWeight: 600, fontSize: 13 }}>{child.full_name}</div><div style={{ color: 'var(--color-text-muted)', fontSize: 12 }}>{child.gender || '—'} • {childAge(child.dob)}</div></div>
               <span style={{ color: 'var(--color-primary)', fontSize: 12 }}>{child.primary_clinic || 'No clinic'}</span>
             </div>)}
-            {children.length > 5 && <button className="btn btn-secondary" onClick={() => setActiveTab('children')} style={{ width: '100%', marginTop: 8, padding: '8px 12px' }}>View all children</button>}
+            {children.length > 5 && <button className="btn btn-secondary" onClick={() => navigate('/phm/children')} style={{ width: '100%', marginTop: 8, padding: '8px 12px' }}>View all children</button>}
           </div>}
         </div>
       </div>
 
       {isChildrenSection && (<>
-      {/* Tab Switcher */}
-      <div style={{ display: 'flex', gap: 8, marginBottom: 24, borderBottom: '1px solid var(--color-border)', paddingBottom: 12 }}>
-        <button
-          className={`btn ${activeTab === 'children' ? 'btn-primary' : 'btn-secondary'}`}
-          style={{ padding: '8px 20px', fontSize: 14, display: 'flex', alignItems: 'center', gap: 8 }}
-          onClick={() => setActiveTab('children')}
-        >
-          <Baby size={18} /> Children Directory ({children.length})
-        </button>
-
-        <button
-          className={`btn ${activeTab === 'parents' ? 'btn-primary' : 'btn-secondary'}`}
-          style={{ padding: '8px 20px', fontSize: 14, display: 'flex', alignItems: 'center', gap: 8 }}
-          onClick={() => setActiveTab('parents')}
-        >
-          <Users size={18} /> Parent & Clinic Directory ({parents.length})
-        </button>
-        <button
-          className={`btn ${activeTab === 'appointments' ? 'btn-primary' : 'btn-secondary'}`}
-          style={{ padding: '8px 20px', fontSize: 14, display: 'flex', alignItems: 'center', gap: 8 }}
-          onClick={() => setActiveTab('appointments')}
-        >
-          <Clock size={18} /> Appointments ({bookings.length})
-        </button>
-      </div>
-
-      {/* Tab 1: Children Directory */}
-      {activeTab === 'children' ? (
-        <div className="card">
+        {activeTab === 'children' ? (
+          <div className="card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
             <h4 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>Children Records</h4>
             <div style={{ position: 'relative', width: 320 }}>
