@@ -100,6 +100,7 @@ export const PHMDashboard: React.FC = () => {
   const [availabilityForm, setAvailabilityForm] = useState({ start_time: '09:00', end_time: '15:00', max_bookings: 1, active: false });
   const [savingAvailability, setSavingAvailability] = useState(false);
   const [bookings, setBookings] = useState<any[]>([]);
+  const [bookingFilter, setBookingFilter] = useState<'all' | 'upcoming'>('upcoming');
   const [calendarYear, setCalendarYear] = useState(new Date().getFullYear());
   const [calendarMonth, setCalendarMonth] = useState(formatDate(new Date()).slice(0, 7));
   const calendarDates = useMemo(() => {
@@ -262,6 +263,13 @@ export const PHMDashboard: React.FC = () => {
     (p.email?.toLowerCase() || '').includes(parentSearch.toLowerCase()) ||
     (p.contact_number?.toLowerCase() || '').includes(parentSearch.toLowerCase())
   );
+
+  const displayedBookings = useMemo(() => {
+    if (bookingFilter === 'all') return bookings;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return bookings.filter(b => new Date(b.appointment_date) >= today);
+  }, [bookings, bookingFilter]);
 
   const selectedDateBookings = bookings.filter(booking => String(booking.appointment_date).slice(0, 10) === selectedAvailabilityDate);
   const bookingsByTime = selectedDateBookings.reduce<Record<string, any[]>>((groups, booking) => {
@@ -646,46 +654,71 @@ export const PHMDashboard: React.FC = () => {
         </div>
       ) : (
         <div className="card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
             <div>
               <h4 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>Booked appointments</h4>
               <p style={{ margin: '6px 0 0', color: 'var(--color-text-muted)', fontSize: 13 }}>Parents and children booked into your published 30-minute slots.</p>
             </div>
-            <Clock color="var(--color-primary)" size={22} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ display: 'flex', background: 'var(--color-bg)', padding: 4, borderRadius: 8, border: '1px solid var(--color-border)' }}>
+                <button
+                  className={`btn ${bookingFilter === 'upcoming' ? 'btn-primary' : ''}`}
+                  style={{ padding: '6px 12px', fontSize: 13, background: bookingFilter === 'upcoming' ? 'var(--color-primary)' : 'transparent', color: bookingFilter === 'upcoming' ? '#fff' : 'var(--color-text-muted)', border: 'none', boxShadow: 'none' }}
+                  onClick={() => setBookingFilter('upcoming')}
+                >
+                  Upcoming
+                </button>
+                <button
+                  className={`btn ${bookingFilter === 'all' ? 'btn-primary' : ''}`}
+                  style={{ padding: '6px 12px', fontSize: 13, background: bookingFilter === 'all' ? 'var(--color-primary)' : 'transparent', color: bookingFilter === 'all' ? '#fff' : 'var(--color-text-muted)', border: 'none', boxShadow: 'none' }}
+                  onClick={() => setBookingFilter('all')}
+                >
+                  All History
+                </button>
+              </div>
+              <Clock color="var(--color-primary)" size={22} />
+            </div>
           </div>
-          {bookings.length === 0 ? (
-            <p style={{ color: 'var(--color-text-muted)' }}>No bookings yet.</p>
+          {displayedBookings.length === 0 ? (
+            <p style={{ color: 'var(--color-text-muted)' }}>No {bookingFilter === 'upcoming' ? 'upcoming' : ''} bookings found.</p>
           ) : (
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
                 <thead><tr style={{ borderBottom: '2px solid var(--color-border)', textAlign: 'left', backgroundColor: 'var(--color-bg)' }}>
                   <th style={{ padding: '12px 16px' }}>Date & time</th><th style={{ padding: '12px 16px' }}>Parent</th><th style={{ padding: '12px 16px' }}>Child</th><th style={{ padding: '12px 16px' }}>Age</th><th style={{ padding: '12px 16px' }}>Contact</th><th style={{ padding: '12px 16px' }}>Action</th>
                 </tr></thead>
-                <tbody>{bookings.map(booking => <tr key={booking.id} style={{ borderBottom: '1px solid var(--color-border)' }}>
-                  <td style={{ padding: '14px 16px', fontWeight: 600 }}>{new Date(booking.appointment_date).toLocaleDateString()}<div style={{ color: 'var(--color-primary)', fontWeight: 500 }}>{String(booking.start_time).slice(0, 5)} - {String(booking.end_time).slice(0, 5)}</div></td>
-                  <td style={{ padding: '14px 16px' }}>{booking.parent_name}</td>
-                  <td style={{ padding: '14px 16px' }}>{booking.child_name}</td>
-                  <td style={{ padding: '14px 16px' }}>{childAge(booking.child_dob)}</td>
-                  <td style={{ padding: '14px 16px' }}>{booking.parent_contact || '—'}</td>
-                  <td style={{ padding: '14px 16px' }}>
-                    <button 
-                      onClick={() => handleNotifySingle(booking.id)}
-                      disabled={notifyingId === booking.id}
-                      style={{ 
-                        border: 'none', cursor: 'pointer', 
-                        color: notifyingId === booking.id ? 'var(--color-text-muted)' : 'var(--color-primary)', 
-                        display: 'flex', alignItems: 'center', padding: 8, borderRadius: '50%',
-                        transition: 'background-color 0.2s',
-                        background: notifyingId === booking.id ? 'transparent' : 'rgba(22, 121, 121, 0.1)'
-                      }}
-                      onMouseOver={(e) => { if (notifyingId !== booking.id) e.currentTarget.style.backgroundColor = 'rgba(22, 121, 121, 0.2)'; }}
-                      onMouseOut={(e) => { if (notifyingId !== booking.id) e.currentTarget.style.backgroundColor = 'rgba(22, 121, 121, 0.1)'; }}
-                      title="Send reminder now"
-                    >
-                      <BellRing size={18} />
-                    </button>
-                  </td>
-                </tr>)}</tbody>
+                <tbody>{displayedBookings.map(booking => {
+                  const isPast = new Date(booking.appointment_date) < new Date(new Date().setHours(0,0,0,0));
+                  return (
+                    <tr key={booking.id} style={{ borderBottom: '1px solid var(--color-border)', opacity: isPast ? 0.6 : 1 }}>
+                      <td style={{ padding: '14px 16px', fontWeight: 600 }}>{new Date(booking.appointment_date).toLocaleDateString()}<div style={{ color: 'var(--color-primary)', fontWeight: 500 }}>{String(booking.start_time).slice(0, 5)} - {String(booking.end_time).slice(0, 5)}</div></td>
+                      <td style={{ padding: '14px 16px' }}>{booking.parent_name}</td>
+                      <td style={{ padding: '14px 16px' }}>{booking.child_name}</td>
+                      <td style={{ padding: '14px 16px' }}>{childAge(booking.child_dob)}</td>
+                      <td style={{ padding: '14px 16px' }}>{booking.parent_contact || '—'}</td>
+                      <td style={{ padding: '14px 16px' }}>
+                        {!isPast && (
+                          <button 
+                            onClick={() => handleNotifySingle(booking.id)}
+                            disabled={notifyingId === booking.id}
+                            style={{ 
+                              border: 'none', cursor: 'pointer', 
+                              color: notifyingId === booking.id ? 'var(--color-text-muted)' : 'var(--color-primary)', 
+                              display: 'flex', alignItems: 'center', padding: 8, borderRadius: '50%',
+                              transition: 'background-color 0.2s',
+                              background: notifyingId === booking.id ? 'transparent' : 'rgba(22, 121, 121, 0.1)'
+                            }}
+                            onMouseOver={(e) => { if (notifyingId !== booking.id) e.currentTarget.style.backgroundColor = 'rgba(22, 121, 121, 0.2)'; }}
+                            onMouseOut={(e) => { if (notifyingId !== booking.id) e.currentTarget.style.backgroundColor = 'rgba(22, 121, 121, 0.1)'; }}
+                            title="Send reminder now"
+                          >
+                            <BellRing size={18} />
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}</tbody>
               </table>
             </div>
           )}
