@@ -8,11 +8,14 @@ import { API_BASE_URL } from './apiConfig';
 export const apiClient = async (endpoint: string, options: RequestInit = {}) => {
   const token = await AsyncStorage.getItem('userToken');
   
-  const headers = {
-    'Content-Type': 'application/json',
+  const headers: any = {
     ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
     ...(options.headers || {}),
   };
+
+  if (!(options.body instanceof FormData)) {
+    headers['Content-Type'] = headers['Content-Type'] || 'application/json';
+  }
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 10000);

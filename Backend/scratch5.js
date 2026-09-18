@@ -3,7 +3,11 @@ const pool = new Pool({
   connectionString: 'postgresql://postgres.brurxutqthyejlrmibtl:Nayan2002%40%40%40Nayan@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres',
   ssl: { rejectUnauthorized: false }
 });
-pool.query(`SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'`).then(res => {
+pool.query(`
+  SELECT column_name, data_type 
+  FROM information_schema.columns 
+  WHERE table_name = 'profiles'
+`).then(res => {
   console.log(JSON.stringify(res.rows, null, 2));
   pool.end();
 }).catch(console.error);

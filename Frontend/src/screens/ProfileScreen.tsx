@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Modal, TextInput, ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Linking } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Modal, TextInput, ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Linking, Image } from 'react-native';
 import { Pencil, User as UserIcon, Shield, Bell, Globe, FileKey, HelpCircle, ChevronRight, ExternalLink, X } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as ImagePicker from 'expo-image-picker';
 import { authService } from '../services/authService';
 import { profileService, UserProfile } from '../services/profileService';
 import { colors, typography, layout } from '../theme';
@@ -82,6 +83,50 @@ export const ProfileScreen: React.FC = () => {
   const [editFullName, setEditFullName] = useState('');
   const [editContactNumber, setEditContactNumber] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+
+  const handlePickImage = async () => {
+    try {
+      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!permissionResult.granted) {
+        Alert.alert('Permission to access camera roll is required!');
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const selectedAsset = result.assets[0];
+        await handleUploadImage(selectedAsset.uri, selectedAsset.mimeType || 'image/jpeg');
+      }
+    } catch (error) {
+      console.error('Error picking image:', error);
+      Alert.alert('Error', 'Failed to pick image.');
+    }
+  };
+
+  const handleUploadImage = async (uri: string, mimeType: string) => {
+    try {
+      setIsUploadingImage(true);
+      const res = await profileService.uploadProfilePic(uri, mimeType);
+      
+      // Update local profile optimistically
+      if (profile) {
+        setProfile({ ...profile, profile_pic_url: res.profile_pic_url });
+      }
+      Alert.alert('Success', 'Profile picture updated successfully!');
+    } catch (error: any) {
+      console.error('Error uploading image:', error);
+      Alert.alert('Error', error.message || 'Failed to upload image.');
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
 
   useEffect(() => {
     fetchProfile();
@@ -240,11 +285,19 @@ export const ProfileScreen: React.FC = () => {
         {/* Profile Header */}
         <View style={styles.profileHeader}>
           <View style={styles.avatarContainer}>
-            <View style={styles.avatar}>
-              <Text style={styles.avatarText}>{getInitials(profile?.full_name)}</Text>
-            </View>
-            <TouchableOpacity style={styles.editBadge} onPress={openEditModal}>
-              <Pencil color={colors.white} size={14} />
+            <TouchableOpacity onPress={handlePickImage} disabled={isUploadingImage}>
+              <View style={styles.avatar}>
+                {isUploadingImage ? (
+                  <ActivityIndicator color={colors.primary} />
+                ) : profile?.profile_pic_url ? (
+                  <Image source={{ uri: profile.profile_pic_url }} style={{ width: 80, height: 80, borderRadius: 40 }} />
+                ) : (
+                  <Text style={styles.avatarText}>{getInitials(profile?.full_name)}</Text>
+                )}
+              </View>
+              <View style={styles.editBadge}>
+                <Pencil color={colors.white} size={14} />
+              </View>
             </TouchableOpacity>
           </View>
           

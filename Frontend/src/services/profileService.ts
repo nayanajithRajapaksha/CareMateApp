@@ -6,6 +6,7 @@ export interface UserProfile {
   contact_number: string | null;
   role: string;
   hospital: string | null;
+  profile_pic_url?: string;
 }
 
 export const profileService = {
@@ -22,6 +23,21 @@ export const profileService = {
     return await apiClient('/users/push-token', {
       method: 'PUT',
       body: JSON.stringify({ expo_push_token }),
+    });
+  },
+  uploadProfilePic: async (imageUri: string, mimeType: string = 'image/jpeg'): Promise<{ profile_pic_url: string }> => {
+    const formData = new FormData();
+    const filename = imageUri.split('/').pop() || 'profile.jpg';
+    
+    formData.append('profile_pic', {
+      uri: imageUri,
+      name: filename,
+      type: mimeType
+    } as any);
+
+    return await apiClient('/users/profile-pic', {
+      method: 'POST',
+      body: formData,
     });
   }
 };
