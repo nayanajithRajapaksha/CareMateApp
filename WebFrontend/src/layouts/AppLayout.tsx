@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet, Navigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { LayoutDashboard, Users, Settings, LogOut, BookOpen, Baby, UserCheck, Building2, Map, Edit2, X } from 'lucide-react';
+import { LayoutDashboard, Users, Settings, LogOut, BookOpen, Baby, UserCheck, Building2, Map, Edit2, X, Bell } from 'lucide-react';
 import logo from '../assets/logo.png';
 
 import { authService } from '../services/authService';
@@ -81,6 +81,9 @@ export const AppLayout: React.FC = () => {
               </Link>
               <Link to="/admin/blogs" className={`nav-item ${location.pathname.startsWith('/admin/blogs') ? 'active' : ''}`}>
                 <BookOpen size={20} /> Educational Blogs
+              </Link>
+              <Link to="/admin/notifications" className={`nav-item ${location.pathname.startsWith('/admin/notifications') ? 'active' : ''}`}>
+                <Bell size={20} /> Notifications
               </Link>
             </>
           )}

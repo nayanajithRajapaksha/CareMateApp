@@ -81,21 +81,21 @@ export const NotificationManager: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-full">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', padding: 40 }}>
+        <div style={{ width: 40, height: 40, border: '3px solid var(--color-primary)', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
       </div>
     );
   }
 
   return (
-    <div className="p-6 md:p-8 max-w-4xl mx-auto space-y-8 animate-fade-in">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+    <div className="animate-fade-in" style={{ padding: '0', maxWidth: 850, margin: '0 auto' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, flexWrap: 'wrap', gap: 16 }}>
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
-            <Bell className="h-8 w-8 text-primary-500" />
+          <h2 style={{ fontSize: 24, fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: 10 }}>
+            <Bell color="var(--color-primary)" size={26} />
             Notification Management
-          </h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-2">
+          </h2>
+          <p style={{ margin: '6px 0 0', color: 'var(--color-text-muted)', fontSize: 14 }}>
             Configure when automated reminders should be sent and manually trigger them if needed.
           </p>
         </div>
@@ -103,86 +103,98 @@ export const NotificationManager: React.FC = () => {
         <button
           onClick={handleTriggerNow}
           disabled={triggering}
-          className="bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2 transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed"
+          className="btn btn-primary"
+          style={{ height: 42, padding: '0 20px' }}
         >
           {triggering ? (
-            <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent" />
+            <div style={{ width: 16, height: 16, border: '2px solid white', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
           ) : (
-            <BellRing className="h-5 w-5" />
+            <BellRing size={16} />
           )}
           {triggering ? 'Triggering...' : 'Trigger Reminders Now'}
         </button>
       </div>
 
       {message && (
-        <div className={`p-4 rounded-xl border ${
-          message.type === 'success' 
-            ? 'bg-green-50 border-green-200 text-green-700 dark:bg-green-900/30 dark:border-green-800 dark:text-green-300' 
-            : 'bg-red-50 border-red-200 text-red-700 dark:bg-red-900/30 dark:border-red-800 dark:text-red-300'
-        } animate-in slide-in-from-top-2`}>
+        <div style={{ 
+          padding: '12px 16px', 
+          borderRadius: 'var(--radius-sm)', 
+          marginBottom: 24, 
+          fontSize: 14,
+          backgroundColor: message.type === 'success' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+          color: message.type === 'success' ? 'var(--color-success)' : 'var(--color-error)'
+        }}>
           {message.text}
         </div>
       )}
 
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
-        <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gray-50/50 dark:bg-gray-800/50">
-          <div className="flex items-center gap-3">
-            <CalendarClock className="h-6 w-6 text-gray-400 dark:text-gray-500" />
-            <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">Reminder Intervals</h2>
+      <div className="card">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, borderBottom: '1px solid var(--color-border)', paddingBottom: 16, flexWrap: 'wrap', gap: 16 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <CalendarClock color="var(--color-text-muted)" size={22} />
+            <h4 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>Reminder Intervals</h4>
           </div>
           
-          <div className="flex gap-2 w-full md:w-auto">
+          <div style={{ display: 'flex', gap: 8 }}>
             <input
               type="number"
               min="1"
               value={newDays}
               onChange={(e) => setNewDays(e.target.value)}
               placeholder="Days before"
-              className="px-4 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none w-32 dark:text-white"
+              className="input-field"
+              style={{ width: 130, padding: '8px 12px' }}
             />
             <button
               onClick={handleAddInterval}
-              className="bg-gray-900 hover:bg-gray-800 dark:bg-white dark:hover:bg-gray-100 dark:text-gray-900 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
+              className="btn btn-primary"
+              style={{ padding: '8px 16px' }}
             >
-              <Plus className="h-4 w-4" />
-              Add
+              <Plus size={16} /> Add
             </button>
           </div>
         </div>
 
-        <div className="divide-y divide-gray-100 dark:divide-gray-700">
+        <div>
           {settings.length === 0 ? (
-            <div className="p-8 text-center text-gray-500 dark:text-gray-400">
+            <div style={{ padding: 40, textAlign: 'center', color: 'var(--color-text-muted)', backgroundColor: 'var(--color-bg)', borderRadius: 'var(--radius-md)' }}>
               No reminder intervals configured. Add one above.
             </div>
           ) : (
             settings.map((setting) => (
-              <div key={setting.id} className="p-6 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                <div className="flex items-center gap-4">
-                  <div className="h-10 w-10 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 flex items-center justify-center font-bold">
+              <div key={setting.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 0', borderBottom: '1px solid var(--color-border)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                  <div style={{ height: 42, width: 42, borderRadius: '50%', backgroundColor: 'rgba(22, 121, 121, 0.1)', color: 'var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: 16 }}>
                     {setting.days_before}
                   </div>
                   <div>
-                    <h3 className="font-medium text-gray-900 dark:text-white">
+                    <h5 style={{ fontSize: 16, fontWeight: 600, margin: 0 }}>
                       {setting.days_before} Day{setting.days_before !== 1 ? 's' : ''} Before
-                    </h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                    </h5>
+                    <p style={{ margin: '4px 0 0', fontSize: 13, color: 'var(--color-text-muted)' }}>
                       Reminders will be sent {setting.days_before} day{setting.days_before !== 1 ? 's' : ''} prior to the appointment.
                     </p>
                   </div>
                 </div>
                 <button
                   onClick={() => handleRemoveInterval(setting.days_before)}
-                  className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-error)', padding: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', transition: 'background-color 0.2s' }}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.1)'}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                   title="Remove interval"
                 >
-                  <Trash2 className="h-5 w-5" />
+                  <Trash2 size={20} />
                 </button>
               </div>
             ))
           )}
         </div>
       </div>
+      <style>{`
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 };

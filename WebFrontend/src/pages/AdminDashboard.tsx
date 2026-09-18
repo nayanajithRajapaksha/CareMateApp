@@ -120,39 +120,12 @@ export const AdminDashboard: React.FC = () => {
   return (
     <div style={{ padding: '32px', flex: 1, display: 'flex', flexDirection: 'column' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
-        <h3 className="text-h2">System Administration</h3>
-
-        {/* Tab Switcher */}
-        <div style={{ display: 'flex', gap: 8, backgroundColor: 'var(--color-surface)', padding: 4, borderRadius: 8, border: '1px solid var(--color-border)', flexWrap: 'wrap' }}>
-          <button
-            className={`btn ${activeTab === 'config' ? 'btn-primary' : 'btn-secondary'}`}
-            style={{ padding: '8px 16px', fontSize: 14, display: 'flex', alignItems: 'center', gap: 8 }}
-            onClick={() => navigate('/admin')}
-          >
-            <Settings size={16} /> System Config
-          </button>
-          <button
-            className={`btn ${activeTab === 'users' ? 'btn-primary' : 'btn-secondary'}`}
-            style={{ padding: '8px 16px', fontSize: 14, display: 'flex', alignItems: 'center', gap: 8 }}
-            onClick={() => navigate('/admin/users')}
-          >
-            <Users size={16} /> Manage Users ({totalCount > 0 ? totalCount : '...'})
-          </button>
-          <button
-            className={`btn ${activeTab === 'blogs' ? 'btn-primary' : 'btn-secondary'}`}
-            style={{ padding: '8px 16px', fontSize: 14, display: 'flex', alignItems: 'center', gap: 8 }}
-            onClick={() => navigate('/admin/blogs')}
-          >
-            <BookOpen size={16} /> Educational Blogs
-          </button>
-          <button
-            className={`btn ${activeTab === 'notifications' ? 'btn-primary' : 'btn-secondary'}`}
-            style={{ padding: '8px 16px', fontSize: 14, display: 'flex', alignItems: 'center', gap: 8 }}
-            onClick={() => navigate('/admin/notifications')}
-          >
-            <Bell size={16} /> Notifications
-          </button>
-        </div>
+        <h3 className="text-h2">
+          {activeTab === 'blogs' ? 'Educational Blogs' : 
+           activeTab === 'notifications' ? 'Notification Management' : 
+           activeTab === 'users' ? 'Manage Users' : 
+           'System Config'}
+        </h3>
       </div>
 
       {activeTab === 'blogs' ? (
