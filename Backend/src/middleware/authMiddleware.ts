@@ -13,6 +13,7 @@ export interface AuthRequest extends Request {
 const normalizeRole = (role: string): string => {
   const lower = role.toLowerCase();
   if (lower === 'phm' || lower === 'midwife') return 'midwife';
+  if (lower === 'moh' || lower === 'supervisor') return 'moh';
   return lower;
 };
 
