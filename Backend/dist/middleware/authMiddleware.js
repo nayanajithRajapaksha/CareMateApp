@@ -13,6 +13,8 @@ const normalizeRole = (role) => {
     const lower = role.toLowerCase();
     if (lower === 'phm' || lower === 'midwife')
         return 'midwife';
+    if (lower === 'moh' || lower === 'supervisor')
+        return 'moh';
     return lower;
 };
 const verifyToken = (req, res, next) => {
