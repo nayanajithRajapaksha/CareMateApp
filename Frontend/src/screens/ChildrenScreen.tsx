@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheetScrollView, TouchableOpacity, Image } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { MoreVertical, Calendar, FileText, AlertCircle, Plus, Pencil } from 'lucide-react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { colors, typography, layout } from '../theme';
@@ -139,68 +140,55 @@ export const ChildrenScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F4FAFA',
-  },
+    backgroundColor: '#F4FAFA'},
   scrollContent: {
     padding: layout.padding,
     paddingBottom: 100, // Extra padding for FAB
   },
   header: {
     marginTop: 20,
-    marginBottom: 24,
-  },
+    marginBottom: 24},
   headerTitle: {
     ...typography.h1,
-    marginBottom: 8,
-  },
+    marginBottom: 8},
   headerSubtitle: {
-    ...typography.body,
-  },
+    ...typography.body},
   childrenList: {
-    gap: 16,
-  },
+    gap: 16},
   card: {
     backgroundColor: colors.white,
     borderRadius: 20,
     padding: 20,
     borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.05)',
-  },
+    borderColor: 'rgba(0,0,0,0.05)'},
   cardTop: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,
-  },
+    marginBottom: 16},
   childImage: {
     width: 64,
     height: 64,
     borderRadius: 32,
-    marginRight: 16,
-  },
+    marginRight: 16},
   childInfo: {
-    flex: 1,
-  },
+    flex: 1},
   childName: {
     fontSize: 20,
     fontWeight: 'bold',
     color: colors.textDark,
-    marginBottom: 4,
-  },
+    marginBottom: 4},
   childDetails: {
     fontSize: 14,
-    color: colors.textMuted,
-  },
+    color: colors.textMuted},
   menuIcon: {
-    padding: 8,
-  },
+    padding: 8},
   alertBanner: {
     flexDirection: 'row',
     backgroundColor: '#E6F4F4',
     borderRadius: 12,
     padding: 12,
     marginBottom: 16,
-    alignItems: 'center',
-  },
+    alignItems: 'center'},
   alertIconContainer: {
     width: 24,
     height: 24,
@@ -208,25 +196,20 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
-  },
+    marginRight: 12},
   alertTextContent: {
-    flex: 1,
-  },
+    flex: 1},
   alertTitle: {
     fontSize: 13,
     fontWeight: 'bold',
-    color: colors.textDark,
-  },
+    color: colors.textDark},
   alertMessage: {
     fontSize: 13,
     color: colors.textMuted,
-    marginTop: 2,
-  },
+    marginTop: 2},
   actionButtonsRow: {
     flexDirection: 'row',
-    gap: 12,
-  },
+    gap: 12},
   actionButton: {
     flex: 1,
     flexDirection: 'row',
@@ -234,13 +217,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#E6F4F4', // Light teal background
     paddingVertical: 12,
-    borderRadius: 12,
-  },
+    borderRadius: 12},
   actionButtonText: {
     color: colors.primary,
     fontWeight: '600',
-    fontSize: 15,
-  },
+    fontSize: 15},
   fab: {
     position: 'absolute',
     bottom: 24,
@@ -255,24 +236,20 @@ const styles = StyleSheet.create({
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
-    shadowRadius: 4,
-  },
+    shadowRadius: 4},
   emptyContainer: {
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 60,
-    paddingHorizontal: 20,
-  },
+    paddingHorizontal: 20},
   emptyTitle: {
     fontSize: 20,
     fontWeight: 'bold',
     color: colors.textDark,
-    marginBottom: 8,
-  },
+    marginBottom: 8},
   emptySubtitle: {
     fontSize: 15,
     color: colors.textMuted,
     textAlign: 'center',
-    lineHeight: 22,
-  }
+    lineHeight: 22}
 });

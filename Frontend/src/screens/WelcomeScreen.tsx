@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView, Image } from 'react-native';
+import { View, Text, StyleSheetImage } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { colors, typography, layout } from '../theme';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -55,31 +56,25 @@ export const WelcomeScreen: React.FC<Props> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
-  },
+    backgroundColor: colors.background},
   content: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: layout.padding,
-  },
+    paddingHorizontal: layout.padding},
   logoContainer: {
     marginBottom: 40,
     alignItems: 'center',
-    justifyContent: 'center',
-  },
+    justifyContent: 'center'},
   title: {
     ...typography.h1,
     textAlign: 'center',
-    marginBottom: 16,
-  },
+    marginBottom: 16},
   subtitle: {
     ...typography.body,
     textAlign: 'center',
-    paddingHorizontal: 20,
-  },
+    paddingHorizontal: 20},
   footer: {
     paddingHorizontal: layout.padding,
-    paddingBottom: 40,
-  }
+    paddingBottom: 40}
 });

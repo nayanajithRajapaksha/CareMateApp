@@ -17,6 +17,9 @@ export const apiClient = async (endpoint: string, options: RequestInit = {}) => 
   
   if (!isFormData) {
     headers['Content-Type'] = headers['Content-Type'] || 'application/json';
+  } else {
+    // React Native's fetch needs to automatically set the boundary for multipart/form-data
+    delete headers['Content-Type'];
   }
 
   const controller = new AbortController();

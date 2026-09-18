@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheetScrollView, TouchableOpacity, Image } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Bell, CheckCircle2, Calendar, Stethoscope, Syringe, MessageSquare, ChevronRight, Plus } from 'lucide-react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { colors, typography, layout } from '../theme';
@@ -229,33 +230,27 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: layout.padding,
-    paddingBottom: 40,
-  },
+    paddingBottom: 40},
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 24,
-  },
+    marginBottom: 24},
   headerLeft: {
     flexDirection: 'row',
-    alignItems: 'center',
-  },
+    alignItems: 'center'},
   profilePic: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    marginRight: 12,
-  },
+    marginRight: 12},
   headerTitle: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: colors.primary,
-  },
+    color: colors.primary},
   notificationBtn: {
     position: 'relative',
-    padding: 8,
-  },
+    padding: 8},
   notificationBadge: {
     position: 'absolute',
     top: 6,
@@ -269,20 +264,17 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     borderRadius: 24,
     padding: 24,
-    marginBottom: 32,
-  },
+    marginBottom: 32},
   greetingTitle: {
     color: colors.white,
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 12,
-  },
+    marginBottom: 12},
   greetingText: {
     color: 'rgba(255, 255, 255, 0.9)',
     fontSize: 15,
     lineHeight: 22,
-    marginBottom: 20,
-  },
+    marginBottom: 20},
   statusBadge: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -290,41 +282,33 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     paddingVertical: 6,
     paddingHorizontal: 12,
-    borderRadius: 20,
-  },
+    borderRadius: 20},
   statusBadgeText: {
     color: colors.white,
     marginLeft: 6,
     fontWeight: '600',
-    fontSize: 14,
-  },
+    fontSize: 14},
   section: {
-    marginBottom: 32,
-  },
+    marginBottom: 32},
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
-  },
+    marginBottom: 16},
   sectionTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: colors.textDark,
-  },
+    color: colors.textDark},
   viewAllText: {
     color: colors.primary,
     fontWeight: 'bold',
-    fontSize: 14,
-  },
+    fontSize: 14},
   actionsGrid: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
+    justifyContent: 'space-between'},
   actionItem: {
     alignItems: 'center',
-    width: '22%',
-  },
+    width: '22%'},
   actionIconContainer: {
     width: 64,
     height: 64,
@@ -332,17 +316,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#E6F4F4', // Light teal background
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 8,
-  },
+    marginBottom: 8},
   actionText: {
     fontSize: 13,
     color: colors.textDark,
     textAlign: 'center',
-    fontWeight: '500',
-  },
+    fontWeight: '500'},
   childrenList: {
-    gap: 16,
-  },
+    gap: 16},
   childCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -350,47 +331,38 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 16,
     borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.05)',
-  },
+    borderColor: 'rgba(0,0,0,0.05)'},
   childImage: {
     width: 60,
     height: 60,
     borderRadius: 16,
-    marginRight: 16,
-  },
+    marginRight: 16},
   childInfo: {
-    flex: 1,
-  },
+    flex: 1},
   childNameAge: {
-    marginBottom: 6,
-  },
+    marginBottom: 6},
   childName: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: colors.textDark,
-  },
+    color: colors.textDark},
   childAge: {
     fontSize: 16,
     color: colors.textDark,
-    fontWeight: '600',
-  },
+    fontWeight: '600'},
   childStatusRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-  },
+    alignItems: 'center'},
   childStatusText: {
     color: colors.textMuted,
     fontSize: 14,
-    marginLeft: 6,
-  },
+    marginLeft: 6},
   chevronContainer: {
     width: 36,
     height: 36,
     borderRadius: 18,
     backgroundColor: '#E6F4F4',
     justifyContent: 'center',
-    alignItems: 'center',
-  },
+    alignItems: 'center'},
   emptyContainer: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -399,20 +371,17 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.05)',
-  },
+    borderColor: 'rgba(0,0,0,0.05)'},
   emptyTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     color: colors.textDark,
-    marginBottom: 8,
-  },
+    marginBottom: 8},
   emptySubtitle: {
     fontSize: 14,
     color: colors.textMuted,
     textAlign: 'center',
-    lineHeight: 20,
-  },
+    lineHeight: 20},
   appointmentCard: {
     flexDirection: 'row',
     backgroundColor: colors.white,
@@ -420,8 +389,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderWidth: 1,
     borderColor: 'rgba(0,0,0,0.05)',
-    alignItems: 'center',
-  },
+    alignItems: 'center'},
   apptIconBox: {
     width: 48,
     height: 48,
@@ -429,22 +397,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#E6F4F4',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 16,
-  },
+    marginRight: 16},
   apptChildName: {
     fontSize: 16,
     fontWeight: 'bold',
     color: colors.textDark,
-    marginBottom: 4,
-  },
+    marginBottom: 4},
   apptDateText: {
     fontSize: 14,
     color: colors.primary,
     fontWeight: '600',
-    marginBottom: 2,
-  },
+    marginBottom: 2},
   apptMidwifeText: {
     fontSize: 13,
-    color: colors.textMuted,
-  }
+    color: colors.textMuted}
 });

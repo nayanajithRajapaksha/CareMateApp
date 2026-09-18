@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheetTouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { ChevronLeft, Circle, CheckCircle2 } from 'lucide-react-native';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { colors, typography, layout } from '../theme';
@@ -81,13 +82,11 @@ export const LanguageScreen: React.FC<Props> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
-  },
+    backgroundColor: colors.background},
   header: {
     paddingHorizontal: layout.padding,
     paddingTop: 16,
-    paddingBottom: 24,
-  },
+    paddingBottom: 24},
   backButton: {
     width: 40,
     height: 40,
@@ -95,23 +94,18 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.primary,
     alignItems: 'center',
-    justifyContent: 'center',
-  },
+    justifyContent: 'center'},
   content: {
     flex: 1,
-    paddingHorizontal: layout.padding,
-  },
+    paddingHorizontal: layout.padding},
   title: {
     ...typography.h1,
-    marginBottom: 8,
-  },
+    marginBottom: 8},
   subtitle: {
     ...typography.body,
-    marginBottom: 32,
-  },
+    marginBottom: 32},
   list: {
-    gap: 16,
-  },
+    gap: 16},
   languageCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -119,8 +113,7 @@ const styles = StyleSheet.create({
     borderRadius: layout.borderRadius,
     borderWidth: 1,
     borderColor: colors.border,
-    backgroundColor: colors.white,
-  },
+    backgroundColor: colors.white},
   languageCardSelected: {
     borderColor: colors.primary,
     backgroundColor: '#E6F4F4', // Light teal tint
@@ -132,28 +125,22 @@ const styles = StyleSheet.create({
     backgroundColor: '#F3F4F6',
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 16,
-  },
+    marginRight: 16},
   iconText: {
     color: colors.primary,
     fontWeight: 'bold',
-    fontSize: 16,
-  },
+    fontSize: 16},
   textContainer: {
-    flex: 1,
-  },
+    flex: 1},
   languageName: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: colors.textDark,
-  },
+    color: colors.textDark},
   languageSubtitle: {
     fontSize: 12,
     color: colors.textMuted,
-    marginTop: 2,
-  },
+    marginTop: 2},
   footer: {
     paddingHorizontal: layout.padding,
-    paddingBottom: 40,
-  }
+    paddingBottom: 40}
 });

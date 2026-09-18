@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, Image, Animated } from 'react-native';
+import { View, Text, StyleSheetImage, Animated } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Check } from 'lucide-react-native';
 import { colors, typography } from '../theme';
 
@@ -69,17 +70,14 @@ export const SignInSuccessScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F4FAFA',
-  },
+    backgroundColor: '#F4FAFA'},
   content: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 24,
-  },
+    paddingHorizontal: 24},
   logoContainer: {
-    marginBottom: 24,
-  },
+    marginBottom: 24},
   successIconContainer: {
     width: 64,
     height: 64,
@@ -87,29 +85,24 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 32,
-  },
+    marginBottom: 32},
   title: {
     ...typography.h1,
     marginBottom: 12,
-    textAlign: 'center',
-  },
+    textAlign: 'center'},
   subtitle: {
     ...typography.body,
     textAlign: 'center',
     color: colors.textMuted,
     paddingHorizontal: 16,
-    marginBottom: 40,
-  },
+    marginBottom: 40},
   dotsContainer: {
     flexDirection: 'row',
     gap: 12,
-    marginTop: 20,
-  },
+    marginTop: 20},
   dot: {
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: colors.primary,
-  }
+    backgroundColor: colors.primary}
 });

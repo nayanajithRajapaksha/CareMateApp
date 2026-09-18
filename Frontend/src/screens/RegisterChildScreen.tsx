@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TextInput, TouchableOpacity, ScrollView, Alert, ActivityIndicator, Modal, FlatList, Platform, Image } from 'react-native';
+import { View, Text, StyleSheetTextInput, TouchableOpacity, ScrollView, Alert, ActivityIndicator, Modal, FlatList, Platform, Image } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { ChevronLeft, User, Calendar, Edit2, CheckCircle2, ChevronDown, MapPin, X, Camera } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -82,8 +83,7 @@ export const RegisterChildScreen: React.FC = () => {
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         aspect: [1, 1],
-        quality: 0.8,
-      });
+        quality: 0.8});
 
       if (!pickerResult.canceled && pickerResult.assets && pickerResult.assets.length > 0) {
         const imageUri = pickerResult.assets[0].uri;
@@ -515,13 +515,11 @@ export const RegisterChildScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F4FAFA',
-  },
+    backgroundColor: '#F4FAFA'},
   header: {
     paddingHorizontal: layout.padding,
     paddingTop: 16,
-    paddingBottom: 8,
-  },
+    paddingBottom: 8},
   backButton: {
     width: 40,
     height: 40,
@@ -530,28 +528,23 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(0,0,0,0.1)',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: colors.white,
-  },
+    backgroundColor: colors.white},
   scrollContent: {
     padding: layout.padding,
-    paddingBottom: 40,
-  },
+    paddingBottom: 40},
   title: {
     fontSize: 28,
     fontWeight: 'bold',
     color: colors.textDark,
-    marginBottom: 24,
-  },
+    marginBottom: 24},
   stepIndicatorContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 32,
-    paddingHorizontal: 16,
-  },
+    paddingHorizontal: 16},
   stepWrapper: {
-    alignItems: 'center',
-  },
+    alignItems: 'center'},
   stepCircle: {
     width: 32,
     height: 32,
@@ -559,27 +552,21 @@ const styles = StyleSheet.create({
     backgroundColor: '#E6F4F4',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 8,
-  },
+    marginBottom: 8},
   stepCircleActive: {
-    backgroundColor: colors.primary,
-  },
+    backgroundColor: colors.primary},
   stepText: {
     color: colors.textMuted,
-    fontWeight: 'bold',
-  },
+    fontWeight: 'bold'},
   stepTextActive: {
     color: colors.white,
-    fontWeight: 'bold',
-  },
+    fontWeight: 'bold'},
   stepLabel: {
     fontSize: 12,
     color: colors.textMuted,
-    fontWeight: '600',
-  },
+    fontWeight: '600'},
   stepLabelActive: {
-    color: colors.primary,
-  },
+    color: colors.primary},
   stepLine: {
     flex: 1,
     height: 2,
@@ -588,27 +575,22 @@ const styles = StyleSheet.create({
     marginBottom: 20, // offset label height
   },
   stepLineActive: {
-    backgroundColor: colors.primary,
-  },
+    backgroundColor: colors.primary},
   formContainer: {
-    marginBottom: 20,
-  },
+    marginBottom: 20},
   formSubtitle: {
     fontSize: 15,
     color: colors.textMuted,
     lineHeight: 22,
-    marginBottom: 24,
-  },
+    marginBottom: 24},
   label: {
     fontSize: 14,
     fontWeight: '600',
     color: colors.textDark,
-    marginBottom: 8,
-  },
+    marginBottom: 8},
   optional: {
     fontWeight: 'normal',
-    color: colors.textLight,
-  },
+    color: colors.textLight},
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -618,33 +600,27 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 16,
     marginBottom: 20,
-    height: 52,
-  },
+    height: 52},
   inputIcon: {
-    marginRight: 12,
-  },
+    marginRight: 12},
   input: {
     flex: 1,
     height: 52,
     fontSize: 15,
-    color: colors.textDark,
-  },
+    color: colors.textDark},
   textAreaContainer: {
     height: 100,
     alignItems: 'flex-start',
-    paddingTop: 12,
-  },
+    paddingTop: 12},
   textArea: {
     flex: 1,
     textAlignVertical: 'top',
     fontSize: 15,
-    color: colors.textDark,
-  },
+    color: colors.textDark},
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 20,
-  },
+    marginBottom: 20},
   radioBtn: {
     flex: 1,
     height: 48,
@@ -654,35 +630,29 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginHorizontal: 4,
-    backgroundColor: colors.white,
-  },
+    backgroundColor: colors.white},
   radioBtnActive: {
     borderColor: colors.primary,
-    backgroundColor: '#F0F9F9',
-  },
+    backgroundColor: '#F0F9F9'},
   radioText: {
     fontSize: 15,
     color: colors.textMuted,
-    fontWeight: '500',
-  },
+    fontWeight: '500'},
   radioTextActive: {
     color: colors.primary,
-    fontWeight: '600',
-  },
+    fontWeight: '600'},
   footer: {
     padding: layout.padding,
     backgroundColor: colors.white,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(0,0,0,0.05)',
-  },
+    borderTopColor: 'rgba(0,0,0,0.05)'},
   reviewCard: {
     backgroundColor: colors.white,
     borderRadius: 16,
     padding: 20,
     borderWidth: 1,
     borderColor: 'rgba(0,0,0,0.05)',
-    marginBottom: 16,
-  },
+    marginBottom: 16},
   reviewHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -690,80 +660,66 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(0,0,0,0.05)',
     paddingBottom: 12,
-    marginBottom: 16,
-  },
+    marginBottom: 16},
   reviewTitle: {
     fontSize: 14,
     fontWeight: 'bold',
     color: colors.textDark,
-    letterSpacing: 1,
-  },
+    letterSpacing: 1},
   editBtn: {
     flexDirection: 'row',
-    alignItems: 'center',
-  },
+    alignItems: 'center'},
   editText: {
     color: colors.primary,
     fontSize: 13,
     fontWeight: '600',
-    marginLeft: 4,
-  },
+    marginLeft: 4},
   reviewLabel: {
     fontSize: 13,
     color: colors.textMuted,
-    marginBottom: 4,
-  },
+    marginBottom: 4},
   reviewValue: {
     fontSize: 15,
     fontWeight: '600',
-    color: colors.textDark,
-  },
+    color: colors.textDark},
   badge: {
     backgroundColor: '#E6F4F4',
     paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: 12,
-    alignSelf: 'flex-start',
-  },
+    alignSelf: 'flex-start'},
   badgeText: {
     color: colors.primary,
     fontWeight: 'bold',
-    fontSize: 13,
-  },
+    fontSize: 13},
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.4)',
-    justifyContent: 'flex-end',
-  },
+    justifyContent: 'flex-end'},
   modalContent: {
     backgroundColor: colors.white,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    height: '70%',
-  },
+    height: '70%'},
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 24,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.05)',
-  },
+    borderBottomColor: 'rgba(0,0,0,0.05)'},
   modalTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: colors.textDark,
-  },
+    color: colors.textDark},
   modalCloseBtn: {
-    padding: 4,
-  },
+    padding: 4},
   modalOption: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.05)',
-  },
+    borderBottomColor: 'rgba(0,0,0,0.05)'},
   modalOptionIcon: {
     width: 40,
     height: 40,
@@ -771,25 +727,20 @@ const styles = StyleSheet.create({
     backgroundColor: '#F0F9F9',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 16,
-  },
+    marginRight: 16},
   modalOptionContent: {
-    flex: 1,
-  },
+    flex: 1},
   modalOptionTitle: {
     fontSize: 16,
     fontWeight: '600',
     color: colors.textDark,
-    marginBottom: 4,
-  },
+    marginBottom: 4},
   modalOptionSubtitle: {
     fontSize: 13,
-    color: colors.textMuted,
-  },
+    color: colors.textMuted},
   profilePicContainer: {
     alignItems: 'center',
-    marginBottom: 24,
-  },
+    marginBottom: 24},
   profilePicWrapper: {
     width: 96,
     height: 96,
@@ -799,32 +750,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 8,
     position: 'relative',
-    overflow: 'hidden',
-  },
+    overflow: 'hidden'},
   profilePicPlaceholder: {
     justifyContent: 'center',
-    alignItems: 'center',
-  },
+    alignItems: 'center'},
   profileImage: {
     width: '100%',
-    height: '100%',
-  },
+    height: '100%'},
   profilePicOverlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0,0,0,0.4)',
     justifyContent: 'center',
-    alignItems: 'center',
-  },
+    alignItems: 'center'},
   editIconBadge: {
     position: 'absolute',
     bottom: 0,
     width: '100%',
     backgroundColor: 'rgba(0,0,0,0.5)',
     paddingVertical: 4,
-    alignItems: 'center',
-  },
+    alignItems: 'center'},
   profilePicHint: {
     fontSize: 12,
-    color: colors.textMuted,
-  },
-});
+    color: colors.textMuted}});

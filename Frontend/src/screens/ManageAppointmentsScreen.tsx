@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Alert, ActivityIndicator, RefreshControl } from 'react-native';
+import { View, Text, StyleSheetScrollView, TouchableOpacity, Alert, ActivityIndicator, RefreshControl } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Calendar, Clock, ChevronLeft, MapPin, UserRound, XCircle, Stethoscope, BriefcaseMedical } from 'lucide-react-native';
 import { colors, layout } from '../theme';
@@ -208,8 +209,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: layout.padding,
     paddingTop: 10,
     paddingBottom: 16,
-    backgroundColor: '#F4FAFA',
-  },
+    backgroundColor: '#F4FAFA'},
   backButton: { padding: 4 },
   headerTitle: { fontSize: 18, fontWeight: '700', color: colors.textDark },
   scrollContent: { padding: layout.padding, paddingBottom: 40 },
@@ -226,11 +226,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#D7E1E3',
     marginBottom: 16,
-    overflow: 'hidden',
-  },
+    overflow: 'hidden'},
   cardPast: {
-    opacity: 0.75,
-  },
+    opacity: 0.75},
   cardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -238,83 +236,66 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#F1F5F9',
-  },
+    borderBottomColor: '#F1F5F9'},
   childInfo: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-  },
+    gap: 8},
   childName: {
     fontSize: 15,
     fontWeight: '700',
-    color: colors.textDark,
-  },
+    color: colors.textDark},
   statusBadge: {
     backgroundColor: '#ECFDF5',
     paddingHorizontal: 8,
     paddingVertical: 4,
-    borderRadius: 8,
-  },
+    borderRadius: 8},
   statusText: {
     color: '#059669',
     fontSize: 12,
-    fontWeight: '600',
-  },
+    fontWeight: '600'},
   statusBadgeCancelled: {
-    backgroundColor: '#FEF2F2',
-  },
+    backgroundColor: '#FEF2F2'},
   statusTextCancelled: {
-    color: '#DC2626',
-  },
+    color: '#DC2626'},
   statusBadgeCompleted: {
-    backgroundColor: '#F3F4F6',
-  },
+    backgroundColor: '#F3F4F6'},
   statusTextCompleted: {
-    color: '#4B5563',
-  },
+    color: '#4B5563'},
   cardBody: {
     padding: 16,
-    gap: 12,
-  },
+    gap: 12},
   detailRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-  },
+    gap: 8},
   detailText: {
     fontSize: 14,
-    color: colors.textDark,
-  },
+    color: colors.textDark},
   dateTimeContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     backgroundColor: '#F8FAFC',
     padding: 12,
     borderRadius: 10,
-    marginTop: 4,
-  },
+    marginTop: 4},
   dateTimeText: {
     fontSize: 14,
     fontWeight: '600',
-    color: colors.primary,
-  },
+    color: colors.primary},
   cardFooter: {
     borderTopWidth: 1,
     borderTopColor: '#F1F5F9',
     padding: 12,
-    backgroundColor: '#FAFAFA',
-  },
+    backgroundColor: '#FAFAFA'},
   cancelButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    paddingVertical: 8,
-  },
+    paddingVertical: 8},
   cancelButtonText: {
     color: '#EF4444',
     fontWeight: '600',
-    fontSize: 14,
-  }
+    fontSize: 14}
 });

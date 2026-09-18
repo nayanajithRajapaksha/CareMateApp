@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  View, Text, StyleSheet, SafeAreaView, ScrollView, TextInput, 
+  View, Text, StyleSheetScrollView, TextInput, 
   TouchableOpacity, Image, ActivityIndicator 
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Search, ArrowRight, BookOpen } from 'lucide-react-native';
 import { colors, typography, layout } from '../theme';
 import { blogService, type Blog } from '../services/blogService';
@@ -248,24 +249,19 @@ export const LearnScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F4FAFA',
-  },
+    backgroundColor: '#F4FAFA'},
   scrollContent: {
-    paddingBottom: 40,
-  },
+    paddingBottom: 40},
   header: {
     paddingHorizontal: layout.padding,
     marginTop: 20,
-    marginBottom: 16,
-  },
+    marginBottom: 16},
   headerTitle: {
-    ...typography.h1,
-  },
+    ...typography.h1},
   headerSubtitle: {
     fontSize: 14,
     color: colors.textMuted,
-    marginTop: 4,
-  },
+    marginTop: 4},
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -276,77 +272,61 @@ const styles = StyleSheet.create({
     height: 48,
     borderWidth: 1,
     borderColor: 'rgba(0,0,0,0.05)',
-    marginBottom: 16,
-  },
+    marginBottom: 16},
   searchIcon: {
-    marginRight: 12,
-  },
+    marginRight: 12},
   searchInput: {
     flex: 1,
     fontSize: 15,
-    color: colors.textDark,
-  },
+    color: colors.textDark},
   filterScroll: {
-    marginBottom: 24,
-  },
+    marginBottom: 24},
   filterContainer: {
     paddingHorizontal: layout.padding,
-    gap: 8,
-  },
+    gap: 8},
   chip: {
     backgroundColor: '#E6F4F4',
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 20,
-    marginRight: 8,
-  },
+    marginRight: 8},
   activeChip: {
-    backgroundColor: colors.primary,
-  },
+    backgroundColor: colors.primary},
   chipText: {
     color: colors.textDark,
     fontSize: 14,
-    fontWeight: '500',
-  },
+    fontWeight: '500'},
   activeChipText: {
-    color: colors.white,
-  },
+    color: colors.white},
   loadingContainer: {
     padding: 40,
     alignItems: 'center',
-    justifyContent: 'center',
-  },
+    justifyContent: 'center'},
   loadingText: {
     marginTop: 12,
     fontSize: 14,
-    color: colors.textMuted,
-  },
+    color: colors.textMuted},
   section: {
     paddingHorizontal: layout.padding,
-    marginBottom: 24,
-  },
+    marginBottom: 24},
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     color: colors.textDark,
-    marginBottom: 16,
-  },
+    marginBottom: 16},
   featuredCard: {
     backgroundColor: colors.white,
     borderRadius: 16,
     borderWidth: 1,
     borderColor: 'rgba(0,0,0,0.05)',
-    overflow: 'hidden',
-  },
+    overflow: 'hidden'},
   featuredImageContainer: {
     position: 'relative',
     height: 180,
-    width: '100%',
-  },
+    width: '100%'},
   featuredImage: {
     width: '100%',
-    height: '100%',
-  },
+    height: '100%'},
   imageBadge: {
     position: 'absolute',
     top: 12,
@@ -354,44 +334,36 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     paddingVertical: 4,
     paddingHorizontal: 10,
-    borderRadius: 12,
-  },
+    borderRadius: 12},
   imageBadgeText: {
     color: colors.white,
     fontSize: 12,
-    fontWeight: 'bold',
-  },
+    fontWeight: 'bold'},
   featuredContent: {
-    padding: 16,
-  },
+    padding: 16},
   featuredTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     color: colors.textDark,
-    marginBottom: 8,
-  },
+    marginBottom: 8},
   featuredDescription: {
     fontSize: 14,
     color: colors.textMuted,
     lineHeight: 20,
-    marginBottom: 16,
-  },
+    marginBottom: 16},
   readMoreBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#E6F4F4',
     paddingVertical: 12,
-    borderRadius: 12,
-  },
+    borderRadius: 12},
   readMoreText: {
     color: colors.primary,
     fontWeight: '600',
-    fontSize: 14,
-  },
+    fontSize: 14},
   articlesList: {
-    gap: 12,
-  },
+    gap: 12},
   articleCard: {
     flexDirection: 'row',
     backgroundColor: colors.white,
@@ -399,46 +371,38 @@ const styles = StyleSheet.create({
     padding: 12,
     borderWidth: 1,
     borderColor: 'rgba(0,0,0,0.05)',
-    marginBottom: 10,
-  },
+    marginBottom: 10},
   articleImage: {
     width: 80,
     height: 80,
     borderRadius: 12,
-    marginRight: 16,
-  },
+    marginRight: 16},
   articleInfo: {
     flex: 1,
-    justifyContent: 'center',
-  },
+    justifyContent: 'center'},
   articleCategory: {
     color: colors.primary,
     fontSize: 12,
     fontWeight: '600',
-    marginBottom: 4,
-  },
+    marginBottom: 4},
   articleTitle: {
     fontSize: 15,
     fontWeight: 'bold',
     color: colors.textDark,
     marginBottom: 6,
-    lineHeight: 20,
-  },
+    lineHeight: 20},
   articleReadTime: {
     fontSize: 12,
-    color: colors.textMuted,
-  },
+    color: colors.textMuted},
   emptyContainer: {
     backgroundColor: colors.white,
     padding: 32,
     borderRadius: 16,
     alignItems: 'center',
-    justifyContent: 'center',
-  },
+    justifyContent: 'center'},
   emptyText: {
     marginTop: 12,
     fontSize: 14,
     color: colors.textMuted,
-    textAlign: 'center',
-  }
+    textAlign: 'center'}
 });

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Modal, TextInput, ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Linking, Image } from 'react-native';
+import { View, Text, StyleSheetScrollView, TouchableOpacity, Modal, TextInput, ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Linking, Image } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Pencil, User as UserIcon, Shield, Bell, Globe, FileKey, HelpCircle, ChevronRight, ExternalLink, X } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -97,8 +98,7 @@ export const ProfileScreen: React.FC = () => {
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         aspect: [1, 1],
-        quality: 0.8,
-      });
+        quality: 0.8});
 
       if (!result.canceled && result.assets && result.assets.length > 0) {
         const selectedAsset = result.assets[0];
@@ -532,34 +532,28 @@ export const ProfileScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F4FAFA',
-  },
+    backgroundColor: '#F4FAFA'},
   scrollContent: {
     padding: layout.padding,
-    paddingBottom: 40,
-  },
+    paddingBottom: 40},
   profileHeader: {
     alignItems: 'center',
     marginTop: 20,
-    marginBottom: 32,
-  },
+    marginBottom: 32},
   avatarContainer: {
     position: 'relative',
-    marginBottom: 16,
-  },
+    marginBottom: 16},
   avatar: {
     width: 100,
     height: 100,
     borderRadius: 50,
     backgroundColor: colors.primary,
     justifyContent: 'center',
-    alignItems: 'center',
-  },
+    alignItems: 'center'},
   avatarText: {
     color: colors.white,
     fontSize: 32,
-    fontWeight: 'bold',
-  },
+    fontWeight: 'bold'},
   editBadge: {
     position: 'absolute',
     bottom: 0,
@@ -577,13 +571,11 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     color: colors.textDark,
-    marginBottom: 4,
-  },
+    marginBottom: 4},
   userInfo: {
     fontSize: 14,
     color: colors.textMuted,
-    marginBottom: 2,
-  },
+    marginBottom: 2},
   editProfileBtn: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -591,29 +583,24 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 20,
-    marginTop: 16,
-  },
+    marginTop: 16},
   editProfileText: {
     color: colors.primary,
     fontWeight: '600',
-    fontSize: 14,
-  },
+    fontSize: 14},
   menuContainer: {
     backgroundColor: colors.white,
     borderRadius: 16,
     borderWidth: 1,
     borderColor: 'rgba(0,0,0,0.05)',
-    overflow: 'hidden',
-  },
+    overflow: 'hidden'},
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
-  },
+    padding: 16},
   menuItemBorder: {
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.05)',
-  },
+    borderBottomColor: 'rgba(0,0,0,0.05)'},
   menuIconContainer: {
     width: 40,
     height: 40,
@@ -621,171 +608,139 @@ const styles = StyleSheet.create({
     backgroundColor: '#E6F4F4',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 16,
-  },
+    marginRight: 16},
   menuTextContainer: {
-    flex: 1,
-  },
+    flex: 1},
   menuTitle: {
     fontSize: 16,
     fontWeight: 'bold',
     color: colors.textDark,
-    marginBottom: 4,
-  },
+    marginBottom: 4},
   menuSubtitle: {
     fontSize: 13,
-    color: colors.textMuted,
-  },
+    color: colors.textMuted},
   menuRightElement: {
-    marginLeft: 8,
-  },
+    marginLeft: 8},
   footerContainer: {
     marginTop: 32,
-    alignItems: 'center',
-  },
+    alignItems: 'center'},
   footerText: {
     fontSize: 12,
-    color: colors.textMuted,
-  },
+    color: colors.textMuted},
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'flex-end',
-  },
+    justifyContent: 'flex-end'},
   modalKeyboardAvoidingView: {
-    justifyContent: 'flex-end',
-  },
+    justifyContent: 'flex-end'},
   modalContent: {
     backgroundColor: colors.white,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     padding: 24,
-    minHeight: 300,
-  },
+    minHeight: 300},
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 24,
-  },
+    marginBottom: 24},
   modalTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: colors.textDark,
-  },
+    color: colors.textDark},
   inputGroup: {
-    marginBottom: 16,
-  },
+    marginBottom: 16},
   label: {
     fontSize: 14,
     color: colors.textDark,
     marginBottom: 8,
-    fontWeight: '500',
-  },
+    fontWeight: '500'},
   input: {
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: layout.borderRadius,
     padding: 12,
     fontSize: 16,
-    color: colors.textDark,
-  },
+    color: colors.textDark},
   saveButton: {
     backgroundColor: colors.primary,
     padding: 16,
     borderRadius: layout.borderRadius,
     alignItems: 'center',
     marginTop: 16,
-    marginBottom: 20,
-  },
+    marginBottom: 20},
   saveButtonText: {
     color: colors.white,
     fontSize: 16,
-    fontWeight: 'bold',
-  },
+    fontWeight: 'bold'},
   actionModalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.45)',
     justifyContent: 'center',
-    padding: 20,
-  },
+    padding: 20},
   actionModalContent: {
     backgroundColor: colors.white,
     borderRadius: 20,
-    padding: 20,
-  },
+    padding: 20},
   modalBodyText: {
     fontSize: 15,
     color: colors.textDark,
     lineHeight: 22,
-    marginBottom: 18,
-  },
+    marginBottom: 18},
   errorMessage: {
     color: '#B42318',
     fontSize: 14,
     marginBottom: 16,
-    fontWeight: '600',
-  },
+    fontWeight: '600'},
   successMessage: {
     color: '#027A48',
     fontSize: 14,
     marginBottom: 16,
-    fontWeight: '600',
-  },
+    fontWeight: '600'},
   toggleRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 18,
-  },
+    marginBottom: 18},
   toggleLabel: {
     fontSize: 15,
     color: colors.textDark,
-    fontWeight: '500',
-  },
+    fontWeight: '500'},
   toggle: {
     width: 52,
     height: 32,
     borderRadius: 16,
     backgroundColor: '#D9E3E3',
     padding: 4,
-    justifyContent: 'center',
-  },
+    justifyContent: 'center'},
   toggleOn: {
-    backgroundColor: colors.primary,
-  },
+    backgroundColor: colors.primary},
   toggleThumb: {
     width: 22,
     height: 22,
     borderRadius: 11,
     backgroundColor: colors.white,
-    alignSelf: 'flex-start',
-  },
+    alignSelf: 'flex-start'},
   toggleThumbOn: {
-    alignSelf: 'flex-end',
-  },
+    alignSelf: 'flex-end'},
   supportButton: {
     backgroundColor: '#E6F4F4',
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderRadius: 12,
     alignItems: 'center',
-    marginBottom: 18,
-  },
+    marginBottom: 18},
   supportButtonText: {
     color: colors.primary,
     fontWeight: '700',
-    fontSize: 15,
-  },
+    fontSize: 15},
   closeActionButton: {
     backgroundColor: colors.primary,
     paddingVertical: 12,
     borderRadius: 12,
-    alignItems: 'center',
-  },
+    alignItems: 'center'},
   closeActionButtonText: {
     color: colors.white,
     fontWeight: '700',
-    fontSize: 15,
-  }
+    fontSize: 15}
 });

@@ -1,11 +1,14 @@
 import React, { useEffect } from 'react';
-import { View, StyleSheet, SafeAreaView, Image } from 'react-native';
+import { View, StyleSheetImage } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../theme';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type RootStackParamList = {
   Splash: undefined;
   Language: undefined;
+  Main: undefined;
 };
 
 type SplashScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Splash'>;
@@ -17,11 +20,24 @@ interface Props {
 export const SplashScreen: React.FC<Props> = ({ navigation }) => {
 
   useEffect(() => {
-    // Navigate to Language screen after 2.5 seconds
-    const timer = setTimeout(() => {
-      navigation.replace('Language');
-    }, 2500);
-    return () => clearTimeout(timer);
+    const checkLoginStatus = async () => {
+      try {
+        const token = await AsyncStorage.getItem('userToken');
+        setTimeout(() => {
+          if (token) {
+            navigation.replace('Main');
+          } else {
+            navigation.replace('Language');
+          }
+        }, 2500);
+      } catch (error) {
+        setTimeout(() => {
+          navigation.replace('Language');
+        }, 2500);
+      }
+    };
+
+    checkLoginStatus();
   }, [navigation]);
 
   return (
@@ -40,15 +56,11 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.white,
-  },
+    backgroundColor: colors.white},
   content: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
-  },
+    alignItems: 'center'},
   logo: {
     width: 300,
-    height: 300,
-  },
-});
+    height: 300}});

@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheetScrollView, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowRight, BriefcaseMedical, ChevronRight, Clock, UserRound } from 'lucide-react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { colors, layout } from '../theme';
@@ -258,5 +259,4 @@ const styles = StyleSheet.create({
   summary: { color: colors.primary, fontWeight: '600', marginTop: 6, lineHeight: 18, fontSize: 13 },
   footer: { position: 'absolute', bottom: 0, left: 0, right: 0, padding: 12, paddingBottom: 16, backgroundColor: '#F4FAFA', borderTopWidth: 1, borderTopColor: '#D7E1E3' },
   continueButton: { minHeight: 48, borderRadius: 10, backgroundColor: colors.primary, flexDirection: 'row', gap: 8, justifyContent: 'center', alignItems: 'center' },
-  continueText: { color: colors.white, fontSize: 15, fontWeight: '700' },
-});
+  continueText: { color: colors.white, fontSize: 15, fontWeight: '700' }});

@@ -2,9 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
-  SafeAreaView,
-  TouchableOpacity,
+  StyleSheetTouchableOpacity,
   TextInput,
   ScrollView,
   Dimensions,
@@ -14,8 +12,8 @@ import {
   Platform,
   UIManager,
   Animated,
-  PanResponder,
-} from 'react-native';
+  PanResponder} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   ArrowLeft,
   Search,
@@ -29,8 +27,7 @@ import {
   X,
   Route,
   Clock,
-  XCircle,
-} from 'lucide-react-native';
+  XCircle} from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import { WebView, WebViewMessageEvent } from 'react-native-webview';
 import * as Location from 'expo-location';
@@ -393,8 +390,7 @@ export const FindClinicScreen: React.FC = () => {
     Animated.spring(translateY, {
       toValue: yValue,
       useNativeDriver: true,
-      bounciness: 4,
-    }).start(() => {
+      bounciness: 4}).start(() => {
       lastY.current = yValue;
     });
   }, [translateY]);
@@ -420,8 +416,7 @@ export const FindClinicScreen: React.FC = () => {
         } else {
           snapTo(PREVIEW_Y);
         }
-      },
-    })
+      }})
   ).current;
 
   // ── Toggle sort option ────────────────────────────────────────────────────
@@ -710,16 +705,14 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: layout.padding,
-    paddingVertical: 12,
-  },
+    paddingVertical: 12},
   backButton: { padding: 8, marginLeft: -8 },
   headerTitle: { fontSize: 20, fontWeight: 'bold', color: colors.primary },
 
   searchSection: {
     paddingHorizontal: layout.padding,
     zIndex: 100,
-    backgroundColor: '#F7FCFC',
-  },
+    backgroundColor: '#F7FCFC'},
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -729,8 +722,7 @@ const styles = StyleSheet.create({
     height: 52,
     borderWidth: 1,
     borderColor: '#E2E8F0',
-    marginBottom: 4,
-  },
+    marginBottom: 4},
   searchInput: { flex: 1, marginLeft: 10, fontSize: 16, color: colors.textDark },
   iconBtn: { padding: 4, marginLeft: 2 },
 
@@ -746,32 +738,27 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 8,
     elevation: 6,
-    overflow: 'hidden',
-  },
+    overflow: 'hidden'},
   dropdownItem: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
+    paddingVertical: 12},
   dropdownIconWrap: {
     width: 28, height: 28, borderRadius: 14,
     backgroundColor: '#E8F5F5',
     justifyContent: 'center', alignItems: 'center',
-    marginRight: 12,
-  },
+    marginRight: 12},
   dropdownCross: {
     width: 12, height: 12,
     // Rendered with border trick to form a + cross
     borderTopWidth: 2, borderTopColor: colors.primary,
-    borderBottomWidth: 2, borderBottomColor: 'transparent',
-  },
+    borderBottomWidth: 2, borderBottomColor: 'transparent'},
   dropdownClinicName: { fontSize: 14, fontWeight: '600', color: '#0F172A', marginBottom: 2 },
   dropdownClinicMeta: { fontSize: 12, color: '#64748B' },
   dropdownOpenDot: {
     width: 8, height: 8, borderRadius: 4,
-    backgroundColor: '#10B981', marginLeft: 10,
-  },
+    backgroundColor: '#10B981', marginLeft: 10},
   dropdownClosedDot: { backgroundColor: '#94A3B8' },
   dropdownSep: { height: 1, backgroundColor: '#F1F5F9', marginHorizontal: 16 },
 
@@ -785,8 +772,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#E2E8F0',
     backgroundColor: colors.white,
-    marginRight: 10,
-  },
+    marginRight: 10},
   filterChipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
   filterText: { fontSize: 14, fontWeight: '500', color: colors.textDark },
   filterTextActive: { color: colors.white },
@@ -808,8 +794,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 8,
-    elevation: 8,
-  },
+    elevation: 8},
 
   legend: {
     position: 'absolute',
@@ -825,15 +810,13 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 4,
-  },
+    elevation: 4},
   legendDot: {
     width: 12,
     height: 12,
     borderRadius: 6,
     backgroundColor: colors.primary,
-    marginRight: 8,
-  },
+    marginRight: 8},
   legendText: { fontSize: 12, color: '#334155', fontWeight: '500' },
 
   // Route info bar
@@ -846,21 +829,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: '#C5E8E8',
-  },
+    borderColor: '#C5E8E8'},
   routeInfoItem: { flexDirection: 'row', alignItems: 'center', flex: 1 },
   routeInfoValue: {
     fontSize: 15,
     fontWeight: '700',
     color: colors.primary,
-    marginLeft: 8,
-  },
+    marginLeft: 8},
   routeInfoDivider: {
     width: 1,
     height: 24,
     backgroundColor: '#C5E8E8',
-    marginHorizontal: 12,
-  },
+    marginHorizontal: 12},
   routeClearBtn: { padding: 4 },
 
   bottomSheet: {
@@ -876,25 +856,21 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.1,
     shadowRadius: 12,
-    elevation: 20,
-  },
+    elevation: 20},
   sheetDragArea: {
-    backgroundColor: 'transparent',
-  },
+    backgroundColor: 'transparent'},
   dragHandle: {
     width: 40,
     height: 4,
     backgroundColor: '#CBD5E1',
     borderRadius: 2,
     alignSelf: 'center',
-    marginBottom: 16,
-  },
+    marginBottom: 16},
   sheetHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
-  },
+    marginBottom: 16},
   sheetHeaderTitleRow: { flexDirection: 'row', alignItems: 'center' },
   sheetTitle: { fontSize: 20, fontWeight: 'bold', color: '#0F172A', marginRight: 8 },
   sheetSubtitle: { fontSize: 14, color: '#64748B' },
@@ -906,16 +882,14 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
+    borderColor: '#E2E8F0'},
   clinicCardTopRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
   statusBadge: {
     backgroundColor: '#E6F4F1',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 6,
-    marginRight: 8,
-  },
+    marginRight: 8},
   statusBadgeClosed: { backgroundColor: '#F1F5F9' },
   statusText: { fontSize: 10, fontWeight: 'bold', color: colors.primary },
   statusTextClosed: { color: '#94A3B8' },
@@ -923,16 +897,14 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     paddingHorizontal: 8,
     paddingVertical: 4,
-    borderRadius: 6,
-  },
+    borderRadius: 6},
   mohBadgeText: { fontSize: 10, fontWeight: 'bold', color: colors.white },
 
   clinicCardMiddleRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 16,
-  },
+    marginBottom: 16},
   clinicName: { fontSize: 16, fontWeight: 'bold', color: '#0F172A', marginBottom: 2 },
   clinicType: { fontSize: 13, color: colors.primary, fontWeight: '500', marginBottom: 4 },
   addressRow: { flexDirection: 'row', alignItems: 'center' },
@@ -943,8 +915,7 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     backgroundColor: '#E5EFEF',
     justifyContent: 'center',
-    alignItems: 'center',
-  },
+    alignItems: 'center'},
 
   clinicCardBottomRow: { flexDirection: 'row', gap: 12 },
   detailsButton: {
@@ -953,8 +924,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingVertical: 14,
     justifyContent: 'center',
-    alignItems: 'center',
-  },
+    alignItems: 'center'},
   detailsButtonText: { color: colors.white, fontSize: 14, fontWeight: '600' },
   directionsButton: {
     width: 48,
@@ -964,10 +934,7 @@ const styles = StyleSheet.create({
     borderColor: '#E2E8F0',
     backgroundColor: colors.white,
     justifyContent: 'center',
-    alignItems: 'center',
-  },
+    alignItems: 'center'},
   directionsButtonActive: {
     backgroundColor: colors.primary,
-    borderColor: colors.primary,
-  },
-});
+    borderColor: colors.primary}});

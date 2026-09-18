@@ -1,4 +1,6 @@
 import { apiClient } from './apiClient';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_BASE_URL } from './apiConfig';
 
 export interface UserProfile {
   email: string;
@@ -35,9 +37,19 @@ export const profileService = {
       type: mimeType
     } as any);
 
-    return await apiClient('/users/profile-pic', {
+    const token = await AsyncStorage.getItem('userToken');
+    const response = await fetch(`${API_BASE_URL}/users/profile-pic`, {
       method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
       body: formData,
     });
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error || 'Failed to upload profile picture');
+    }
+    return data;
   }
 };

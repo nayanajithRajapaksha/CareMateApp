@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, KeyboardAvoidingView, Platform, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheetTouchableOpacity, KeyboardAvoidingView, Platform, Alert, ActivityIndicator } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Mail } from 'lucide-react-native';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { InputField } from '../components/InputField';
@@ -34,8 +35,7 @@ export const ForgotPasswordScreen: React.FC<Props> = ({ navigation }) => {
       const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      });
+        body: JSON.stringify({ email })});
       const data = await response.json();
 
       if (!response.ok) {
@@ -99,47 +99,37 @@ export const ForgotPasswordScreen: React.FC<Props> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
-  },
+    backgroundColor: colors.background},
   flex: {
-    flex: 1,
-  },
+    flex: 1},
   content: {
     flex: 1,
     paddingHorizontal: layout.padding,
-    paddingTop: 80,
-  },
+    paddingTop: 80},
   header: {
     alignItems: 'center',
-    marginBottom: 40,
-  },
+    marginBottom: 40},
   title: {
     ...typography.h2,
     marginBottom: 16,
-    textAlign: 'center',
-  },
+    textAlign: 'center'},
   subtitle: {
     ...typography.body,
     textAlign: 'center',
-    paddingHorizontal: 20,
-  },
+    paddingHorizontal: 20},
   form: {
-    marginBottom: 40,
-  },
+    marginBottom: 40},
   label: {
     ...typography.body,
     fontSize: 12,
     color: colors.textMuted,
-    marginBottom: 8,
-  },
+    marginBottom: 8},
   backButton: {
     alignItems: 'center',
     marginTop: 'auto',
-    marginBottom: 40,
-  },
+    marginBottom: 40},
   backButtonText: {
     color: colors.primary,
     fontSize: 14,
-    fontWeight: '600',
-  }
+    fontWeight: '600'}
 });

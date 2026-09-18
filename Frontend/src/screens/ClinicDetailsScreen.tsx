@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Image, Dimensions, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheetScrollView, TouchableOpacity, Image, Dimensions, ActivityIndicator } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft, Star, MapPin, Phone, CornerUpRight, Syringe, Activity, Baby, ShieldPlus } from 'lucide-react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { colors, layout } from '../theme';
@@ -158,8 +159,7 @@ export const ClinicDetailsScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7FCFC',
-  },
+    backgroundColor: '#F7FCFC'},
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -167,57 +167,46 @@ const styles = StyleSheet.create({
     paddingHorizontal: layout.padding,
     paddingVertical: 12,
     backgroundColor: 'transparent',
-    zIndex: 10,
-  },
+    zIndex: 10},
   backButton: {
     padding: 8,
-    marginLeft: -8,
-  },
+    marginLeft: -8},
   headerTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: colors.primary,
-  },
+    color: colors.primary},
   scrollContent: {
-    paddingBottom: 40,
-  },
+    paddingBottom: 40},
   imageContainer: {
     width: '100%',
     height: 240,
     position: 'relative',
     marginTop: -60, // Pull up under the header
-    zIndex: 1,
-  },
+    zIndex: 1},
   clinicImage: {
     width: '100%',
-    height: '100%',
-  },
+    height: '100%'},
   imageOverlay: {
     ...StyleSheet.absoluteFill as any,
-    backgroundColor: 'rgba(0,0,0,0.4)',
-  },
+    backgroundColor: 'rgba(0,0,0,0.4)'},
   imageTextContainer: {
     position: 'absolute',
     bottom: 40,
     left: layout.padding,
-    right: layout.padding,
-  },
+    right: layout.padding},
   clinicTitle: {
     color: colors.white,
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 6,
-  },
+    marginBottom: 6},
   ratingRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-  },
+    alignItems: 'center'},
   ratingText: {
     color: 'rgba(255,255,255,0.9)',
     fontSize: 14,
     marginLeft: 6,
-    fontWeight: '500',
-  },
+    fontWeight: '500'},
   infoCard: {
     backgroundColor: colors.white,
     borderRadius: 20,
@@ -231,13 +220,11 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.05,
     shadowRadius: 8,
-    elevation: 3,
-  },
+    elevation: 3},
   locationRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 20,
-  },
+    marginBottom: 20},
   locationIconBg: {
     width: 44,
     height: 44,
@@ -245,34 +232,27 @@ const styles = StyleSheet.create({
     backgroundColor: '#E6F4F4',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 16,
-  },
+    marginRight: 16},
   locationTextContainer: {
-    flex: 1,
-  },
+    flex: 1},
   addressText: {
     fontSize: 15,
     color: '#0F172A',
     fontWeight: '500',
-    marginBottom: 4,
-  },
+    marginBottom: 4},
   hoursText: {
     fontSize: 14,
-    color: '#64748B',
-  },
+    color: '#64748B'},
   divider: {
     height: 1,
     backgroundColor: '#E2E8F0',
-    marginBottom: 20,
-  },
+    marginBottom: 20},
   actionButtonsRow: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: 40,
-  },
+    gap: 40},
   actionButton: {
-    alignItems: 'center',
-  },
+    alignItems: 'center'},
   actionIconCircle: {
     width: 56,
     height: 56,
@@ -280,28 +260,23 @@ const styles = StyleSheet.create({
     backgroundColor: '#CBEBE8',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 8,
-  },
+    marginBottom: 8},
   actionButtonText: {
     fontSize: 13,
     fontWeight: '500',
-    color: '#475569',
-  },
+    color: '#475569'},
   section: {
     marginTop: 24,
-    paddingHorizontal: layout.padding,
-  },
+    paddingHorizontal: layout.padding},
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#0F172A',
-    marginBottom: 16,
-  },
+    marginBottom: 16},
   servicesGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
+    justifyContent: 'space-between'},
   serviceItem: {
     width: (width - layout.padding * 2 - 16) / 2, // 2 columns with 16px gap
     flexDirection: 'row',
@@ -311,84 +286,65 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
+    borderColor: '#E2E8F0'},
   serviceText: {
     fontSize: 13,
     fontWeight: '500',
     color: '#334155',
-    flex: 1,
-  },
+    flex: 1},
   specialistsList: {
-    gap: 16,
-  },
+    gap: 16},
   specialistCard: {
     backgroundColor: colors.white,
     borderRadius: 20,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
+    borderColor: '#E2E8F0'},
   specialistHeaderRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,
-  },
+    marginBottom: 16},
   specialistImage: {
     width: 64,
     height: 64,
     borderRadius: 32,
-    marginRight: 16,
-  },
+    marginRight: 16},
   specialistInfo: {
-    flex: 1,
-  },
+    flex: 1},
   specialistName: {
     fontSize: 16,
     fontWeight: 'bold',
     color: '#0F172A',
-    marginBottom: 2,
-  },
+    marginBottom: 2},
   specialistRole: {
     fontSize: 13,
     color: '#64748B',
-    marginBottom: 8,
-  },
+    marginBottom: 8},
   badgeRow: {
     flexDirection: 'row',
-    gap: 8,
-  },
+    gap: 8},
   badge: {
     backgroundColor: '#E2E8F0',
     paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: 12,
-  },
+    borderRadius: 12},
   badgeText: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#475569',
-  },
+    color: '#475569'},
   specialistActionBtn: {
     width: '100%',
     paddingVertical: 14,
     borderRadius: 12,
-    alignItems: 'center',
-  },
+    alignItems: 'center'},
   specialistActionBtnPrimary: {
-    backgroundColor: colors.primary,
-  },
+    backgroundColor: colors.primary},
   specialistActionBtnSecondary: {
-    backgroundColor: '#E5EFEF',
-  },
+    backgroundColor: '#E5EFEF'},
   specialistActionText: {
     fontSize: 14,
-    fontWeight: '600',
-  },
+    fontWeight: '600'},
   specialistActionTextPrimary: {
-    color: colors.white,
-  },
+    color: colors.white},
   specialistActionTextSecondary: {
-    color: colors.primary,
-  },
-});
+    color: colors.primary}});

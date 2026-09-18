@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, KeyboardAvoidingView, Platform, Alert, ActivityIndicator, ScrollView } from 'react-native';
+import { View, Text, StyleSheetTouchableOpacity, KeyboardAvoidingView, Platform, Alert, ActivityIndicator, ScrollView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { User, Lock, Mail, Phone, ChevronLeft } from 'lucide-react-native';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { InputField } from '../components/InputField';
@@ -57,8 +58,7 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
         full_name: name,
         email: email.toLowerCase().trim(),
         contact_number: contactNumber,
-        password,
-      });
+        password});
 
       await AsyncStorage.setItem('userToken', data.token);
       navigation.navigate('SignInSuccess');
@@ -153,20 +153,16 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
-  },
+    backgroundColor: colors.background},
   flex: {
-    flex: 1,
-  },
+    flex: 1},
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: layout.padding,
-    paddingBottom: 40,
-  },
+    paddingBottom: 40},
   header: {
     paddingTop: 16,
-    paddingBottom: 16,
-  },
+    paddingBottom: 16},
   backButton: {
     width: 40,
     height: 40,
@@ -174,43 +170,32 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.primary,
     alignItems: 'center',
-    justifyContent: 'center',
-  },
+    justifyContent: 'center'},
   titleContainer: {
-    marginBottom: 32,
-  },
+    marginBottom: 32},
   title: {
     ...typography.h2,
-    marginBottom: 8,
-  },
+    marginBottom: 8},
   subtitle: {
-    ...typography.body,
-  },
+    ...typography.body},
   form: {
-    marginBottom: 32,
-  },
+    marginBottom: 32},
   label: {
     ...typography.body,
     fontSize: 14,
     color: colors.textDark,
     marginBottom: 8,
-    fontWeight: '500',
-  },
+    fontWeight: '500'},
   footer: {
-    marginTop: 'auto',
-  },
+    marginTop: 'auto'},
   signinContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 16,
-  },
+    marginTop: 16},
   signinText: {
     color: colors.textMuted,
-    fontSize: 14,
-  },
+    fontSize: 14},
   signinLink: {
     color: colors.primary,
     fontSize: 14,
-    fontWeight: '600',
-  },
-});
+    fontWeight: '600'}});

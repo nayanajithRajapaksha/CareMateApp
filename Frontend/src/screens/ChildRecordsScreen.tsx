@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheetScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft, Calendar, FileText, CheckCircle, XCircle } from 'lucide-react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { colors, typography, layout } from '../theme';
@@ -131,8 +132,7 @@ export const ChildRecordsScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F4FAFA',
-  },
+    backgroundColor: '#F4FAFA'},
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -141,40 +141,32 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     backgroundColor: colors.white,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.05)',
-  },
+    borderBottomColor: 'rgba(0,0,0,0.05)'},
   backButton: {
     padding: 8,
-    marginLeft: -8,
-  },
+    marginLeft: -8},
   headerTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: colors.textDark,
-  },
+    color: colors.textDark},
   scrollContent: {
     padding: layout.padding,
-    paddingBottom: 40,
-  },
+    paddingBottom: 40},
   section: {
-    marginBottom: 32,
-  },
+    marginBottom: 32},
   sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 16,
-    gap: 8,
-  },
+    gap: 8},
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: colors.textDark,
-  },
+    color: colors.textDark},
   emptyText: {
     color: colors.textMuted,
     fontSize: 14,
-    fontStyle: 'italic',
-  },
+    fontStyle: 'italic'},
   card: {
     flexDirection: 'row',
     backgroundColor: colors.white,
@@ -182,40 +174,32 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.05)',
-  },
+    borderColor: 'rgba(0,0,0,0.05)'},
   cardIcon: {
     marginRight: 16,
-    justifyContent: 'center',
-  },
+    justifyContent: 'center'},
   cardContent: {
-    flex: 1,
-  },
+    flex: 1},
   clinicName: {
     fontSize: 16,
     fontWeight: 'bold',
     color: colors.textDark,
-    marginBottom: 4,
-  },
+    marginBottom: 4},
   dateTime: {
     fontSize: 14,
     color: colors.primary,
     fontWeight: '600',
-    marginBottom: 2,
-  },
+    marginBottom: 2},
   midwifeName: {
     fontSize: 13,
     color: colors.textMuted,
-    marginBottom: 8,
-  },
+    marginBottom: 8},
   statusBadge: {
     alignSelf: 'flex-start',
     paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: 12,
-  },
+    borderRadius: 12},
   statusText: {
     fontSize: 11,
-    fontWeight: 'bold',
-  }
+    fontWeight: 'bold'}
 });

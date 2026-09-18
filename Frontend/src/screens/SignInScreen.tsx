@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, KeyboardAvoidingView, Platform, Alert, ActivityIndicator, Image } from 'react-native';
+import { View, Text, StyleSheetTouchableOpacity, KeyboardAvoidingView, Platform, Alert, ActivityIndicator, Image } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { User, Lock } from 'lucide-react-native';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { InputField } from '../components/InputField';
@@ -150,74 +151,57 @@ export const SignInScreen: React.FC<Props> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
-  },
+    backgroundColor: colors.background},
   flex: {
-    flex: 1,
-  },
+    flex: 1},
   content: {
     flex: 1,
     paddingHorizontal: layout.padding,
     paddingTop: 60,
-    justifyContent: 'center',
-  },
+    justifyContent: 'center'},
   header: {
     alignItems: 'center',
-    marginBottom: 40,
-  },
+    marginBottom: 40},
   logo: {
     width: 120,
     height: 120,
-    marginBottom: 24,
-  },
+    marginBottom: 24},
   title: {
     ...typography.h1,
-    marginBottom: 8,
-  },
+    marginBottom: 8},
   subtitle: {
-    ...typography.body,
-  },
+    ...typography.body},
   form: {
-    marginBottom: 24,
-  },
+    marginBottom: 24},
   label: {
     ...typography.body,
     fontSize: 14,
     color: colors.textDark,
     marginBottom: 8,
-    fontWeight: '500',
-  },
+    fontWeight: '500'},
   forgotPasswordContainer: {
     alignItems: 'flex-end',
-    marginTop: 8,
-  },
+    marginTop: 8},
   forgotPasswordText: {
     color: colors.primary,
     fontSize: 14,
-    fontWeight: '600',
-  },
+    fontWeight: '600'},
   errorMessage: {
     color: '#B42318',
     fontSize: 14,
     fontWeight: '600',
-    marginTop: 12,
-  },
+    marginTop: 12},
   footer: {
     marginTop: 'auto',
-    marginBottom: 40,
-  },
+    marginBottom: 40},
   signupContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 24,
-  },
+    marginTop: 24},
   signupText: {
     color: colors.textMuted,
-    fontSize: 14,
-  },
+    fontSize: 14},
   signupLink: {
     color: colors.primary,
     fontSize: 14,
-    fontWeight: '600',
-  },
-});
+    fontWeight: '600'}});

@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheetTouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { MailCheck } from 'lucide-react-native';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { colors, typography, layout } from '../theme';
@@ -58,13 +59,11 @@ export const CheckEmailScreen: React.FC<Props> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
-  },
+    backgroundColor: colors.background},
   content: {
     flex: 1,
     justifyContent: 'center',
-    paddingHorizontal: layout.padding,
-  },
+    paddingHorizontal: layout.padding},
   card: {
     backgroundColor: colors.white,
     borderRadius: 24,
@@ -74,8 +73,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.05,
     shadowRadius: 12,
-    elevation: 2,
-  },
+    elevation: 2},
   iconContainer: {
     width: 80,
     height: 80,
@@ -83,48 +81,38 @@ const styles = StyleSheet.create({
     backgroundColor: '#E6F4F4',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 24,
-  },
+    marginBottom: 24},
   title: {
     ...typography.h2,
     marginBottom: 16,
-    textAlign: 'center',
-  },
+    textAlign: 'center'},
   subtitle: {
     ...typography.body,
     textAlign: 'center',
-    marginBottom: 24,
-  },
+    marginBottom: 24},
   emailText: {
     ...typography.h2,
     fontSize: 16,
     color: colors.primary,
-    marginBottom: 32,
-  },
+    marginBottom: 32},
   backButton: {
     marginTop: 16,
-    marginBottom: 32,
-  },
+    marginBottom: 32},
   backButtonText: {
     color: colors.textMuted,
-    fontSize: 14,
-  },
+    fontSize: 14},
   resendContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
-  },
+    marginBottom: 8},
   resendText: {
     color: colors.textMuted,
-    fontSize: 12,
-  },
+    fontSize: 12},
   resendLink: {
     color: colors.primary,
     fontSize: 12,
-    fontWeight: 'bold',
-  },
+    fontWeight: 'bold'},
   timerText: {
     color: colors.textMuted,
-    fontSize: 12,
-  }
+    fontSize: 12}
 });
