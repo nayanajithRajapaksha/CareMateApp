@@ -15,7 +15,13 @@ interface ParentUser {
   contact_number?: string;
   created_at?: string;
   children_count?: number;
-  children_list?: { id: number, name: string, dob: string }[];
+  children_list?: { 
+    id: number, 
+    name: string, 
+    dob: string,
+    next_appointment_date?: string | null,
+    next_appointment_time?: string | null
+  }[];
 }
 
 export const MOHDashboard: React.FC = () => {
@@ -199,6 +205,7 @@ export const MOHDashboard: React.FC = () => {
                     <th style={{ padding: '14px 20px', fontWeight: 600 }}>Parent Info</th>
                     <th style={{ padding: '14px 20px', fontWeight: 600 }}>Contact Info</th>
                     <th style={{ padding: '14px 20px', fontWeight: 600 }}>Registered Children (Age)</th>
+                    <th style={{ padding: '14px 20px', fontWeight: 600 }}>Next Appointment</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -221,7 +228,7 @@ export const MOHDashboard: React.FC = () => {
                         {parent.children_list && parent.children_list.length > 0 ? (
                           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                             {parent.children_list.map((child: any) => (
-                              <div key={child.id} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                              <div key={child.id} style={{ display: 'flex', alignItems: 'center', gap: 6, minHeight: 24 }}>
                                 <Baby size={16} color="var(--color-primary)" />
                                 <span style={{ fontWeight: 600 }}>{child.name}</span>
                                 <span style={{ color: 'var(--color-text-muted)', fontSize: 13 }}>({childAge(child.dob)})</span>
@@ -230,6 +237,25 @@ export const MOHDashboard: React.FC = () => {
                           </div>
                         ) : (
                           <span style={{ color: 'var(--color-text-muted)' }}>No children registered</span>
+                        )}
+                      </td>
+                      <td style={{ padding: '14px 20px' }}>
+                        {parent.children_list && parent.children_list.length > 0 ? (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                            {parent.children_list.map((child: any) => (
+                              <div key={`appt-${child.id}`} style={{ display: 'flex', alignItems: 'center', minHeight: 24 }}>
+                                {child.next_appointment_date ? (
+                                  <span style={{ fontSize: 13, color: 'var(--color-primary)', fontWeight: 600, background: 'rgba(22, 121, 121, 0.1)', padding: '2px 8px', borderRadius: 4 }}>
+                                    {new Date(child.next_appointment_date).toLocaleDateString()} at {child.next_appointment_time}
+                                  </span>
+                                ) : (
+                                  <span style={{ fontSize: 13, color: 'var(--color-text-muted)' }}>None booked</span>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <span style={{ color: 'var(--color-text-muted)' }}>—</span>
                         )}
                       </td>
                     </tr>

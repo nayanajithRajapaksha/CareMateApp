@@ -13,6 +13,8 @@ import {
   LayoutAnimation,
   Platform,
   UIManager,
+  Animated,
+  PanResponder,
 } from 'react-native';
 import {
   ArrowLeft,
@@ -378,12 +380,49 @@ export const FindClinicScreen: React.FC = () => {
     }
   }, []);
 
-  // ── Expandable Bottom Sheet ───────────────────────────────────────────────
-  const [isSheetExpanded, setIsSheetExpanded] = useState(false);
-  const toggleSheet = () => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setIsSheetExpanded(!isSheetExpanded);
-  };
+  // ── Expandable Bottom Sheet (Draggable) ──────────────────────────────────
+  const SHEET_HEIGHT = height * 0.75;
+  const MINIMIZED_Y = SHEET_HEIGHT - 80; // Shows handle, title, and route info if active
+  const PREVIEW_Y = SHEET_HEIGHT - 320;  // Shows one clinic
+  const EXPANDED_Y = 0;                  // Fully expanded
+
+  const translateY = useRef(new Animated.Value(PREVIEW_Y)).current;
+  const lastY = useRef(PREVIEW_Y);
+
+  const snapTo = useCallback((yValue: number) => {
+    Animated.spring(translateY, {
+      toValue: yValue,
+      useNativeDriver: true,
+      bounciness: 4,
+    }).start(() => {
+      lastY.current = yValue;
+    });
+  }, [translateY]);
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: (_, gestureState) => Math.abs(gestureState.dy) > 5,
+      onPanResponderGrant: () => {
+        translateY.setOffset(lastY.current);
+        translateY.setValue(0);
+      },
+      onPanResponderMove: Animated.event([null, { dy: translateY }], { useNativeDriver: false }),
+      onPanResponderRelease: (_, gestureState) => {
+        translateY.flattenOffset();
+        const currentY = lastY.current + gestureState.dy;
+        const velocity = gestureState.vy;
+
+        if (velocity > 1 || currentY > (PREVIEW_Y + MINIMIZED_Y) / 2) {
+          snapTo(MINIMIZED_Y);
+        } else if (velocity < -1 || currentY < (EXPANDED_Y + PREVIEW_Y) / 2) {
+          snapTo(EXPANDED_Y);
+        } else {
+          snapTo(PREVIEW_Y);
+        }
+      },
+    })
+  ).current;
 
   // ── Toggle sort option ────────────────────────────────────────────────────
   const handleToggleSort = useCallback(() => {
@@ -610,57 +649,52 @@ export const FindClinicScreen: React.FC = () => {
       </View>
 
       {/* Bottom Sheet */}
-      <View style={[styles.bottomSheet, isSheetExpanded && { height: height * 0.75 }]}>
-        <TouchableOpacity 
-          style={{ paddingVertical: 12, alignItems: 'center', width: '100%' }} 
-          onPress={toggleSheet} 
-          activeOpacity={0.8}
-        >
-          <View style={styles.dragHandle} />
-        </TouchableOpacity>
+      <Animated.View style={[styles.bottomSheet, { height: height * 0.75, transform: [{ translateY }] }]}>
+        
+        {/* Draggable Header Area */}
+        <View {...panResponder.panHandlers} style={styles.sheetDragArea}>
+          <View style={{ paddingVertical: 12, alignItems: 'center', width: '100%' }}>
+            <View style={styles.dragHandle} />
+          </View>
 
-        {/* Route info bar (shown when routing is active) */}
-        {showingRoute && routeInfo && (
-          <View style={styles.routeInfoBar}>
-            <View style={styles.routeInfoItem}>
-              <Route color={colors.primary} size={16} />
-              <Text style={styles.routeInfoValue}>{routeInfo.distance}</Text>
+          {/* Route info bar (shown when routing is active) */}
+          {showingRoute && routeInfo && (
+            <View style={styles.routeInfoBar}>
+              <View style={styles.routeInfoItem}>
+                <Route color={colors.primary} size={16} />
+                <Text style={styles.routeInfoValue}>{routeInfo.distance}</Text>
+              </View>
+              <View style={styles.routeInfoDivider} />
+              <View style={styles.routeInfoItem}>
+                <Clock color={colors.primary} size={16} />
+                <Text style={styles.routeInfoValue}>{routeInfo.duration}</Text>
+              </View>
+              <TouchableOpacity onPress={handleClearRoute} style={styles.routeClearBtn}>
+                <XCircle color="#94A3B8" size={20} />
+              </TouchableOpacity>
             </View>
-            <View style={styles.routeInfoDivider} />
-            <View style={styles.routeInfoItem}>
-              <Clock color={colors.primary} size={16} />
-              <Text style={styles.routeInfoValue}>{routeInfo.duration}</Text>
+          )}
+
+          <View style={styles.sheetHeader}>
+            <View style={styles.sheetHeaderTitleRow}>
+              <Text style={styles.sheetTitle}>Nearby Clinics</Text>
+              <Text style={styles.sheetSubtitle}>({filteredClinics.length} locations)</Text>
             </View>
-            <TouchableOpacity onPress={handleClearRoute} style={styles.routeClearBtn}>
-              <XCircle color="#94A3B8" size={20} />
+            <TouchableOpacity style={styles.sortButton} onPress={handleToggleSort}>
+              <ArrowUpDown color={colors.primary} size={16} style={{ marginRight: 4 }} />
+              <Text style={styles.sortText}>Sort: {sortOption}</Text>
             </TouchableOpacity>
           </View>
-        )}
+        </View>
 
-        <TouchableOpacity style={styles.sheetHeader} onPress={toggleSheet} activeOpacity={0.8}>
-          <View style={styles.sheetHeaderTitleRow}>
-            <Text style={styles.sheetTitle}>Nearby Clinics</Text>
-            <Text style={styles.sheetSubtitle}>({filteredClinics.length} locations)</Text>
-          </View>
-          <TouchableOpacity style={styles.sortButton} onPress={handleToggleSort}>
-            <ArrowUpDown color={colors.primary} size={16} style={{ marginRight: 4 }} />
-            <Text style={styles.sortText}>Sort: {sortOption}</Text>
-          </TouchableOpacity>
-        </TouchableOpacity>
-
-        {isSheetExpanded ? (
-          <FlatList
-            data={filteredClinics}
-            keyExtractor={item => String(item.id)}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 40 }}
-            renderItem={({ item }) => renderClinicCard(item)}
-          />
-        ) : (
-          /* Selected clinic card */
-          selectedClinic && renderClinicCard(selectedClinic)
-        )}
-      </View>
+        <FlatList
+          data={selectedClinic ? [selectedClinic, ...filteredClinics.filter(c => c.id !== selectedClinic.id)] : filteredClinics}
+          keyExtractor={item => String(item.id)}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 40 }}
+          renderItem={({ item }) => renderClinicCard(item)}
+        />
+      </Animated.View>
     </SafeAreaView>
   );
 };
@@ -836,12 +870,14 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 24,
     paddingHorizontal: layout.padding,
     paddingBottom: 36,
-    paddingTop: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.1,
     shadowRadius: 12,
     elevation: 20,
+  },
+  sheetDragArea: {
+    backgroundColor: 'transparent',
   },
   dragHandle: {
     width: 40,
