@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet, Navigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { LayoutDashboard, Users, Settings, LogOut, BookOpen, Baby, UserCheck, Building2, Map, Edit2, X, Bell, Clock } from 'lucide-react';
+import { LayoutDashboard, Users, Settings, LogOut, BookOpen, Baby, UserCheck, Building2, Map, Edit2, X, Bell, Clock, Key } from 'lucide-react';
 import logo from '../assets/logo.png';
 
 import { authService } from '../services/authService';
@@ -13,6 +13,10 @@ export const AppLayout: React.FC = () => {
   const [isProfileModalOpen, setIsProfileModalOpen] = React.useState(false);
   const [profileForm, setProfileForm] = React.useState({ full_name: '', contact_number: '' });
   const [isSavingProfile, setIsSavingProfile] = React.useState(false);
+
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = React.useState(false);
+  const [passwordForm, setPasswordForm] = React.useState({ currentPassword: '', newPassword: '' });
+  const [isSavingPassword, setIsSavingPassword] = React.useState(false);
 
   // Initialize form when modal opens
   React.useEffect(() => {
@@ -36,6 +40,21 @@ export const AppLayout: React.FC = () => {
       alert(err.message || 'Failed to update profile');
     } finally {
       setIsSavingProfile(false);
+    }
+  };
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSavingPassword(true);
+    try {
+      await authService.changePassword(passwordForm);
+      setIsPasswordModalOpen(false);
+      setPasswordForm({ currentPassword: '', newPassword: '' });
+      alert('Password updated successfully!');
+    } catch (err: any) {
+      alert(err.message || 'Failed to change password');
+    } finally {
+      setIsSavingPassword(false);
     }
   };
 
@@ -132,9 +151,14 @@ export const AppLayout: React.FC = () => {
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--color-text-dark)', lineHeight: 1.2, marginBottom: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.full_name || 'Staff Member'}</span>
-                  <button onClick={() => setIsProfileModalOpen(true)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-primary)', borderRadius: 4 }}>
-                    <Edit2 size={14} />
-                  </button>
+                  <div style={{ display: 'flex', gap: 4 }}>
+                    <button onClick={() => setIsPasswordModalOpen(true)} title="Change Password" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-primary)', borderRadius: 4 }}>
+                      <Key size={14} />
+                    </button>
+                    <button onClick={() => setIsProfileModalOpen(true)} title="Edit Profile" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-primary)', borderRadius: 4 }}>
+                      <Edit2 size={14} />
+                    </button>
+                  </div>
                 </div>
                 <div style={{ fontSize: 12, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>
                   {user.role}
@@ -221,6 +245,54 @@ export const AppLayout: React.FC = () => {
                 <button type="button" className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setIsProfileModalOpen(false)}>Cancel</button>
                 <button type="submit" className="btn btn-primary" style={{ flex: 1 }} disabled={isSavingProfile}>
                   {isSavingProfile ? 'Saving...' : 'Save Changes'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Change Password Modal */}
+      {isPasswordModalOpen && (
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 16 }}>
+          <div className="card" style={{ width: '100%', maxWidth: 400, animation: 'fadeIn 0.2s ease-out' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <h2 className="text-h2" style={{ fontSize: 20 }}>Change Password</h2>
+              <button onClick={() => setIsPasswordModalOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-muted)' }}>
+                <X size={20} />
+              </button>
+            </div>
+            
+            <form onSubmit={handleChangePassword}>
+              <div className="input-group">
+                <label className="input-label">Current Password</label>
+                <input 
+                  type="password" 
+                  className="input-field" 
+                  required
+                  value={passwordForm.currentPassword}
+                  onChange={e => setPasswordForm({...passwordForm, currentPassword: e.target.value})}
+                  placeholder="••••••••"
+                />
+              </div>
+
+              <div className="input-group">
+                <label className="input-label">New Password</label>
+                <input 
+                  type="password" 
+                  className="input-field" 
+                  required
+                  minLength={6}
+                  value={passwordForm.newPassword}
+                  onChange={e => setPasswordForm({...passwordForm, newPassword: e.target.value})}
+                  placeholder="••••••••"
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: 12, marginTop: 24 }}>
+                <button type="button" className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setIsPasswordModalOpen(false)}>Cancel</button>
+                <button type="submit" className="btn btn-primary" style={{ flex: 1 }} disabled={isSavingPassword}>
+                  {isSavingPassword ? 'Saving...' : 'Change Password'}
                 </button>
               </div>
             </form>

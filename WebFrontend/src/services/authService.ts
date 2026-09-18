@@ -33,5 +33,23 @@ export const authService = {
       method: 'GET',
     });
   },
+  changePassword: async (data: any) => {
+    return await apiClient('/auth/change-password', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+  forgotPassword: async (data: { email: string }) => {
+    return await apiClient('/auth/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+  resetPassword: async (data: any) => {
+    return await apiClient('/auth/reset-password', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
 };
 

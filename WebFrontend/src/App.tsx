@@ -8,6 +8,8 @@ import { PHMDashboard } from './pages/PHMDashboard';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { MOHDashboard } from './pages/MOHDashboard';
 
+import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
+
 // A component that redirects users to their respective dashboards based on role
 const RoleBasedRedirect: React.FC = () => {
   const { user, loading } = useAuth();
@@ -54,6 +56,7 @@ export const App: React.FC = () => {
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
           <Route element={<AppLayout />}>
             <Route path="/" element={<RoleBasedRedirect />} />

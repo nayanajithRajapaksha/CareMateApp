@@ -109,7 +109,10 @@ export const LoginPage: React.FC = () => {
             </div>
 
             <div className="input-group" style={{ marginBottom: 32 }}>
-              <label className="input-label">Password</label>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <label className="input-label" style={{ marginBottom: 0 }}>Password</label>
+                <Link to="/forgot-password" style={{ color: 'var(--color-primary)', fontSize: 13, textDecoration: 'none', fontWeight: 500 }}>Forgot Password?</Link>
+              </div>
               <input
                 type="password"
                 className="input-field"
