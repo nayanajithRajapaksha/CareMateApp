@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Plus } from 'lucide-react';
+import { Users, Plus, Trash2, Edit2, X } from 'lucide-react';
 import { clinicService } from '../services/clinicService';
 import { apiClient } from '../services/apiClient';
 import type { Clinic } from './ClinicManager';
@@ -11,10 +11,39 @@ export const SpecialistManager: React.FC = () => {
   const [loading, setLoading] = useState(false);
 
   // Form
+  const [editingSpecialistId, setEditingSpecialistId] = useState<number | null>(null);
   const [fullName, setFullName] = useState('');
   const [specialty, setSpecialty] = useState('');
   const [contactNumber, setContactNumber] = useState('');
   const [availability, setAvailability] = useState('');
+
+  const cancelEdit = () => {
+    setEditingSpecialistId(null);
+    setFullName('');
+    setSpecialty('');
+    setContactNumber('');
+    setAvailability('');
+  };
+
+  const handleEditClick = (s: any) => {
+    setEditingSpecialistId(s.id);
+    setFullName(s.full_name);
+    setSpecialty(s.specialty);
+    setContactNumber(s.contact_number || '');
+    setAvailability(s.availability || '');
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!window.confirm('Are you sure you want to delete this specialist?')) return;
+    try {
+      await apiClient(`/clinics/${selectedClinicId}/specialists/${id}`, {
+        method: 'DELETE'
+      });
+      fetchSpecialists(selectedClinicId as number);
+    } catch (e: any) {
+      alert(e.message);
+    }
+  };
 
   useEffect(() => {
     clinicService.getAll().then(setClinics).catch(console.error);
@@ -23,8 +52,10 @@ export const SpecialistManager: React.FC = () => {
   useEffect(() => {
     if (selectedClinicId) {
       fetchSpecialists(selectedClinicId as number);
+      cancelEdit();
     } else {
       setSpecialists([]);
+      cancelEdit();
     }
   }, [selectedClinicId]);
 
@@ -40,27 +71,37 @@ export const SpecialistManager: React.FC = () => {
     }
   };
 
-  const handleCreate = async (e: React.FormEvent) => {
+  const handleCreateOrUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedClinicId) return alert('Select a clinic first');
     
     try {
-      await apiClient(`/clinics/${selectedClinicId}/specialists`, {
-        method: 'POST',
-        body: JSON.stringify({
-          full_name: fullName,
-          specialty,
-          contact_number: contactNumber,
-          availability
-        })
-      });
+      if (editingSpecialistId) {
+        await apiClient(`/clinics/${selectedClinicId}/specialists/${editingSpecialistId}`, {
+          method: 'PUT',
+          body: JSON.stringify({
+            full_name: fullName,
+            specialty,
+            contact_number: contactNumber,
+            availability
+          })
+        });
+        alert('Specialist updated successfully!');
+      } else {
+        await apiClient(`/clinics/${selectedClinicId}/specialists`, {
+          method: 'POST',
+          body: JSON.stringify({
+            full_name: fullName,
+            specialty,
+            contact_number: contactNumber,
+            availability
+          })
+        });
+        alert('Specialist added successfully!');
+      }
 
-      setFullName('');
-      setSpecialty('');
-      setContactNumber('');
-      setAvailability('');
+      cancelEdit();
       fetchSpecialists(selectedClinicId as number);
-      alert('Specialist added successfully!');
     } catch (e: any) {
       alert(e.message);
     }
@@ -101,9 +142,21 @@ export const SpecialistManager: React.FC = () => {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {specialists.map(s => (
                   <div key={s.id} style={{ padding: 12, border: '1px solid var(--color-border)', borderRadius: 8 }}>
-                    <div style={{ fontWeight: 600 }}>Dr. {s.full_name}</div>
-                    <div style={{ fontSize: 13, color: 'var(--color-primary)' }}>{s.specialty}</div>
-                    {s.contact_number && <div style={{ fontSize: 13, marginTop: 4 }}>Contact: {s.contact_number}</div>}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                      <div>
+                        <div style={{ fontWeight: 600 }}>Dr. {s.full_name}</div>
+                        <div style={{ fontSize: 13, color: 'var(--color-primary)' }}>{s.specialty}</div>
+                      </div>
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <button onClick={() => handleEditClick(s)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: 'var(--color-text-muted)' }}>
+                          <Edit2 size={16} />
+                        </button>
+                        <button onClick={() => handleDelete(s.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: '#ef4444' }}>
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </div>
+                    {s.contact_number && <div style={{ fontSize: 13, marginTop: 8 }}>Contact: {s.contact_number}</div>}
                     {s.availability && <div style={{ fontSize: 13, marginTop: 4 }}>Availability: {s.availability}</div>}
                   </div>
                 ))}
@@ -112,11 +165,19 @@ export const SpecialistManager: React.FC = () => {
           </div>
 
           <div className="card" style={{ width: 350, padding: 20 }}>
-            <h4 style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Plus size={18} /> Add New Specialist
-            </h4>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <h4 style={{ display: 'flex', alignItems: 'center', gap: 8, margin: 0 }}>
+                {editingSpecialistId ? <Edit2 size={18} /> : <Plus size={18} />} 
+                {editingSpecialistId ? 'Edit Specialist' : 'Add New Specialist'}
+              </h4>
+              {editingSpecialistId && (
+                <button onClick={cancelEdit} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-muted)' }}>
+                  <X size={18} />
+                </button>
+              )}
+            </div>
             
-            <form onSubmit={handleCreate} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <form onSubmit={handleCreateOrUpdate} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               <div>
                 <label className="label">Full Name</label>
                 <input required className="input-field" value={fullName} onChange={e => setFullName(e.target.value)} placeholder="e.g. John Doe" />
@@ -134,7 +195,7 @@ export const SpecialistManager: React.FC = () => {
                 <textarea className="input-field" value={availability} onChange={e => setAvailability(e.target.value)} placeholder="e.g. Mon, Wed, Fri 9 AM - 12 PM" style={{ minHeight: 80 }} />
               </div>
               <button type="submit" className="btn btn-primary" style={{ marginTop: 8 }}>
-                Add Specialist
+                {editingSpecialistId ? 'Save Changes' : 'Add Specialist'}
               </button>
             </form>
           </div>
