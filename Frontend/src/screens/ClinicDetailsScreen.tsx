@@ -1,8 +1,9 @@
-import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Image, Dimensions } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Image, Dimensions, ActivityIndicator } from 'react-native';
 import { ArrowLeft, Star, MapPin, Phone, CornerUpRight, Syringe, Activity, Baby, ShieldPlus } from 'lucide-react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { colors, layout } from '../theme';
+import { clinicService } from '../services/clinicService';
 
 const { width } = Dimensions.get('window');
 
@@ -13,35 +14,27 @@ const SERVICES = [
   { id: '4', name: 'General Pediatrics', icon: ShieldPlus },
 ];
 
-const SPECIALISTS = [
-  {
-    id: '1',
-    name: 'Dr. Ayesha Fernando',
-    role: 'Senior Pediatrician',
-    image: 'https://i.pravatar.cc/150?img=32',
-    days: 'Mon, Wed, Fri',
-    time: 'Morning',
-    actionText: 'Book Appointment',
-    isPrimary: true
-  },
-  {
-    id: '2',
-    name: 'Mr. Nuwan Perera',
-    role: 'Public Health Officer (PHM)',
-    image: 'https://i.pravatar.cc/150?img=11',
-    days: 'Tue, Thu',
-    time: 'All Day',
-    actionText: 'View Schedule',
-    isPrimary: false
-  }
-];
-
 export const ClinicDetailsScreen: React.FC = () => {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
   
   // Can use route.params.clinic if passed from SelectClinicScreen
-  const clinicName = route.params?.clinic?.name || 'Maternal & Child Health Clinic';
+  const clinic = route.params?.clinic;
+  const clinicName = clinic?.name || 'Maternal & Child Health Clinic';
+  
+  const [specialists, setSpecialists] = useState<any[]>([]);
+  const [loadingSpecialists, setLoadingSpecialists] = useState(true);
+
+  useEffect(() => {
+    if (clinic?.id) {
+      clinicService.getSpecialists(clinic.id)
+        .then(setSpecialists)
+        .catch(console.error)
+        .finally(() => setLoadingSpecialists(false));
+    } else {
+      setLoadingSpecialists(false);
+    }
+  }, [clinic?.id]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -78,8 +71,8 @@ export const ClinicDetailsScreen: React.FC = () => {
               <MapPin color={colors.primary} size={20} />
             </View>
             <View style={styles.locationTextContainer}>
-              <Text style={styles.addressText}>No. 12, Ward Place, Colombo 07</Text>
-              <Text style={styles.hoursText}>Open today: 08:00 AM - 05:00 PM</Text>
+              <Text style={styles.addressText}>{clinic?.address || 'No. 12, Ward Place, Colombo 07'}</Text>
+              <Text style={styles.hoursText}>{clinic?.hours ? `Hours: ${clinic.hours}` : 'Open today: 08:00 AM - 05:00 PM'}</Text>
             </View>
           </View>
 
@@ -118,44 +111,43 @@ export const ClinicDetailsScreen: React.FC = () => {
         {/* Available Specialists */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Available Specialists</Text>
-          <View style={styles.specialistsList}>
-            {SPECIALISTS.map(specialist => (
-              <View key={specialist.id} style={styles.specialistCard}>
-                <View style={styles.specialistHeaderRow}>
-                  <Image source={{ uri: specialist.image }} style={styles.specialistImage} />
-                  <View style={styles.specialistInfo}>
-                    <Text style={styles.specialistName}>{specialist.name}</Text>
-                    <Text style={styles.specialistRole}>{specialist.role}</Text>
-                    <View style={styles.badgeRow}>
-                      <View style={styles.badge}>
-                        <Text style={styles.badgeText}>{specialist.days}</Text>
-                      </View>
-                      <View style={styles.badge}>
-                        <Text style={styles.badgeText}>{specialist.time}</Text>
+          {loadingSpecialists ? (
+            <ActivityIndicator size="small" color={colors.primary} style={{ marginTop: 20 }} />
+          ) : specialists.length === 0 ? (
+            <Text style={{ color: colors.textMuted, fontSize: 14 }}>No specialists are listed for this clinic yet.</Text>
+          ) : (
+            <View style={styles.specialistsList}>
+              {specialists.map(specialist => (
+                <View key={specialist.id} style={styles.specialistCard}>
+                  <View style={styles.specialistHeaderRow}>
+                    <View style={[styles.specialistImage, { backgroundColor: '#E2E8F0', justifyContent: 'center', alignItems: 'center' }]}>
+                      <Text style={{ fontSize: 24, fontWeight: 'bold', color: '#64748B' }}>{specialist.full_name.charAt(0)}</Text>
+                    </View>
+                    <View style={styles.specialistInfo}>
+                      <Text style={styles.specialistName}>Dr. {specialist.full_name}</Text>
+                      <Text style={styles.specialistRole}>{specialist.specialty}</Text>
+                      <View style={styles.badgeRow}>
+                        {specialist.availability && (
+                          <View style={styles.badge}>
+                            <Text style={styles.badgeText}>{specialist.availability}</Text>
+                          </View>
+                        )}
                       </View>
                     </View>
                   </View>
-                </View>
-                
-                <TouchableOpacity 
-                  style={[
-                    styles.specialistActionBtn, 
-                    specialist.isPrimary ? styles.specialistActionBtnPrimary : styles.specialistActionBtnSecondary
-                  ]}
-                  onPress={() => specialist.isPrimary && navigation.navigate('Main', { screen: 'ScheduleTab', params: { clinic: route.params?.clinic } })}
-                >
-                  <Text 
-                    style={[
-                      styles.specialistActionText,
-                      specialist.isPrimary ? styles.specialistActionTextPrimary : styles.specialistActionTextSecondary
-                    ]}
+                  
+                  <TouchableOpacity 
+                    style={[styles.specialistActionBtn, styles.specialistActionBtnPrimary]}
+                    onPress={() => navigation.navigate('Main', { screen: 'ScheduleTab', params: { clinic } })}
                   >
-                    {specialist.actionText}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            ))}
-          </View>
+                    <Text style={[styles.specialistActionText, styles.specialistActionTextPrimary]}>
+                      Book Appointment
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              ))}
+            </View>
+          )}
         </View>
 
       </ScrollView>

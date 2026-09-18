@@ -511,7 +511,9 @@ export const FindClinicScreen: React.FC = () => {
 
         <View style={styles.clinicCardMiddleRow}>
           <View style={{ flex: 1 }}>
-            <Text style={styles.clinicName}>{clinic.name}</Text>
+            <TouchableOpacity onPress={() => navigation.navigate('Main', { screen: 'ScheduleTab', params: { clinic } })}>
+              <Text style={[styles.clinicName, { textDecorationLine: 'underline', color: colors.primary }]}>{clinic.name}</Text>
+            </TouchableOpacity>
             <Text style={styles.clinicType}>{clinic.type}</Text>
             <View style={styles.addressRow}>
               <MapPin color={colors.textMuted} size={12} />

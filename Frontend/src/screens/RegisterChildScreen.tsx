@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TextInput, TouchableOpacity, ScrollView, Alert, ActivityIndicator, Modal, FlatList } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, TextInput, TouchableOpacity, ScrollView, Alert, ActivityIndicator, Modal, FlatList, Platform } from 'react-native';
 import { ChevronLeft, User, Calendar, Edit2, CheckCircle2, ChevronDown, MapPin, X } from 'lucide-react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { colors, typography, layout } from '../theme';
@@ -7,12 +7,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { childService } from '../services/childService';
 import { clinicService, Clinic } from '../services/clinicService';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 export const RegisterChildScreen: React.FC = () => {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
   const isEditMode = route.params?.mode === 'edit';
   const editingChild = route.params?.child;
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [clinics, setClinics] = useState<Clinic[]>([]);
@@ -150,15 +152,30 @@ export const RegisterChildScreen: React.FC = () => {
       </View>
 
       <Text style={styles.label}>Date of Birth</Text>
-      <View style={styles.inputContainer}>
+      <TouchableOpacity style={styles.inputContainer} onPress={() => setShowDatePicker(true)}>
         <Calendar color={colors.textMuted} size={20} style={styles.inputIcon} />
-        <TextInput
-          style={styles.input}
-          placeholder="YYYY-MM-DD"
-          value={formData.dob}
-          onChangeText={(val) => updateForm('dob', val)}
+        <Text style={[styles.input, { marginTop: Platform.OS === 'ios' ? 14 : 12, color: formData.dob ? colors.textDark : colors.textMuted }]}>
+          {formData.dob || 'YYYY-MM-DD'}
+        </Text>
+      </TouchableOpacity>
+
+      {showDatePicker && (
+        <DateTimePicker
+          value={formData.dob ? new Date(formData.dob) : new Date()}
+          mode="date"
+          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+          maximumDate={new Date()}
+          onChange={(event, selectedDate) => {
+            setShowDatePicker(Platform.OS === 'ios');
+            if (selectedDate) {
+              const year = selectedDate.getFullYear();
+              const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+              const day = String(selectedDate.getDate()).padStart(2, '0');
+              updateForm('dob', `${year}-${month}-${day}`);
+            }
+          }}
         />
-      </View>
+      )}
 
       <Text style={styles.label}>Gender</Text>
       <View style={styles.row}>

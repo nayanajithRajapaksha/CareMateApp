@@ -6,6 +6,17 @@ import { colors, typography, layout } from '../theme';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { childService } from '../services/childService';
 import { profileService } from '../services/profileService';
+import { appointmentService } from '../services/appointmentService';
+
+const formatDate = (dateString: string) => {
+  const d = new Date(dateString);
+  return d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+};
+const formatTime = (time: string) => {
+  const [hourText, minute] = time.slice(0, 5).split(':');
+  const hour = Number(hourText);
+  return `${hour % 12 || 12}:${minute} ${hour >= 12 ? 'PM' : 'AM'}`;
+};
 
 const mockChildren = [
   {
@@ -29,6 +40,7 @@ const mockChildren = [
 export const ParentDashboardScreen: React.FC = () => {
   const navigation = useNavigation<any>();
   const [childrenData, setChildrenData] = React.useState<any[]>([]);
+  const [appointments, setAppointments] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [userName, setUserName] = React.useState('User');
 
@@ -36,16 +48,19 @@ export const ParentDashboardScreen: React.FC = () => {
     React.useCallback(() => {
       const fetchData = async () => {
         try {
-          const [childrenResponse, profileResponse] = await Promise.all([
+          const [childrenResponse, profileResponse, appointmentsResponse] = await Promise.all([
             childService.getChildren(),
-            profileService.getProfile()
+            profileService.getProfile(),
+            appointmentService.getMine().catch(() => ({ appointments: [] }))
           ]);
 
           setChildrenData(childrenResponse.children || []);
           setUserName(profileResponse.profile?.full_name || 'User');
+          setAppointments((appointmentsResponse.appointments || []).filter((a: any) => a.status === 'booked'));
         } catch (error) {
           console.error('Error fetching dashboard data:', error);
           setChildrenData([]);
+          setAppointments([]);
         } finally {
           setLoading(false);
         }
@@ -130,6 +145,34 @@ export const ParentDashboardScreen: React.FC = () => {
             </TouchableOpacity>
           </View>
         </View>
+
+        {/* Upcoming Appointments Section */}
+        {appointments.length > 0 && (
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>Upcoming Appointments</Text>
+              <TouchableOpacity onPress={() => navigation.navigate('ScheduleTab')}>
+                <Text style={styles.viewAllText}>Manage</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={{ gap: 12 }}>
+              {appointments.slice(0, 3).map((appt) => (
+                <View key={appt.id} style={styles.appointmentCard}>
+                  <View style={styles.apptIconBox}>
+                    <Calendar color={colors.primary} size={24} />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.apptChildName}>{appt.child_name} - {appt.clinic_name}</Text>
+                    <Text style={styles.apptDateText}>
+                      {formatDate(appt.appointment_date)} at {formatTime(appt.start_time)}
+                    </Text>
+                    <Text style={styles.apptMidwifeText}>With {appt.midwife_name}</Text>
+                  </View>
+                </View>
+              ))}
+            </View>
+          </View>
+        )}
 
         {/* Children Section */}
         <View style={styles.section}>
@@ -369,5 +412,39 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     textAlign: 'center',
     lineHeight: 20,
+  },
+  appointmentCard: {
+    flexDirection: 'row',
+    backgroundColor: colors.white,
+    padding: 16,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.05)',
+    alignItems: 'center',
+  },
+  apptIconBox: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    backgroundColor: '#E6F4F4',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  apptChildName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: colors.textDark,
+    marginBottom: 4,
+  },
+  apptDateText: {
+    fontSize: 14,
+    color: colors.primary,
+    fontWeight: '600',
+    marginBottom: 2,
+  },
+  apptMidwifeText: {
+    fontSize: 13,
+    color: colors.textMuted,
   }
 });

@@ -5,8 +5,9 @@ import { staffService } from '../services/staffService';
 import { clinicService } from '../services/clinicService';
 import { ClinicManager, type Clinic } from './ClinicManager';
 import { BlogManager } from '../components/BlogManager';
+import { SpecialistManager } from './SpecialistManager';
 
-type Tab = 'dashboard' | 'parents' | 'clinics' | 'blogs';
+type Tab = 'dashboard' | 'parents' | 'clinics' | 'blogs' | 'specialists';
 
 interface ParentUser {
   profile_id: string;
@@ -31,6 +32,7 @@ export const MOHDashboard: React.FC = () => {
   if (location.pathname.startsWith('/moh/parents')) activeTab = 'parents';
   if (location.pathname.startsWith('/moh/clinics')) activeTab = 'clinics';
   if (location.pathname.startsWith('/moh/blogs')) activeTab = 'blogs';
+  if (location.pathname.startsWith('/moh/specialists')) activeTab = 'specialists';
   
   const [phms, setPhms] = useState<any[]>([]);
   const [assignedPhms, setAssignedPhms] = useState<any[]>([]);
@@ -178,6 +180,10 @@ export const MOHDashboard: React.FC = () => {
       {activeTab === 'blogs' ? (
         <div style={{ flex: 1, overflowY: 'auto' }}>
           <BlogManager />
+        </div>
+      ) : activeTab === 'specialists' ? (
+        <div style={{ flex: 1, overflow: 'hidden' }}>
+          <SpecialistManager />
         </div>
       ) : activeTab === 'clinics' ? (
         <div style={{ flex: 1, overflow: 'hidden' }}>

@@ -129,6 +129,9 @@ export const AppLayout: React.FC = () => {
               <Link to="/moh/clinics" className={`nav-item ${location.pathname.startsWith('/moh/clinics') ? 'active' : ''}`}>
                 <Map size={20} /> Clinic Map Manager
               </Link>
+              <Link to="/moh/specialists" className={`nav-item ${location.pathname.startsWith('/moh/specialists') ? 'active' : ''}`}>
+                <Users size={20} /> Manage Specialists
+              </Link>
             </>
           )}
         </nav>

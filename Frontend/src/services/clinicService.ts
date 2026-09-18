@@ -24,4 +24,10 @@ export const clinicService = {
       open: c.open ?? c.is_open ?? true,
     }));
   },
+  
+  /** Fetch specialists for a specific clinic */
+  getSpecialists: async (clinicId: number): Promise<any[]> => {
+    const data = await apiClient(`/clinics/${clinicId}/specialists`);
+    return data.specialists || [];
+  },
 };

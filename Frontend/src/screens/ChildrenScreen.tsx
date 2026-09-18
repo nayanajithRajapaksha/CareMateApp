@@ -116,7 +116,7 @@ export const ChildrenScreen: React.FC = () => {
                     <Calendar color={colors.primary} size={16} style={{ marginRight: 6 }} />
                     <Text style={styles.actionButtonText}>Schedule</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity style={styles.actionButton}>
+                  <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('ChildRecords', { child })}>
                     <FileText color={colors.primary} size={16} style={{ marginRight: 6 }} />
                     <Text style={styles.actionButtonText}>Records</Text>
                   </TouchableOpacity>
