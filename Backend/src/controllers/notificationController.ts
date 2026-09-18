@@ -1,7 +1,7 @@
 import { Response } from 'express';
 import pool from '../config/db';
 import { AuthRequest } from '../middleware/authMiddleware';
-import { runReminders } from '../jobs/reminderCron';
+import { runReminders, runAllFutureReminders } from '../jobs/reminderCron';
 
 export const getNotificationSettings = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -47,7 +47,7 @@ export const updateNotificationSettings = async (req: AuthRequest, res: Response
 export const triggerReminders = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     // Run the reminder logic asynchronously so we don't block the response for too long
-    runReminders().catch(error => console.error('Error in manual reminder trigger:', error));
+    runAllFutureReminders().catch(error => console.error('Error in manual reminder trigger:', error));
     res.status(200).json({ message: 'Reminder process started successfully.' });
   } catch (error) {
     console.error('Error triggering reminders:', error);
