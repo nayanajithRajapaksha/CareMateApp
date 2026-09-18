@@ -5,7 +5,7 @@ import { PrimaryButton } from '../components/PrimaryButton';
 import { InputField } from '../components/InputField';
 import { colors, typography, layout } from '../theme';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { API_URL } from '../config';
+import { API_BASE_URL } from '../services/apiConfig';
 
 type RootStackParamList = {
   SignIn: undefined;
@@ -31,7 +31,7 @@ export const ForgotPasswordScreen: React.FC<Props> = ({ navigation }) => {
 
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/auth/forgot-password`, {
+      const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),

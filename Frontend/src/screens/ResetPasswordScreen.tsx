@@ -6,7 +6,7 @@ import { InputField } from '../components/InputField';
 import { colors, typography, layout } from '../theme';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
-import { API_URL } from '../config';
+import { API_BASE_URL } from '../services/apiConfig';
 
 type RootStackParamList = {
   SignIn: undefined;
@@ -40,7 +40,7 @@ export const ResetPasswordScreen: React.FC<Props> = ({ navigation, route }) => {
 
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/auth/reset-password`, {
+      const response = await fetch(`${API_BASE_URL}/auth/reset-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, token: otp, newPassword }),

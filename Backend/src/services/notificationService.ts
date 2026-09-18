@@ -1,4 +1,4 @@
-import nodemailer from 'nodemailer';
+// (Nodemailer removed - using EmailJS)
 import { Expo } from 'expo-server-sdk';
 import dotenv from 'dotenv';
 
@@ -7,33 +7,48 @@ dotenv.config();
 // Initialize Expo SDK
 const expo = new Expo();
 
-// Initialize Nodemailer Transport
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: Number(process.env.SMTP_PORT) || 587,
-  secure: process.env.SMTP_PORT === '465', // true for 465, false for other ports
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
-
 export const sendEmailReminder = async (to: string, subject: string, html: string): Promise<boolean> => {
-  if (!process.env.SMTP_USER) {
-    console.warn('SMTP credentials not configured. Skipping email to', to);
+  const serviceId = process.env.EMAILJS_SERVICE_ID;
+  const templateId = process.env.EMAILJS_TEMPLATE_ID;
+  const publicKey = process.env.EMAILJS_PUBLIC_KEY;
+  const privateKey = process.env.EMAILJS_PRIVATE_KEY;
+
+  if (!serviceId || !templateId || !publicKey || !privateKey) {
+    console.warn('EmailJS credentials not fully configured. Skipping email to', to);
     return false;
   }
+
   try {
-    await transporter.sendMail({
-      from: process.env.SMTP_FROM || '"CareMate" <noreply@caremate.com>',
-      to,
-      subject,
-      html,
+    const payload = {
+      service_id: serviceId,
+      template_id: templateId,
+      user_id: publicKey,
+      accessToken: privateKey,
+      template_params: {
+        to_email: to,
+        subject: subject,
+        message: html,
+      }
+    };
+
+    const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
     });
-    console.log(`Email sent successfully to ${to}`);
-    return true;
+
+    if (response.ok) {
+      console.log(`Email sent successfully to ${to} via EmailJS`);
+      return true;
+    } else {
+      const errorText = await response.text();
+      console.error('EmailJS Error:', errorText);
+      return false;
+    }
   } catch (error) {
-    console.error('Error sending email:', error);
+    console.error('Error sending email via EmailJS:', error);
     return false;
   }
 };
