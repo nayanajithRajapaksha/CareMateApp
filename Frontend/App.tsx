@@ -19,6 +19,7 @@ import { SelectClinicScreen } from './src/screens/SelectClinicScreen';
 import { FindClinicScreen } from './src/screens/FindClinicScreen';
 import { ClinicDetailsScreen } from './src/screens/ClinicDetailsScreen';
 import { ChildRecordsScreen } from './src/screens/ChildRecordsScreen';
+import { ManageAppointmentsScreen } from './src/screens/ManageAppointmentsScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -45,6 +46,7 @@ export default function App() {
           <Stack.Screen name="FindClinic" component={FindClinicScreen} />
           <Stack.Screen name="ClinicDetails" component={ClinicDetailsScreen} />
           <Stack.Screen name="ChildRecords" component={ChildRecordsScreen} />
+          <Stack.Screen name="ManageAppointments" component={ManageAppointmentsScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>

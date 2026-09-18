@@ -49,7 +49,7 @@ export const createChildWithMedicalProfile = async (child: ChildData, medical: M
 export const getChildrenByParentId = async (parent_id: string) => {
   const res = await pool.query(
     `SELECT 
-      c.id, c.full_name, c.dob, c.gender, c.relationship, c.birth_cert_number,
+      c.id, c.full_name, c.dob, c.gender, c.relationship, c.birth_cert_number, c.profile_pic_url,
       m.blood_group, m.birth_weight_kg, m.allergies, m.existing_conditions, m.primary_clinic
      FROM children c
      LEFT JOIN child_medical_profiles m ON c.id = m.child_id

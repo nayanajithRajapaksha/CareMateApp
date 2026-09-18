@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TextInput, TouchableOpacity, ScrollView, Alert, ActivityIndicator, Modal, FlatList, Platform } from 'react-native';
-import { ChevronLeft, User, Calendar, Edit2, CheckCircle2, ChevronDown, MapPin, X } from 'lucide-react-native';
+import { View, Text, StyleSheet, SafeAreaView, TextInput, TouchableOpacity, ScrollView, Alert, ActivityIndicator, Modal, FlatList, Platform, Image } from 'react-native';
+import { ChevronLeft, User, Calendar, Edit2, CheckCircle2, ChevronDown, MapPin, X, Camera } from 'lucide-react-native';
+import * as ImagePicker from 'expo-image-picker';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { colors, typography, layout } from '../theme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -19,6 +20,8 @@ export const RegisterChildScreen: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [clinics, setClinics] = useState<Clinic[]>([]);
   const [isClinicModalVisible, setIsClinicModalVisible] = useState(false);
+  const [profilePic, setProfilePic] = useState<string | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   useEffect(() => {
     clinicService.getAll()
@@ -59,7 +62,51 @@ export const RegisterChildScreen: React.FC = () => {
       existing_conditions: editingChild.existing_conditions || '',
       primary_clinic: editingChild.primary_clinic || ''
     });
+
+    if (editingChild.profile_pic_url) {
+      setProfilePic(editingChild.profile_pic_url);
+    }
   }, [isEditMode, editingChild]);
+
+  const handleImagePick = async () => {
+    if (!isEditMode || !editingChild?.id) return;
+
+    try {
+      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!permissionResult.granted) {
+        Alert.alert('Permission Required', 'You need to allow access to your photos to upload a profile picture.');
+        return;
+      }
+
+      const pickerResult = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+
+      if (!pickerResult.canceled && pickerResult.assets && pickerResult.assets.length > 0) {
+        const imageUri = pickerResult.assets[0].uri;
+        setProfilePic(imageUri); // Optimistic UI update
+
+        setUploadingImage(true);
+        try {
+          await childService.uploadChildProfilePic(editingChild.id, imageUri);
+          Alert.alert('Success', 'Profile picture updated successfully!');
+        } catch (error: any) {
+          console.error('Error uploading profile pic:', error);
+          Alert.alert('Upload Failed', error.message || 'Could not upload profile picture.');
+          // Revert if failed
+          setProfilePic(editingChild.profile_pic_url || null);
+        } finally {
+          setUploadingImage(false);
+        }
+      }
+    } catch (error) {
+      console.error('Image picker error:', error);
+      Alert.alert('Error', 'An unexpected error occurred while picking the image.');
+    }
+  };
 
   const updateForm = (key: string, value: string) => {
     setFormData(prev => ({ ...prev, [key]: value }));
@@ -139,6 +186,31 @@ export const RegisterChildScreen: React.FC = () => {
   const renderStep1 = () => (
     <View style={styles.formContainer}>
       <Text style={styles.formSubtitle}>Please provide the child's basic information to begin setting up their health profile.</Text>
+
+      {isEditMode && (
+        <View style={styles.profilePicContainer}>
+          <TouchableOpacity style={styles.profilePicWrapper} onPress={handleImagePick} disabled={uploadingImage}>
+            {profilePic ? (
+              <Image source={{ uri: profilePic }} style={styles.profileImage} />
+            ) : (
+              <View style={styles.profilePicPlaceholder}>
+                <User color={colors.textMuted} size={40} />
+              </View>
+            )}
+            
+            {uploadingImage ? (
+              <View style={styles.profilePicOverlay}>
+                <ActivityIndicator color={colors.white} size="small" />
+              </View>
+            ) : (
+              <View style={styles.editIconBadge}>
+                <Camera color={colors.white} size={14} />
+              </View>
+            )}
+          </TouchableOpacity>
+          <Text style={styles.profilePicHint}>Tap to change profile picture</Text>
+        </View>
+      )}
 
       <Text style={styles.label}>Full Name (as on Birth Certificate)</Text>
       <View style={styles.inputContainer}>
@@ -713,5 +785,46 @@ const styles = StyleSheet.create({
   modalOptionSubtitle: {
     fontSize: 13,
     color: colors.textMuted,
-  }
+  },
+  profilePicContainer: {
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  profilePicWrapper: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    backgroundColor: '#F1F5F9',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  profilePicPlaceholder: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  profileImage: {
+    width: '100%',
+    height: '100%',
+  },
+  profilePicOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  editIconBadge: {
+    position: 'absolute',
+    bottom: 0,
+    width: '100%',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    paddingVertical: 4,
+    alignItems: 'center',
+  },
+  profilePicHint: {
+    fontSize: 12,
+    color: colors.textMuted,
+  },
 });

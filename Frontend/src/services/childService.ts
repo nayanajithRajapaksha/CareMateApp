@@ -17,5 +17,21 @@ export const childService = {
       method: 'PUT',
       body: JSON.stringify(childData),
     });
+  },
+
+  uploadChildProfilePic: async (childId: string, imageUri: string, mimeType: string = 'image/jpeg'): Promise<{ profile_pic_url: string }> => {
+    const formData = new FormData();
+    const filename = imageUri.split('/').pop() || 'profile.jpg';
+    
+    formData.append('profile_pic', {
+      uri: imageUri,
+      name: filename,
+      type: mimeType
+    } as any);
+
+    return await apiClient(`/children/${childId}/profile-pic`, {
+      method: 'POST',
+      body: formData,
+    });
   }
 };

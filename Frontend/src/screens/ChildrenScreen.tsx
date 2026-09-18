@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Image } from 'react-native';
-import { MoreVertical, Calendar, FileText, AlertCircle, Plus } from 'lucide-react-native';
+import { MoreVertical, Calendar, FileText, AlertCircle, Plus, Pencil } from 'lucide-react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { colors, typography, layout } from '../theme';
 import { PrimaryButton } from '../components/PrimaryButton';
@@ -12,7 +12,7 @@ const mockChildrenData = [
     name: 'Yenuli Dahamsa',
     age: '1 yrs 6 mos old',
     gender: 'Female',
-    image: 'https://i.pravatar.cc/150?img=5',
+    profile_pic_url: 'https://i.pravatar.cc/150?img=5',
     alert: null
   },
   {
@@ -20,7 +20,7 @@ const mockChildrenData = [
     name: 'Senuja Perera',
     age: '18 Months old',
     gender: 'Male',
-    image: 'https://i.pravatar.cc/150?img=11',
+    profile_pic_url: 'https://i.pravatar.cc/150?img=11',
     alert: {
       title: 'Upcoming Vaccination',
       message: 'MMR Dose 1 due next week'
@@ -85,15 +85,13 @@ export const ChildrenScreen: React.FC = () => {
             {displayData.map(child => (
               <View key={child.id} style={styles.card}>
                 <View style={styles.cardTop}>
-                  <Image source={{ uri: child.image || 'https://i.pravatar.cc/150?img=5' }} style={styles.childImage} />
+                  <Image source={{ uri: child.profile_pic_url || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(child.full_name) + '&background=0D8ABC&color=fff' }} style={styles.childImage} />
                   <View style={styles.childInfo}>
-                    <TouchableOpacity onPress={() => navigation.navigate('RegisterChild', { mode: 'edit', child })}>
-                      <Text style={styles.childName}>{child.full_name}</Text>
-                    </TouchableOpacity>
+                    <Text style={styles.childName}>{child.full_name}</Text>
                     <Text style={styles.childDetails}>{child.gender}</Text>
                   </View>
-                  <TouchableOpacity style={styles.menuIcon}>
-                    <MoreVertical color={colors.textDark} size={20} />
+                  <TouchableOpacity style={styles.menuIcon} onPress={() => navigation.navigate('RegisterChild', { mode: 'edit', child })}>
+                    <Pencil color={colors.primary} size={20} />
                   </TouchableOpacity>
                 </View>
 

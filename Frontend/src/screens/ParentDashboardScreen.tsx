@@ -151,7 +151,7 @@ export const ParentDashboardScreen: React.FC = () => {
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Upcoming Appointments</Text>
-              <TouchableOpacity onPress={() => navigation.navigate('ScheduleTab')}>
+              <TouchableOpacity onPress={() => navigation.navigate('ManageAppointments')}>
                 <Text style={styles.viewAllText}>Manage</Text>
               </TouchableOpacity>
             </View>
@@ -195,7 +195,7 @@ export const ParentDashboardScreen: React.FC = () => {
                   style={styles.childCard}
                   onPress={() => navigation.navigate('RegisterChild', { mode: 'edit', child })}
                 >
-                  <Image source={{ uri: child.image || 'https://i.pravatar.cc/150?img=5' }} style={styles.childImage} />
+                  <Image source={{ uri: child.profile_pic_url || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(child.full_name) + '&background=0D8ABC&color=fff' }} style={styles.childImage} />
                   
                   <View style={styles.childInfo}>
                     <Text style={styles.childNameAge}>
