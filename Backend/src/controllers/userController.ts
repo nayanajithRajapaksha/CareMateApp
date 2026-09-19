@@ -107,3 +107,48 @@ export const updatePushToken = async (req: AuthRequest, res: Response): Promise<
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+export const getUserNotifications = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    const result = await pool.query(
+      `SELECT id, title, message, type, is_read, created_at 
+       FROM app_notifications 
+       WHERE user_id = $1 
+       ORDER BY created_at DESC`,
+      [userId]
+    );
+
+    res.status(200).json({ notifications: result.rows });
+  } catch (error) {
+    console.error('Error fetching notifications:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const markNotificationAsRead = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.id;
+    const { id } = req.params;
+    
+    if (!userId) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    await pool.query(
+      `UPDATE app_notifications SET is_read = true WHERE id = $1 AND user_id = $2`,
+      [id, userId]
+    );
+
+    res.status(200).json({ message: 'Notification marked as read' });
+  } catch (error) {
+    console.error('Error marking notification as read:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};

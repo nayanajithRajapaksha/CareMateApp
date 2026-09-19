@@ -3,6 +3,7 @@ import { Platform } from 'react-native';
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
+import { apiClient } from '../services/apiClient';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -25,7 +26,16 @@ export const usePushNotifications = (): PushNotificationState => {
   const responseListener = useRef<Notifications.Subscription | null>(null);
 
   useEffect(() => {
-    registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
+    registerForPushNotificationsAsync().then(async (token) => {
+      setExpoPushToken(token);
+      if (token) {
+        try {
+          await apiClient.put('/users/push-token', { expo_push_token: token.data });
+        } catch (err) {
+          console.error('Failed to update push token on backend', err);
+        }
+      }
+    });
 
     notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
       setNotification(notification);

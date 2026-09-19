@@ -171,6 +171,8 @@ export default {
   upToDate: 'Up to date',
   withMidwife: 'With %{name}',
   appointmentWith: '%{childName} - %{clinicName}',
+  notificationsTitle: 'Notifications',
+  noNotifications: 'You have no new notifications.',
 
   // ChildrenScreen
   myChildrenTitle: 'My Children',

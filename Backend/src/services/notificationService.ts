@@ -1,6 +1,7 @@
 // (Nodemailer removed - using EmailJS)
 import { Expo } from 'expo-server-sdk';
 import dotenv from 'dotenv';
+import pool from '../config/db';
 
 dotenv.config();
 
@@ -53,9 +54,20 @@ export const sendEmailReminder = async (to: string, subject: string, html: strin
   }
 };
 
-export const sendPushNotification = async (pushToken: string, title: string, body: string, data: any = {}): Promise<boolean> => {
-  if (!Expo.isExpoPushToken(pushToken)) {
-    console.error(`Push token ${pushToken} is not a valid Expo push token`);
+export const sendPushNotification = async (userId: string | null, pushToken: string, title: string, body: string, data: any = {}): Promise<boolean> => {
+  if (userId) {
+    try {
+      await pool.query(
+        'INSERT INTO app_notifications (user_id, title, message) VALUES ($1, $2, $3)',
+        [userId, title, body]
+      );
+    } catch (dbError) {
+      console.error('Failed to insert notification into DB:', dbError);
+    }
+  }
+
+  if (!pushToken || !Expo.isExpoPushToken(pushToken)) {
+    console.error(`Push token ${pushToken} is missing or not a valid Expo push token`);
     return false;
   }
 

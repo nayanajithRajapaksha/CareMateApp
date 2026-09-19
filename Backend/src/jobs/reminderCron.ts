@@ -4,7 +4,7 @@ import { sendEmailReminder, sendPushNotification } from '../services/notificatio
 
 // Helper function to send email and push notification for a single appointment row
 const sendReminderForAppointment = async (row: any) => {
-  const { email, parent_name, expo_push_token, clinic_name, appointment_date, start_time, child_name, child_dob } = row;
+  const { parent_id, email, parent_name, expo_push_token, clinic_name, appointment_date, start_time, child_name, child_dob } = row;
   const dateStr = new Date(appointment_date).toLocaleDateString();
   const timeStr = start_time;
 
@@ -90,9 +90,9 @@ const sendReminderForAppointment = async (row: any) => {
     await sendEmailReminder(email, title, html);
   }
 
-  // Send Push Notification
-  if (expo_push_token) {
-    await sendPushNotification(expo_push_token, title, body, { appointmentId: row.id });
+  // Send Push Notification & log in DB
+  if (parent_id) {
+    await sendPushNotification(parent_id, expo_push_token, title, body, { appointmentId: row.id });
   }
 };
 
@@ -100,7 +100,7 @@ const sendReminderForAppointment = async (row: any) => {
 const processReminders = async (intervalDays: number) => {
   try {
     const query = `
-      SELECT a.id, a.appointment_date, a.start_time, c.name AS clinic_name, 
+      SELECT a.id, a.parent_id, a.appointment_date, a.start_time, c.name AS clinic_name, 
              u.email, p.full_name AS parent_name, p.expo_push_token,
              ch.full_name AS child_name, ch.dob AS child_dob
       FROM appointments a
@@ -127,7 +127,7 @@ export const runAllFutureReminders = async () => {
   console.log('Manually triggering all future reminders...');
   try {
     const query = `
-      SELECT a.id, a.appointment_date, a.start_time, c.name AS clinic_name, 
+      SELECT a.id, a.parent_id, a.appointment_date, a.start_time, c.name AS clinic_name, 
              u.email, p.full_name AS parent_name, p.expo_push_token,
              ch.full_name AS child_name, ch.dob AS child_dob
       FROM appointments a
@@ -155,7 +155,7 @@ export const runSingleReminder = async (appointmentId: string | number) => {
   console.log(`Manually triggering reminder for appointment ${appointmentId}...`);
   try {
     const query = `
-      SELECT a.id, a.appointment_date, a.start_time, c.name AS clinic_name, 
+      SELECT a.id, a.parent_id, a.appointment_date, a.start_time, c.name AS clinic_name, 
              u.email, p.full_name AS parent_name, p.expo_push_token,
              ch.full_name AS child_name, ch.dob AS child_dob
       FROM appointments a

@@ -171,6 +171,8 @@ export default {
   upToDate: 'යාවත්කාලීනයි',
   withMidwife: 'වින්නඹු මාතාව: %{name}',
   appointmentWith: '%{childName} - %{clinicName}',
+  notificationsTitle: 'නිවේදන',
+  noNotifications: 'ඔබට නව නිවේදන නොමැත.',
 
   // ChildrenScreen
   myChildrenTitle: 'මගේ දරුවන්',

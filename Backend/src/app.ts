@@ -8,6 +8,7 @@ import clinicRoutes from './routes/clinicRoutes';
 import blogRoutes from './routes/blogRoutes';
 import appointmentRoutes from './routes/appointmentRoutes';
 import notificationRoutes from './routes/notificationRoutes';
+import vaccineRoutes from './routes/vaccineRoutes';
 import { createBlogTableIfNotExists } from './models/blogModel';
 
 const app = express();
@@ -29,6 +30,7 @@ app.use('/api/clinics', clinicRoutes);
 app.use('/api/blogs', blogRoutes);
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/vaccines', vaccineRoutes);
 
 export default app;
 

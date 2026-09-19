@@ -12,6 +12,7 @@ import { useLanguage } from '../i18n/LanguageContext';
 
 import { usePushNotifications } from '../hooks/usePushNotifications';
 import { profileService } from '../services/profileService';
+import { useAuth } from '../context/AuthContext';
 
 type RootStackParamList = {
   SignIn: undefined;
@@ -33,6 +34,7 @@ export const SignInScreen: React.FC<Props> = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
   const [signInMessage, setSignInMessage] = useState('');
   const { expoPushToken } = usePushNotifications();
+  const { setRole } = useAuth();
 
   const handleSignIn = async () => {
     if (!email.trim()) {
@@ -54,6 +56,15 @@ export const SignInScreen: React.FC<Props> = ({ navigation }) => {
 
       // Store JWT token (Assuming you have AsyncStorage setup, for now we just navigate)
       await AsyncStorage.setItem('userToken', data.token);
+
+      // Fetch profile to set role
+      try {
+        const profileResponse = await profileService.getProfile();
+        setRole(profileResponse.profile?.role || 'parent');
+      } catch (err) {
+        console.warn('Failed to fetch profile role', err);
+        setRole('parent'); // fallback
+      }
 
       // Send push token to backend if available
       if (expoPushToken?.data) {

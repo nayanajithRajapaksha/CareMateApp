@@ -9,6 +9,7 @@ import { childService } from '../services/childService';
 import { profileService } from '../services/profileService';
 import { appointmentService } from '../services/appointmentService';
 import { useLanguage } from '../i18n/LanguageContext';
+import { usePushNotifications } from '../hooks/usePushNotifications';
 
 const formatDate = (dateString: string) => {
   const d = new Date(dateString);
@@ -40,6 +41,7 @@ const mockChildren = [
 ];
 
 export const ParentDashboardScreen: React.FC = () => {
+  usePushNotifications();
   const { t } = useLanguage();
   const navigation = useNavigation<any>();
   const [childrenData, setChildrenData] = React.useState<any[]>([]);
@@ -97,9 +99,8 @@ export const ParentDashboardScreen: React.FC = () => {
             <Image source={{ uri: 'https://i.pravatar.cc/150?img=47' }} style={styles.profilePic} />
             <Text style={styles.headerTitle}>CareMate</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.notificationBtn}>
+          <TouchableOpacity style={styles.notificationBtn} onPress={() => navigation.navigate('Notifications')}>
             <Bell color={colors.primary} size={24} />
-            <View style={styles.notificationBadge} />
           </TouchableOpacity>
         </View>
 

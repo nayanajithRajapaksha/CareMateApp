@@ -3,6 +3,16 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { LanguageProvider } from './src/i18n/LanguageContext';
+import { AuthProvider } from './src/context/AuthContext';
+
+import { SplashScreen } from './src/screens/SplashScreen';
+import { LanguageScreen } from './src/screens/LanguageScreen';
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { LanguageProvider } from './src/i18n/LanguageContext';
+import { AuthProvider } from './src/context/AuthContext';
 
 import { SplashScreen } from './src/screens/SplashScreen';
 import { LanguageScreen } from './src/screens/LanguageScreen';
@@ -13,7 +23,10 @@ import { SignInSuccessScreen } from './src/screens/SignInSuccessScreen';
 import { ForgotPasswordScreen } from './src/screens/ForgotPasswordScreen';
 import { ResetPasswordScreen } from './src/screens/ResetPasswordScreen';
 import { CheckEmailScreen } from './src/screens/CheckEmailScreen';
+import { ProfileScreen } from './src/screens/ProfileScreen';
 import { MainTabNavigator } from './src/navigation/MainTabNavigator';
+import { ChildVaccinationScreen } from './src/screens/ChildVaccinationScreen';
+import { SupervisorDashboardScreen } from './src/screens/SupervisorDashboardScreen';
 import { RegisterChildScreen } from './src/screens/RegisterChildScreen';
 
 import { SelectClinicScreen } from './src/screens/SelectClinicScreen';
@@ -21,6 +34,7 @@ import { FindClinicScreen } from './src/screens/FindClinicScreen';
 import { ClinicDetailsScreen } from './src/screens/ClinicDetailsScreen';
 import { ChildRecordsScreen } from './src/screens/ChildRecordsScreen';
 import { ManageAppointmentsScreen } from './src/screens/ManageAppointmentsScreen';
+import { NotificationScreen } from './src/screens/NotificationScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -28,10 +42,11 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <LanguageProvider>
-        <NavigationContainer>
-          <Stack.Navigator 
-            initialRouteName="Splash"
-            screenOptions={{ headerShown: false }}
+        <AuthProvider>
+          <NavigationContainer>
+            <Stack.Navigator 
+              initialRouteName="Splash"
+              screenOptions={{ headerShown: false }}
           >
             <Stack.Screen name="Splash" component={SplashScreen} />
             <Stack.Screen name="Language" component={LanguageScreen} />
@@ -49,6 +64,9 @@ export default function App() {
             <Stack.Screen name="ClinicDetails" component={ClinicDetailsScreen} />
             <Stack.Screen name="ChildRecords" component={ChildRecordsScreen} />
             <Stack.Screen name="ManageAppointments" component={ManageAppointmentsScreen} />
+            <Stack.Screen name="Notification" component={NotificationScreen} />
+            <Stack.Screen name="ChildVaccination" component={ChildVaccinationScreen} />
+            <Stack.Screen name="SupervisorDashboard" component={SupervisorDashboardScreen} />
           </Stack.Navigator>
         </NavigationContainer>
       </LanguageProvider>

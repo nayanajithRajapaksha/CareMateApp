@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getProfile, updateProfile, getAllUsers, updatePushToken } from '../controllers/userController';
+import { getProfile, updateProfile, getAllUsers, updatePushToken, getUserNotifications, markNotificationAsRead } from '../controllers/userController';
 import { verifyToken, requireRole } from '../middleware/authMiddleware';
 
 const router = Router();
@@ -9,6 +9,8 @@ router.use(verifyToken);
 router.get('/profile', getProfile);
 router.put('/profile', updateProfile);
 router.put('/push-token', updatePushToken);
+router.get('/notifications', getUserNotifications);
+router.put('/notifications/:id/read', markNotificationAsRead);
 router.get('/all', requireRole('admin'), getAllUsers);
 
 import multer from 'multer';

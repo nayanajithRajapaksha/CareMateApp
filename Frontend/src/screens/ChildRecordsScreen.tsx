@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ArrowLeft, Calendar, FileText, CheckCircle, XCircle } from 'lucide-react-native';
+import { ArrowLeft, Calendar, FileText, CheckCircle, XCircle, Shield } from 'lucide-react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { colors, typography, layout } from '../theme';
 import { appointmentService } from '../services/appointmentService';
@@ -101,6 +101,19 @@ export const ChildRecordsScreen: React.FC = () => {
           <ActivityIndicator color={colors.primary} style={{ marginTop: 40 }} />
         ) : (
           <>
+            <TouchableOpacity 
+              style={styles.vaccineCard} 
+              onPress={() => navigation.navigate('ChildVaccination', { child })}
+            >
+              <View style={styles.vaccineIconContainer}>
+                <Shield color={colors.primary} size={24} />
+              </View>
+              <View style={styles.vaccineTextContainer}>
+                <Text style={styles.vaccineTitle}>{t('vaccinationTimeline', 'Vaccination Timeline')}</Text>
+                <Text style={styles.vaccineSub}>View upcoming and past vaccinations</Text>
+              </View>
+            </TouchableOpacity>
+
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
                 <Calendar color={colors.textDark} size={20} />
@@ -203,5 +216,32 @@ const styles = StyleSheet.create({
     borderRadius: 12},
   statusText: {
     fontSize: 11,
-    fontWeight: 'bold'}
+    fontWeight: 'bold'},
+  vaccineCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.white,
+    padding: 16,
+    borderRadius: 16,
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.05)'},
+  vaccineIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#F4FAFA',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16},
+  vaccineTextContainer: {
+    flex: 1},
+  vaccineTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: colors.textDark,
+    marginBottom: 4},
+  vaccineSub: {
+    fontSize: 13,
+    color: colors.textMuted}
 });
