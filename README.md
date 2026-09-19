@@ -1,5 +1,9 @@
 # CareMate App
 
+
+apk generate : npx eas-cli build -p android --profile preview
+
+
 Welcome to the CareMate App repository! This project consists of a React Native (Expo) frontend and a Node.js (Express + PostgreSQL) backend. 
 
 There are 3 developers collaborating on this project. Please follow the setup instructions below to get your local environment running, and adhere to the GitHub Workflow to avoid merge conflicts and keep our code clean!

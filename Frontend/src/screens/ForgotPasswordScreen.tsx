@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheetTouchableOpacity, KeyboardAvoidingView, Platform, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Mail } from 'lucide-react-native';
 import { PrimaryButton } from '../components/PrimaryButton';

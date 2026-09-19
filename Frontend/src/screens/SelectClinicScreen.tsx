@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheetScrollView, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Search, Map as MapIcon, ChevronRight, Zap, Info, ShieldPlus, PlusSquare, Activity, MapPin } from 'lucide-react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';

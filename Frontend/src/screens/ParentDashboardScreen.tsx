@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheetScrollView, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Bell, CheckCircle2, Calendar, Stethoscope, Syringe, MessageSquare, ChevronRight, Plus } from 'lucide-react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';

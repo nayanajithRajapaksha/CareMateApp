@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, StyleSheetImage } from 'react-native';
+import { View, StyleSheet, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../theme';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';

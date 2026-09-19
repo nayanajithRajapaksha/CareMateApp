@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  View, Text, StyleSheetScrollView, TextInput, 
+  View, Text, StyleSheet, ScrollView, TextInput, 
   TouchableOpacity, Image, ActivityIndicator 
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheetTextInput, TouchableOpacity, ScrollView, Alert, ActivityIndicator, Modal, FlatList, Platform, Image } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Alert, ActivityIndicator, Modal, FlatList, Platform, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ChevronLeft, User, Calendar, Edit2, CheckCircle2, ChevronDown, MapPin, X, Camera } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
@@ -758,7 +758,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%'},
   profilePicOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
     backgroundColor: 'rgba(0,0,0,0.4)',
     justifyContent: 'center',
     alignItems: 'center'},

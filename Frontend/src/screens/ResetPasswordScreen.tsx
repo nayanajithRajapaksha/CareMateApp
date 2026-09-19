@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheetTouchableOpacity, KeyboardAvoidingView, Platform, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Lock, KeyRound } from 'lucide-react-native';
 import { PrimaryButton } from '../components/PrimaryButton';
@@ -19,8 +19,8 @@ type ResetPasswordScreenNavigationProp = NativeStackNavigationProp<RootStackPara
 type ResetPasswordScreenRouteProp = RouteProp<RootStackParamList, 'ResetPassword'>;
 
 interface Props {
-  navigation: ResetPasswordScreenNavigationProp;
-  route: ResetPasswordScreenRouteProp;
+  navigation: any;
+  route: any;
 }
 
 export const ResetPasswordScreen: React.FC<Props> = ({ navigation, route }) => {
