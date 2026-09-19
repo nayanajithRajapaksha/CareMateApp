@@ -8,6 +8,7 @@ import { colors, typography, layout } from '../theme';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { authService } from '../services/authService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useLanguage } from '../i18n/LanguageContext';
 
 import { usePushNotifications } from '../hooks/usePushNotifications';
 import { profileService } from '../services/profileService';
@@ -26,6 +27,7 @@ interface Props {
 }
 
 export const SignInScreen: React.FC<Props> = ({ navigation }) => {
+  const { t } = useLanguage();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -34,14 +36,14 @@ export const SignInScreen: React.FC<Props> = ({ navigation }) => {
 
   const handleSignIn = async () => {
     if (!email.trim()) {
-      setSignInMessage('Please enter your email address.');
-      Alert.alert('Sign In Error', 'Please enter your email address.');
+      setSignInMessage(t('alertEnterEmail'));
+      Alert.alert(t('signInError'), t('alertEnterEmail'));
       return;
     }
 
     if (!password) {
-      setSignInMessage('Please enter your password.');
-      Alert.alert('Sign In Error', 'Please enter your password.');
+      setSignInMessage(t('alertEnterPassword'));
+      Alert.alert(t('signInError'), t('alertEnterPassword'));
       return;
     }
 
@@ -68,9 +70,9 @@ export const SignInScreen: React.FC<Props> = ({ navigation }) => {
       const errorMessage = error?.message || '';
       const message = errorMessage.includes('connect') || errorMessage.includes('server')
         ? errorMessage
-        : 'Wrong password or email.';
+        : t('wrongCredentials');
       setSignInMessage(message);
-      Alert.alert('Sign In Failed', message);
+      Alert.alert(t('signInFailed'), message);
     } finally {
       setLoading(false);
     }
@@ -90,14 +92,14 @@ export const SignInScreen: React.FC<Props> = ({ navigation }) => {
               style={styles.logo}
               resizeMode="contain"
             />
-            <Text style={styles.title}>Welcome Back</Text>
-            <Text style={styles.subtitle}>Sign in to continue to CareMate</Text>
+            <Text style={styles.title}>{t('welcomeBack')}</Text>
+            <Text style={styles.subtitle}>{t('signInContinue')}</Text>
           </View>
 
           <View style={styles.form}>
-            <Text style={styles.label}>Email Address</Text>
+            <Text style={styles.label}>{t('emailAddress')}</Text>
             <InputField 
-              placeholder="Enter your email"
+              placeholder={t('enterEmail')}
               icon={User}
               autoCapitalize="none"
               keyboardType="email-address"
@@ -105,9 +107,9 @@ export const SignInScreen: React.FC<Props> = ({ navigation }) => {
               onChangeText={setEmail}
             />
 
-            <Text style={styles.label}>Password</Text>
+            <Text style={styles.label}>{t('password')}</Text>
             <InputField 
-              placeholder="Enter your password"
+              placeholder={t('enterPassword')}
               icon={Lock}
               isPassword
               value={password}
@@ -120,7 +122,7 @@ export const SignInScreen: React.FC<Props> = ({ navigation }) => {
             {!!signInMessage && <Text style={styles.errorMessage}>{signInMessage}</Text>}
 
             <TouchableOpacity style={styles.forgotPasswordContainer} onPress={() => navigation.navigate('ForgotPassword')}>
-              <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+              <Text style={styles.forgotPasswordText}>{t('forgotPassword')}</Text>
             </TouchableOpacity>
           </View>
 
@@ -129,15 +131,15 @@ export const SignInScreen: React.FC<Props> = ({ navigation }) => {
               <ActivityIndicator size="large" color={colors.primary} />
             ) : (
               <PrimaryButton 
-                title="Sign In" 
+                title={t('signIn')} 
                 onPress={handleSignIn} 
               />
             )}
             
             <View style={styles.signupContainer}>
-              <Text style={styles.signupText}>Don't have an account? </Text>
+              <Text style={styles.signupText}>{t('dontHaveAccount')}</Text>
               <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
-                <Text style={styles.signupLink}>Sign Up</Text>
+                <Text style={styles.signupLink}>{t('signUp')}</Text>
               </TouchableOpacity>
             </View>
           </View>

@@ -5,6 +5,7 @@ import { ChevronLeft, Circle, CheckCircle2 } from 'lucide-react-native';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { colors, typography, layout } from '../theme';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useLanguage, LanguageCode } from '../i18n/LanguageContext';
 
 type RootStackParamList = {
   Splash: undefined;
@@ -18,35 +19,47 @@ interface Props {
   navigation: LanguageScreenNavigationProp;
 }
 
-export const LanguageScreen: React.FC<Props> = ({ navigation }) => {
-  const [selectedLanguage, setSelectedLanguage] = useState('English');
+const languageOptions: { id: LanguageCode; code: string; name: string; subtitle: string }[] = [
+  { id: 'en', code: 'En', name: 'English', subtitle: 'Default' },
+  { id: 'si', code: 'සි', name: 'සිංහල', subtitle: 'Sinhala' },
+  { id: 'ta', code: 'த', name: 'தமிழ்', subtitle: 'Tamil' },
+];
 
-  const languages = [
-    { id: 'en', code: 'En', name: 'English', subtitle: 'Default' },
-    { id: 'si', code: 'සි', name: 'සිංහල', subtitle: 'Sinhala' },
-    { id: 'ta', code: 'த', name: 'தமிழ்', subtitle: 'Tamil' },
-  ];
+export const LanguageScreen: React.FC<Props> = ({ navigation }) => {
+  const { language, setLanguage, t } = useLanguage();
+  const [selectedLangId, setSelectedLangId] = useState<LanguageCode>(language);
+
+  const handleContinue = async () => {
+    await setLanguage(selectedLangId);
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+    } else {
+      navigation.navigate('Welcome');
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          <ChevronLeft color={colors.primary} size={24} />
-        </TouchableOpacity>
+        {navigation.canGoBack() && (
+          <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+            <ChevronLeft color={colors.primary} size={24} />
+          </TouchableOpacity>
+        )}
       </View>
 
       <View style={styles.content}>
-        <Text style={styles.title}>Select Language</Text>
-        <Text style={styles.subtitle}>Choose your preferred language to continue using CareMate.</Text>
+        <Text style={styles.title}>{t('selectLanguage')}</Text>
+        <Text style={styles.subtitle}>{t('chooseLanguage')}</Text>
 
         <View style={styles.list}>
-          {languages.map((lang) => {
-            const isSelected = selectedLanguage === lang.name;
+          {languageOptions.map((lang) => {
+            const isSelected = selectedLangId === lang.id;
             return (
               <TouchableOpacity
                 key={lang.id}
                 style={[styles.languageCard, isSelected && styles.languageCardSelected]}
-                onPress={() => setSelectedLanguage(lang.name)}
+                onPress={() => setSelectedLangId(lang.id)}
                 activeOpacity={0.7}
               >
                 <View style={styles.iconContainer}>
@@ -71,8 +84,8 @@ export const LanguageScreen: React.FC<Props> = ({ navigation }) => {
 
       <View style={styles.footer}>
         <PrimaryButton 
-          title="Continue →" 
-          onPress={() => navigation.navigate('Welcome')} 
+          title={navigation.canGoBack() ? t('saveGoBack') : t('continueBtn')} 
+          onPress={handleContinue} 
         />
       </View>
     </SafeAreaView>

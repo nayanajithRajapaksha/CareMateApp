@@ -5,6 +5,7 @@ import { MailCheck } from 'lucide-react-native';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { colors, typography, layout } from '../theme';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useLanguage } from '../i18n/LanguageContext';
 
 type RootStackParamList = {
   SignIn: undefined;
@@ -17,6 +18,8 @@ interface Props {
 }
 
 export const CheckEmailScreen: React.FC<Props> = ({ navigation }) => {
+  const { t } = useLanguage();
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
@@ -26,29 +29,29 @@ export const CheckEmailScreen: React.FC<Props> = ({ navigation }) => {
             <MailCheck color={colors.primary} size={40} />
           </View>
 
-          <Text style={styles.title}>Check Your Email</Text>
+          <Text style={styles.title}>{t('checkYourEmail')}</Text>
           <Text style={styles.subtitle}>
-            We've sent password reset instructions to your registered email address.
+            {t('checkEmailSubtitle')}
           </Text>
           
           <Text style={styles.emailText}>nad***@gmail.com</Text>
 
           <PrimaryButton 
-            title="Open Email App" 
+            title={t('openEmailApp')} 
             onPress={() => console.log('Open Email App')} 
           />
 
           <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate('SignIn')}>
-            <Text style={styles.backButtonText}>Back to Sign In</Text>
+            <Text style={styles.backButtonText}>{t('backToSignIn')}</Text>
           </TouchableOpacity>
 
           <View style={styles.resendContainer}>
-            <Text style={styles.resendText}>Didn't receive the email? </Text>
+            <Text style={styles.resendText}>{t('didntReceiveEmail')}</Text>
             <TouchableOpacity>
-              <Text style={styles.resendLink}>Resend Email</Text>
+              <Text style={styles.resendLink}>{t('resendEmail')}</Text>
             </TouchableOpacity>
           </View>
-          <Text style={styles.timerText}>Resend in 00:45</Text>
+          <Text style={styles.timerText}>{t('resendIn')}</Text>
         </View>
 
       </View>

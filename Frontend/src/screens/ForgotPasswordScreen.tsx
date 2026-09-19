@@ -7,6 +7,7 @@ import { InputField } from '../components/InputField';
 import { colors, typography, layout } from '../theme';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { API_BASE_URL } from '../services/apiConfig';
+import { useLanguage } from '../i18n/LanguageContext';
 
 type RootStackParamList = {
   SignIn: undefined;
@@ -21,12 +22,13 @@ interface Props {
 }
 
 export const ForgotPasswordScreen: React.FC<Props> = ({ navigation }) => {
+  const { t } = useLanguage();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSendResetLink = async () => {
     if (!email) {
-      Alert.alert('Error', 'Please enter your email address.');
+      Alert.alert(t('error'), t('alertEnterEmail'));
       return;
     }
 
@@ -44,7 +46,7 @@ export const ForgotPasswordScreen: React.FC<Props> = ({ navigation }) => {
 
       navigation.navigate('ResetPassword', { email });
     } catch (error: any) {
-      Alert.alert('Error', error.message);
+      Alert.alert(t('error'), error.message);
     } finally {
       setLoading(false);
     }
@@ -59,14 +61,14 @@ export const ForgotPasswordScreen: React.FC<Props> = ({ navigation }) => {
         <View style={styles.content}>
           
           <View style={styles.header}>
-            <Text style={styles.title}>Forgot Password?</Text>
+            <Text style={styles.title}>{t('forgotPasswordTitle')}</Text>
             <Text style={styles.subtitle}>
-              Enter your email address and we'll send you a 6-digit OTP to reset your password.
+              {t('forgotPasswordSubtitle')}
             </Text>
           </View>
 
           <View style={styles.form}>
-            <Text style={styles.label}>Email Address</Text>
+            <Text style={styles.label}>{t('emailAddress')}</Text>
             <InputField 
               placeholder="name@example.com"
               icon={Mail}
@@ -80,14 +82,14 @@ export const ForgotPasswordScreen: React.FC<Props> = ({ navigation }) => {
               <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 20 }} />
             ) : (
               <PrimaryButton 
-                title="Send OTP" 
+                title={t('sendOTP')} 
                 onPress={handleSendResetLink} 
               />
             )}
           </View>
 
           <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-            <Text style={styles.backButtonText}>Back to Sign In</Text>
+            <Text style={styles.backButtonText}>{t('backToSignIn')}</Text>
           </TouchableOpacity>
 
         </View>

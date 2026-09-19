@@ -5,6 +5,7 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Calendar, Clock, ChevronLeft, MapPin, UserRound, XCircle, Stethoscope, BriefcaseMedical } from 'lucide-react-native';
 import { colors, layout } from '../theme';
 import { appointmentService } from '../services/appointmentService';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const formatDate = (dateString: string) => {
   const d = new Date(dateString);
@@ -18,6 +19,7 @@ const formatTime = (time: string) => {
 };
 
 export const ManageAppointmentsScreen: React.FC = () => {
+  const { t } = useLanguage();
   const navigation = useNavigation<any>();
   const [appointments, setAppointments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -49,12 +51,12 @@ export const ManageAppointmentsScreen: React.FC = () => {
 
   const handleCancel = (id: number) => {
     Alert.alert(
-      'Cancel Appointment',
+      t('cancelAppointmentAlertTitle'),
       'Are you sure you want to cancel this appointment?',
       [
         { text: 'No, Keep it', style: 'cancel' },
         { 
-          text: 'Yes, Cancel', 
+          text: t('yesCancelBtn'), 
           style: 'destructive',
           onPress: async () => {
             setCancellingId(id);
@@ -157,7 +159,7 @@ export const ManageAppointmentsScreen: React.FC = () => {
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <ChevronLeft color={colors.textDark} size={28} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>My Appointments</Text>
+        <Text style={styles.headerTitle}>{t('manageAppointmentsTitle')}</Text>
         <View style={{ width: 40 }} />
       </View>
 
@@ -174,7 +176,7 @@ export const ManageAppointmentsScreen: React.FC = () => {
           {appointments.length === 0 ? (
             <View style={styles.emptyContainer}>
               <Calendar color={colors.textMuted} size={48} />
-              <Text style={styles.emptyTitle}>No Appointments</Text>
+              <Text style={styles.emptyTitle}>{t('noAppointmentsTitle')}</Text>
               <Text style={styles.emptySubtitle}>You haven't booked any appointments yet.</Text>
             </View>
           ) : (

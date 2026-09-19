@@ -8,6 +8,7 @@ import { PrimaryButton } from '../components/PrimaryButton';
 import { childService } from '../services/childService';
 import { profileService } from '../services/profileService';
 import { appointmentService } from '../services/appointmentService';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const formatDate = (dateString: string) => {
   const d = new Date(dateString);
@@ -39,6 +40,7 @@ const mockChildren = [
 ];
 
 export const ParentDashboardScreen: React.FC = () => {
+  const { t } = useLanguage();
   const navigation = useNavigation<any>();
   const [childrenData, setChildrenData] = React.useState<any[]>([]);
   const [appointments, setAppointments] = React.useState<any[]>([]);
@@ -75,10 +77,10 @@ export const ParentDashboardScreen: React.FC = () => {
 
   const renderEmptyState = () => (
     <View style={styles.emptyContainer}>
-      <Text style={styles.emptyTitle}>No Children Added</Text>
-      <Text style={styles.emptySubtitle}>Add a child profile to track their health and vaccinations.</Text>
+      <Text style={styles.emptyTitle}>{t('noChildrenAdded')}</Text>
+      <Text style={styles.emptySubtitle}>{t('noChildrenSubtitle')}</Text>
       <PrimaryButton 
-        title="Register a Child" 
+        title={t('registerChild')} 
         onPress={() => navigation.navigate('RegisterChild')}
         style={{ marginTop: 16 }}
       />
@@ -103,46 +105,46 @@ export const ParentDashboardScreen: React.FC = () => {
 
         {/* Greeting Card */}
         <View style={styles.greetingCard}>
-          <Text style={styles.greetingTitle}>Hello, {userName}!</Text>
+          <Text style={styles.greetingTitle}>{t('helloUser', { name: userName })}</Text>
           <Text style={styles.greetingText}>
-            Your family's health is on track. All children are up to date with vaccinations.
+            {t('familyHealthOnTrack')}
           </Text>
           <View style={styles.statusBadge}>
             <CheckCircle2 color={colors.white} size={16} />
-            <Text style={styles.statusBadgeText}>All Good</Text>
+            <Text style={styles.statusBadgeText}>{t('allGood')}</Text>
           </View>
         </View>
 
         {/* Quick Actions */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Quick Actions</Text>
+          <Text style={styles.sectionTitle}>{t('quickActions')}</Text>
           <View style={styles.actionsGrid}>
             <TouchableOpacity style={styles.actionItem} onPress={() => navigation.navigate('ScheduleTab')}>
               <View style={styles.actionIconContainer}>
                 <Calendar color={colors.textDark} size={24} />
               </View>
-              <Text style={styles.actionText}>Book</Text>
+              <Text style={styles.actionText}>{t('bookAction')}</Text>
             </TouchableOpacity>
             
             <TouchableOpacity style={styles.actionItem} onPress={() => navigation.navigate('SelectClinic')}>
               <View style={styles.actionIconContainer}>
                 <Stethoscope color={colors.textDark} size={24} />
               </View>
-              <Text style={styles.actionText}>Clinic</Text>
+              <Text style={styles.actionText}>{t('clinicAction')}</Text>
             </TouchableOpacity>
             
             <TouchableOpacity style={styles.actionItem} onPress={() => navigation.navigate('ChildrenTab')}>
               <View style={styles.actionIconContainer}>
                 <Syringe color={colors.textDark} size={24} />
               </View>
-              <Text style={styles.actionText}>Vaccines</Text>
+              <Text style={styles.actionText}>{t('vaccinesAction')}</Text>
             </TouchableOpacity>
             
             <TouchableOpacity style={styles.actionItem} onPress={() => navigation.navigate('LearnTab')}>
               <View style={styles.actionIconContainer}>
                 <MessageSquare color={colors.textDark} size={24} />
               </View>
-              <Text style={styles.actionText}>Family{"\n"}Planning</Text>
+              <Text style={styles.actionText}>{t('familyPlanningAction')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -151,9 +153,9 @@ export const ParentDashboardScreen: React.FC = () => {
         {appointments.length > 0 && (
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Upcoming Appointments</Text>
+              <Text style={styles.sectionTitle}>{t('upcomingAppointments')}</Text>
               <TouchableOpacity onPress={() => navigation.navigate('ManageAppointments')}>
-                <Text style={styles.viewAllText}>Manage</Text>
+                <Text style={styles.viewAllText}>{t('manageText')}</Text>
               </TouchableOpacity>
             </View>
             <View style={{ gap: 12 }}>
@@ -163,11 +165,11 @@ export const ParentDashboardScreen: React.FC = () => {
                     <Calendar color={colors.primary} size={24} />
                   </View>
                   <View style={{ flex: 1 }}>
-                    <Text style={styles.apptChildName}>{appt.child_name} - {appt.clinic_name}</Text>
+                    <Text style={styles.apptChildName}>{t('appointmentWith', { childName: appt.child_name, clinicName: appt.clinic_name })}</Text>
                     <Text style={styles.apptDateText}>
                       {formatDate(appt.appointment_date)} at {formatTime(appt.start_time)}
                     </Text>
-                    <Text style={styles.apptMidwifeText}>With {appt.midwife_name}</Text>
+                    <Text style={styles.apptMidwifeText}>{t('withMidwife', { name: appt.midwife_name })}</Text>
                   </View>
                 </View>
               ))}
@@ -178,15 +180,15 @@ export const ParentDashboardScreen: React.FC = () => {
         {/* Children Section */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Children</Text>
+            <Text style={styles.sectionTitle}>{t('childrenSection')}</Text>
             <TouchableOpacity onPress={() => navigation.navigate('ChildrenTab')}>
-              <Text style={styles.viewAllText}>View All</Text>
+              <Text style={styles.viewAllText}>{t('viewAllText')}</Text>
             </TouchableOpacity>
           </View>
           
           <View style={styles.childrenList}>
             {loading ? (
-              <Text style={{ textAlign: 'center', color: colors.textMuted, marginTop: 20 }}>Loading...</Text>
+              <Text style={{ textAlign: 'center', color: colors.textMuted, marginTop: 20 }}>{t('loadingText')}</Text>
             ) : displayData.length === 0 ? (
               renderEmptyState()
             ) : (
@@ -205,7 +207,7 @@ export const ParentDashboardScreen: React.FC = () => {
                     </Text>
                     <View style={styles.childStatusRow}>
                       <Calendar color={colors.primary} size={14} />
-                      <Text style={styles.childStatusText}>Up to date</Text>
+                      <Text style={styles.childStatusText}>{t('upToDate')}</Text>
                     </View>
                   </View>
                   

@@ -5,8 +5,10 @@ import { Search, Map as MapIcon, ChevronRight, Zap, Info, ShieldPlus, PlusSquare
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { colors, layout } from '../theme';
 import { clinicService, Clinic } from '../services/clinicService';
+import { useLanguage } from '../i18n/LanguageContext';
 
 export const SelectClinicScreen: React.FC = () => {
+  const { t } = useLanguage();
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
   const mode = route.params?.mode;
@@ -29,8 +31,8 @@ export const SelectClinicScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        <Text style={styles.pageTitle}>Select Clinic</Text>
-        <Text style={styles.pageSubtitle}>Find a nearby clinic for your vaccination.</Text>
+        <Text style={styles.pageTitle}>{t('selectClinicTitle')}</Text>
+        <Text style={styles.pageSubtitle}>{t('selectClinicSubtitle')}</Text>
 
         <View style={styles.searchContainer}>
           <Search color={colors.textMuted} size={20} />
@@ -133,7 +135,7 @@ export const SelectClinicScreen: React.FC = () => {
                     navigation.navigate('ClinicDetails', { clinic });
                   }
                 }}>
-                  <Text style={styles.actionLinkText}>Select</Text>
+                  <Text style={styles.actionLinkText}>{t('selectBtn')}</Text>
                   <ChevronRight color={colors.primary} size={16} />
                 </TouchableOpacity>
               </View>

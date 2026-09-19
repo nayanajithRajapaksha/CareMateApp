@@ -8,8 +8,9 @@ import { Search, ArrowRight, BookOpen } from 'lucide-react-native';
 import { colors, typography, layout } from '../theme';
 import { blogService, type Blog } from '../services/blogService';
 import { BlogDetailModal } from '../components/BlogDetailModal';
+import { useLanguage } from '../i18n/LanguageContext';
 
-const filterTopics = ['All Topics', 'Nutrition', 'Vaccinations', 'Mental Health', 'Child Development', 'General Health'];
+
 
 // Fallback seed articles in case backend has no records yet
 const fallbackArticles: Blog[] = [
@@ -62,7 +63,16 @@ const fallbackArticles: Blog[] = [
 ];
 
 export const LearnScreen: React.FC = () => {
-  const [activeTopic, setActiveTopic] = useState('All Topics');
+  const { t } = useLanguage();
+  const filterTopics = [
+    t('topicAllTopics'),
+    t('topicNutrition'),
+    t('topicVaccinations'),
+    t('topicMentalHealth'),
+    t('topicChildDevelopment'),
+    t('topicGeneralHealth')
+  ];
+  const [activeTopic, setActiveTopic] = useState(t('topicAllTopics'));
   const [searchQuery, setSearchQuery] = useState('');
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
@@ -75,7 +85,7 @@ export const LearnScreen: React.FC = () => {
     setLoading(true);
     try {
       const fetched = await blogService.getBlogs(
-        activeTopic !== 'All Topics' ? activeTopic : undefined,
+        activeTopic !== t('topicAllTopics') ? activeTopic : undefined,
         searchQuery || undefined
       );
 
@@ -84,7 +94,7 @@ export const LearnScreen: React.FC = () => {
       } else {
         // Filter fallback articles if API returns empty
         const filtered = fallbackArticles.filter(b => {
-          const matchTopic = activeTopic === 'All Topics' || b.category.toLowerCase() === activeTopic.toLowerCase();
+          const matchTopic = activeTopic === t('topicAllTopics') || t(`topic${b.category.replace(/\s+/g, '')}`) === activeTopic;
           const matchSearch = !searchQuery || b.title.toLowerCase().includes(searchQuery.toLowerCase()) || (b.subtitle && b.subtitle.toLowerCase().includes(searchQuery.toLowerCase()));
           return matchTopic && matchSearch;
         });
@@ -117,8 +127,8 @@ export const LearnScreen: React.FC = () => {
         
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Health Education</Text>
-          <Text style={styles.headerSubtitle}>Verified articles & child health guides from MOH officers</Text>
+          <Text style={styles.headerTitle}>{t('healthEducationTitle')}</Text>
+          <Text style={styles.headerSubtitle}>{t('healthEducationSubtitle')}</Text>
         </View>
 
         {/* Search Bar */}
@@ -126,7 +136,7 @@ export const LearnScreen: React.FC = () => {
           <Search color={colors.textMuted} size={20} style={styles.searchIcon} />
           <TextInput 
             style={styles.searchInput}
-            placeholder="Search topics, symptoms, or guides..."
+            placeholder={t('searchPlaceholder')}
             placeholderTextColor={colors.textMuted}
             value={searchQuery}
             onChangeText={setSearchQuery}
@@ -159,14 +169,14 @@ export const LearnScreen: React.FC = () => {
         {loading ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color={colors.primary} />
-            <Text style={styles.loadingText}>Loading articles...</Text>
+            <Text style={styles.loadingText}>{t('loadingArticles')}</Text>
           </View>
         ) : (
           <>
             {/* Featured Section */}
-            {featuredBlog && !searchQuery && activeTopic === 'All Topics' && (
+            {featuredBlog && !searchQuery && activeTopic === t('topicAllTopics') && (
               <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Featured</Text>
+                <Text style={styles.sectionTitle}>{t('featuredTitle')}</Text>
                 <TouchableOpacity 
                   style={styles.featuredCard} 
                   activeOpacity={0.9}
@@ -189,7 +199,7 @@ export const LearnScreen: React.FC = () => {
                       </Text>
                     )}
                     <View style={styles.readMoreBtn}>
-                      <Text style={styles.readMoreText}>Read Article</Text>
+                      <Text style={styles.readMoreText}>{t('readArticle')}</Text>
                       <ArrowRight color={colors.primary} size={16} style={{ marginLeft: 4 }} />
                     </View>
                   </View>
@@ -200,13 +210,13 @@ export const LearnScreen: React.FC = () => {
             {/* Articles List */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>
-                {activeTopic !== 'All Topics' ? `${activeTopic} Articles` : 'All Articles'} ({blogs.length})
+                {activeTopic !== t('topicAllTopics') ? `${activeTopic} Articles` : 'All Articles'} ({blogs.length})
               </Text>
 
               {blogs.length === 0 ? (
                 <View style={styles.emptyContainer}>
                   <BookOpen color={colors.textMuted} size={40} />
-                  <Text style={styles.emptyText}>No health articles found matching your criteria.</Text>
+                  <Text style={styles.emptyText}>{t('noHealthArticlesFound')}</Text>
                 </View>
               ) : (
                 <View style={styles.articlesList}>

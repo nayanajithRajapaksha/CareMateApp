@@ -8,6 +8,7 @@ import { colors, typography, layout } from '../theme';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { authService } from '../services/authService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useLanguage } from '../i18n/LanguageContext';
 
 type RootStackParamList = {
   Welcome: undefined;
@@ -24,6 +25,7 @@ interface Props {
 }
 
 export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
+  const { t } = useLanguage();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [contactNumber, setContactNumber] = useState('');
@@ -32,23 +34,23 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
 
   const handleSignUp = async () => {
     if (!name || !email || !contactNumber || !password) {
-      Alert.alert('Validation Error', 'Please fill in all fields.');
+      Alert.alert(t('alertValidationError'), t('alertFillAllFields'));
       return;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      Alert.alert('Validation Error', 'Please enter a valid email address.');
+      Alert.alert(t('alertValidationError'), t('alertInvalidEmail'));
       return;
     }
 
     if (password.length < 6) {
-      Alert.alert('Validation Error', 'Password must be at least 6 characters long.');
+      Alert.alert(t('alertValidationError'), t('alertPasswordMin6'));
       return;
     }
 
     if (contactNumber.length < 9) {
-      Alert.alert('Validation Error', 'Please enter a valid contact number.');
+      Alert.alert(t('alertValidationError'), t('alertInvalidContact'));
       return;
     }
 
@@ -63,7 +65,7 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
       await AsyncStorage.setItem('userToken', data.token);
       navigation.navigate('SignInSuccess');
     } catch (error: any) {
-      Alert.alert('Registration Failed', error.message || 'Something went wrong');
+      Alert.alert(t('registrationFailed'), error.message || t('somethingWentWrong'));
     } finally {
       setLoading(false);
     }
@@ -84,22 +86,22 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
           </View>
 
           <View style={styles.titleContainer}>
-            <Text style={styles.title}>Create Account</Text>
-            <Text style={styles.subtitle}>Join CareMate to manage your child's health.</Text>
+            <Text style={styles.title}>{t('createAccount')}</Text>
+            <Text style={styles.subtitle}>{t('joinCareMate')}</Text>
           </View>
 
           <View style={styles.form}>
-            <Text style={styles.label}>Full Name</Text>
+            <Text style={styles.label}>{t('fullName')}</Text>
             <InputField 
-              placeholder="Enter your full name"
+              placeholder={t('enterFullName')}
               icon={User}
               value={name}
               onChangeText={setName}
             />
 
-            <Text style={styles.label}>Email Address</Text>
+            <Text style={styles.label}>{t('emailAddress')}</Text>
             <InputField 
-              placeholder="Enter your email"
+              placeholder={t('enterEmail')}
               icon={Mail}
               autoCapitalize="none"
               keyboardType="email-address"
@@ -107,18 +109,18 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
               onChangeText={setEmail}
             />
 
-            <Text style={styles.label}>Contact Number</Text>
+            <Text style={styles.label}>{t('contactNumber')}</Text>
             <InputField 
-              placeholder="Enter your mobile number"
+              placeholder={t('enterMobileNumber')}
               icon={Phone}
               keyboardType="phone-pad"
               value={contactNumber}
               onChangeText={setContactNumber}
             />
 
-            <Text style={styles.label}>Password</Text>
+            <Text style={styles.label}>{t('password')}</Text>
             <InputField 
-              placeholder="Create a password"
+              placeholder={t('createPassword')}
               icon={Lock}
               isPassword
               value={password}
@@ -131,15 +133,15 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
               <ActivityIndicator size="large" color={colors.primary} style={{ marginBottom: 16 }} />
             ) : (
               <PrimaryButton 
-                title="Sign Up" 
+                title={t('signUp')} 
                 onPress={handleSignUp} 
               />
             )}
             
             <View style={styles.signinContainer}>
-              <Text style={styles.signinText}>Already have an account? </Text>
+              <Text style={styles.signinText}>{t('alreadyHaveAccount')}</Text>
               <TouchableOpacity onPress={() => navigation.navigate('SignIn')}>
-                <Text style={styles.signinLink}>Sign In</Text>
+                <Text style={styles.signinLink}>{t('signIn')}</Text>
               </TouchableOpacity>
             </View>
           </View>

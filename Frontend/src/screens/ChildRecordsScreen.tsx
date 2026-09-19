@@ -5,6 +5,7 @@ import { ArrowLeft, Calendar, FileText, CheckCircle, XCircle } from 'lucide-reac
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { colors, typography, layout } from '../theme';
 import { appointmentService } from '../services/appointmentService';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const formatDate = (dateString: string) => {
   const d = new Date(dateString);
@@ -17,6 +18,7 @@ const formatTime = (time: string) => {
 };
 
 export const ChildRecordsScreen: React.FC = () => {
+  const { t } = useLanguage();
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
   const child = route.params?.child;
@@ -90,7 +92,7 @@ export const ChildRecordsScreen: React.FC = () => {
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <ArrowLeft color={colors.textDark} size={24} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{child.full_name}'s Records</Text>
+        <Text style={styles.headerTitle}>{t('childRecordsTitle', { childName: child.full_name })}</Text>
         <View style={{ width: 24 }} />
       </View>
 
@@ -102,10 +104,10 @@ export const ChildRecordsScreen: React.FC = () => {
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
                 <Calendar color={colors.textDark} size={20} />
-                <Text style={styles.sectionTitle}>Upcoming Bookings</Text>
+                <Text style={styles.sectionTitle}>{t('upcomingBookingsTitle')}</Text>
               </View>
               {upcoming.length === 0 ? (
-                <Text style={styles.emptyText}>No upcoming bookings.</Text>
+                <Text style={styles.emptyText}>{t('noUpcomingBookings')}</Text>
               ) : (
                 upcoming.map(a => renderCard(a, true))
               )}
@@ -114,10 +116,10 @@ export const ChildRecordsScreen: React.FC = () => {
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
                 <FileText color={colors.textDark} size={20} />
-                <Text style={styles.sectionTitle}>Booking History</Text>
+                <Text style={styles.sectionTitle}>{t('bookingHistoryTitle')}</Text>
               </View>
               {history.length === 0 ? (
-                <Text style={styles.emptyText}>No past bookings.</Text>
+                <Text style={styles.emptyText}>{t('noPastBookings')}</Text>
               ) : (
                 history.map(a => renderCard(a, false))
               )}

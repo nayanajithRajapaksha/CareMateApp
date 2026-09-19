@@ -10,8 +10,10 @@ import { PrimaryButton } from '../components/PrimaryButton';
 import { childService } from '../services/childService';
 import { clinicService, Clinic } from '../services/clinicService';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { useLanguage } from '../i18n/LanguageContext';
 
 export const RegisterChildScreen: React.FC = () => {
+  const { t } = useLanguage();
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
   const isEditMode = route.params?.mode === 'edit';
@@ -223,7 +225,7 @@ export const RegisterChildScreen: React.FC = () => {
         />
       </View>
 
-      <Text style={styles.label}>Date of Birth</Text>
+      <Text style={styles.label}>{t('dateOfBirth')}</Text>
       <TouchableOpacity style={styles.inputContainer} onPress={() => setShowDatePicker(true)}>
         <Calendar color={colors.textMuted} size={20} style={styles.inputIcon} />
         <Text style={[styles.input, { marginTop: Platform.OS === 'ios' ? 14 : 12, color: formData.dob ? colors.textDark : colors.textMuted }]}>
@@ -249,7 +251,7 @@ export const RegisterChildScreen: React.FC = () => {
         />
       )}
 
-      <Text style={styles.label}>Gender</Text>
+      <Text style={styles.label}>{t('gender')}</Text>
       <View style={styles.row}>
         {['Male', 'Female', 'Other'].map(g => (
           <TouchableOpacity 
@@ -262,7 +264,7 @@ export const RegisterChildScreen: React.FC = () => {
         ))}
       </View>
 
-      <Text style={styles.label}>Relationship to Child</Text>
+      <Text style={styles.label}>{t('relationshipToChild')}</Text>
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
@@ -370,13 +372,13 @@ export const RegisterChildScreen: React.FC = () => {
             <Text style={styles.reviewValue}>{formData.full_name}</Text>
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={styles.reviewLabel}>Date of Birth</Text>
+            <Text style={styles.reviewLabel}>{t('dateOfBirth')}</Text>
             <Text style={styles.reviewValue}>{formData.dob}</Text>
           </View>
         </View>
         <View style={[styles.row, { marginTop: 16 }]}>
           <View style={{ flex: 1 }}>
-            <Text style={styles.reviewLabel}>Gender</Text>
+            <Text style={styles.reviewLabel}>{t('gender')}</Text>
             <Text style={styles.reviewValue}>{formData.gender}</Text>
           </View>
           <View style={{ flex: 1 }}>
@@ -410,7 +412,7 @@ export const RegisterChildScreen: React.FC = () => {
         </View>
         
         <View style={{ marginTop: 16 }}>
-          <Text style={styles.reviewLabel}>Allergies</Text>
+          <Text style={styles.reviewLabel}>{t('allergiesTitle')}</Text>
           <Text style={styles.reviewValue}>{formData.allergies || 'None'}</Text>
         </View>
         
@@ -420,7 +422,7 @@ export const RegisterChildScreen: React.FC = () => {
         </View>
 
         <View style={{ marginTop: 16 }}>
-          <Text style={styles.reviewLabel}>Primary Clinic</Text>
+          <Text style={styles.reviewLabel}>{t('primaryClinic')}</Text>
           <Text style={styles.reviewValue}>{formData.primary_clinic || 'Not Provided'}</Text>
         </View>
       </View>

@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "CareMateApp",
-    "slug": "CareMateApp",
+    "slug": "CareMateApp-New",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/logo.png",
@@ -24,7 +24,7 @@
     },
     "extra": {
       "eas": {
-        "projectId": "80c17983-1480-401c-8055-562b1e8ddf88"
+        "projectId": "15a843dd-df39-4ec0-b8b0-8b1c8d697709"
       }
     },
     "plugins": [

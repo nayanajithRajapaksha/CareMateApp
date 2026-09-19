@@ -3,6 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Home, Baby, Calendar, BookOpen, User } from 'lucide-react-native';
 import { colors } from '../theme';
+import { useLanguage } from '../i18n/LanguageContext';
 
 import { ParentDashboardScreen } from '../screens/ParentDashboardScreen';
 import { ChildrenScreen } from '../screens/ChildrenScreen';
@@ -13,6 +14,8 @@ import { ProfileScreen } from '../screens/ProfileScreen';
 const Tab = createBottomTabNavigator();
 
 export const MainTabNavigator = () => {
+  const { t } = useLanguage();
+
   return (
     <Tab.Navigator
       screenOptions={{
@@ -37,7 +40,7 @@ export const MainTabNavigator = () => {
         name="HomeTab" 
         component={ParentDashboardScreen} 
         options={{
-          tabBarLabel: 'Home',
+          tabBarLabel: t('tabHome'),
           tabBarIcon: ({ color, size }) => (
             <Home color={color} size={24} />
           ),
@@ -47,7 +50,7 @@ export const MainTabNavigator = () => {
         name="ChildrenTab" 
         component={ChildrenScreen} 
         options={{
-          tabBarLabel: 'Children',
+          tabBarLabel: t('tabChildren'),
           tabBarIcon: ({ color, size }) => (
             <Baby color={color} size={24} />
           ),
@@ -57,7 +60,7 @@ export const MainTabNavigator = () => {
         name="ScheduleTab" 
         component={ScheduleScreen} 
         options={{
-          tabBarLabel: 'Schedule',
+          tabBarLabel: t('tabSchedule'),
           tabBarIcon: ({ color, size }) => (
             <Calendar color={color} size={24} />
           ),
@@ -67,7 +70,7 @@ export const MainTabNavigator = () => {
         name="LearnTab" 
         component={LearnScreen} 
         options={{
-          tabBarLabel: 'Learn',
+          tabBarLabel: t('tabLearn'),
           tabBarIcon: ({ color, size }) => (
             <BookOpen color={color} size={24} />
           ),
@@ -77,7 +80,7 @@ export const MainTabNavigator = () => {
         name="ProfileTab" 
         component={ProfileScreen} 
         options={{
-          tabBarLabel: 'Profile',
+          tabBarLabel: t('tabProfile'),
           tabBarIcon: ({ color, size }) => (
             <User color={color} size={24} />
           ),

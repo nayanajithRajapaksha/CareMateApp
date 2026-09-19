@@ -6,6 +6,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { colors, layout } from '../theme';
 import { childService } from '../services/childService';
 import { appointmentService } from '../services/appointmentService';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const formatDate = (date: Date) => {
   const year = date.getFullYear();
@@ -21,6 +22,7 @@ const formatTime = (time: string) => {
 const dateLabel = (date: Date) => date.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
 
 export const ScheduleScreen: React.FC = () => {
+  const { t } = useLanguage();
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
   const clinic = route.params?.clinic;
@@ -43,7 +45,7 @@ export const ScheduleScreen: React.FC = () => {
     childService.getChildren().then(data => {
       setChildren(data.children || []);
       if (!selectedChildId && data.children?.[0]) setSelectedChildId(data.children[0].id);
-    }).catch(error => Alert.alert('Unable to load children', error.message));
+    }).catch(error => Alert.alert(t('unableToLoadChildren'), error.message));
   }, [selectedChildId]);
 
   const loadAvailability = useCallback(async () => {
@@ -61,7 +63,7 @@ export const ScheduleScreen: React.FC = () => {
       setSlots(data.slots || []);
       setMyAppointments(myAppsData.appointments || []);
     } catch (error: any) {
-      Alert.alert('Unable to load times', error.message);
+      Alert.alert(t('unableToLoadTimes'), error.message);
     } finally {
       setLoading(false);
     }
@@ -75,15 +77,15 @@ export const ScheduleScreen: React.FC = () => {
       return;
     }
     if (!selectedChildId || !selectedTime) {
-      Alert.alert('Choose details', 'Select a child and an available 30-minute time slot.');
+      Alert.alert(t('chooseDetails'), t('selectChildAndTime'));
       return;
     }
     setBooking(true);
     try {
       await appointmentService.book({ clinic_id: clinic.id, child_id: selectedChildId, appointment_date: formatDate(selectedDate), start_time: selectedTime });
-      Alert.alert('Booking confirmed', `${dateLabel(selectedDate)} at ${formatTime(selectedTime)}.`, [{ text: 'Done', onPress: () => loadAvailability() }]);
+      Alert.alert(t('bookingConfirmed'), `${dateLabel(selectedDate)} at ${formatTime(selectedTime)}.`, [{ text: t('doneBtn'), onPress: () => loadAvailability() }]);
     } catch (error: any) {
-      Alert.alert('Booking failed', error.message);
+      Alert.alert(t('bookingFailed'), error.message);
       loadAvailability();
     } finally {
       setBooking(false);
@@ -94,9 +96,9 @@ export const ScheduleScreen: React.FC = () => {
     setBooking(true);
     try {
       await appointmentService.cancel(appointmentId);
-      Alert.alert('Appointment Cancelled', 'Your appointment has been cancelled successfully.', [{ text: 'Done', onPress: () => loadAvailability() }]);
+      Alert.alert(t('appointmentCancelled'), t('appointmentCancelledSuccess'), [{ text: t('doneBtn'), onPress: () => loadAvailability() }]);
     } catch (error: any) {
-      Alert.alert('Cancellation failed', error.message);
+      Alert.alert(t('cancellationFailed'), error.message);
     } finally {
       setBooking(false);
     }
@@ -107,29 +109,29 @@ export const ScheduleScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        <Text style={styles.headerTitle}>Schedule Appointment</Text>
+        <Text style={styles.headerTitle}>{t('scheduleAppointmentTitle')}</Text>
         {clinic ? (
           <TouchableOpacity style={styles.clinicCard} onPress={() => navigation.navigate('SelectClinic', { mode: 'select' })}>
             <View style={styles.clinicIcon}><BriefcaseMedical color={colors.primary} size={24} /></View>
             <View style={styles.flex}>
-              <Text style={styles.muted}>Selected Clinic</Text>
+              <Text style={styles.muted}>{t('selectedClinic')}</Text>
               <Text style={styles.clinicName}>{clinic.name}</Text>
               <Text style={styles.muted}>{clinic.address || clinic.type}</Text>
             </View>
-            <Text style={{ color: colors.primary, fontWeight: '600', fontSize: 14 }}>Change</Text>
+            <Text style={{ color: colors.primary, fontWeight: '600', fontSize: 14 }}>{t('changeClinic')}</Text>
           </TouchableOpacity>
         ) : (
           <TouchableOpacity style={styles.chooseClinic} onPress={() => navigation.navigate('SelectClinic', { mode: 'select' })}>
             <BriefcaseMedical color={colors.primary} size={22} />
-            <Text style={styles.chooseClinicText}>Choose a clinic to see available times</Text>
+            <Text style={styles.chooseClinicText}>{t('chooseClinicToSeeTimes')}</Text>
             <ChevronRight color={colors.primary} size={20} />
           </TouchableOpacity>
         )}
 
-        <Text style={styles.sectionTitle}>For which child?</Text>
+        <Text style={styles.sectionTitle}>{t('forWhichChild')}</Text>
         {children.length === 0 ? (
           <TouchableOpacity style={styles.emptyChild} onPress={() => navigation.navigate('RegisterChild')}>
-            <Text style={styles.muted}>Add a child before booking an appointment.</Text>
+            <Text style={styles.muted}>{t('addAChildBeforeBooking')}</Text>
           </TouchableOpacity>
         ) : (
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.childScroll}>
@@ -142,7 +144,7 @@ export const ScheduleScreen: React.FC = () => {
           </ScrollView>
         )}
 
-        <Text style={styles.sectionTitle}>Select date</Text>
+        <Text style={styles.sectionTitle}>{t('selectDateTitle')}</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.dateScroll}>
           {dates.map(date => {
             const selected = formatDate(date) === formatDate(selectedDate);
@@ -153,8 +155,8 @@ export const ScheduleScreen: React.FC = () => {
           })}
         </ScrollView>
 
-        <View style={styles.timeHeading}><Text style={styles.sectionTitle}>Available times</Text><Clock color={colors.textMuted} size={18} /></View>
-        {loading ? <ActivityIndicator color={colors.primary} style={styles.loader} /> : !clinic ? <Text style={styles.muted}>Select a clinic first.</Text> : slots.length === 0 ? <Text style={styles.muted}>No midwife availability is configured for this clinic yet.</Text> : (
+        <View style={styles.timeHeading}><Text style={styles.sectionTitle}>{t('availableTimesTitle')}</Text><Clock color={colors.textMuted} size={18} /></View>
+        {loading ? <ActivityIndicator color={colors.primary} style={styles.loader} /> : !clinic ? <Text style={styles.muted}>{t('selectClinicFirst')}</Text> : slots.length === 0 ? <Text style={styles.muted}>{t('noMidwifeAvailability')}</Text> : (
           <View style={styles.timeGrid}>
             {slots.map(slot => {
               const selected = selectedTime === slot.start_time;
@@ -190,13 +192,13 @@ export const ScheduleScreen: React.FC = () => {
                   isUserBooked && !selected && { color: '#DCFCE7' }, 
                   selected && styles.selectedText
                 ]}>
-                  {isUserBooked ? 'Booked' : (slot.available ? `${slot.remaining} left` : 'Full')}
+                  {isUserBooked ? t('timeBooked') : (slot.available ? t('timeLeft', { count: slot.remaining }) : t('timeFull'))}
                 </Text>
               </TouchableOpacity>;
             })}
           </View>
         )}
-        {selectedChild && selectedTime && <Text style={styles.summary}>Selected {selectedChild.full_name} for {formatTime(selectedTime)} on {dateLabel(selectedDate)}.</Text>}
+        {selectedChild && selectedTime && <Text style={styles.summary}>{t('summarySelected', { childName: selectedChild.full_name, time: formatTime(selectedTime), date: dateLabel(selectedDate) })}</Text>}
       </ScrollView>
       <View style={styles.footer}>
         {(() => {
@@ -215,7 +217,7 @@ export const ScheduleScreen: React.FC = () => {
               onPress={isSelectedTimeBooked ? () => handleCancel(selectedUserAppt.id) : handleBooking} 
               disabled={booking}
             >
-              {booking ? <ActivityIndicator color={colors.white} /> : <><Text style={styles.continueText}>{!clinic ? 'Choose Clinic' : isSelectedTimeBooked ? 'Cancel Appointment' : 'Book Appointment'}</Text><ArrowRight color={colors.white} size={20} /></>}
+              {booking ? <ActivityIndicator color={colors.white} /> : <><Text style={styles.continueText}>{!clinic ? t('chooseClinicBtn') : isSelectedTimeBooked ? t('cancelAppointmentBtn') : t('bookAppointmentBtn')}</Text><ArrowRight color={colors.white} size={20} /></>}
             </TouchableOpacity>
           );
         })()}

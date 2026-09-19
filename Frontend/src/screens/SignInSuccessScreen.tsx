@@ -3,11 +3,13 @@ import { View, Text, StyleSheet, Image, Animated } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Check } from 'lucide-react-native';
 import { colors, typography } from '../theme';
+import { useLanguage } from '../i18n/LanguageContext';
 
 import { useNavigation } from '@react-navigation/native';
 
 export const SignInSuccessScreen: React.FC = () => {
   const navigation = useNavigation<any>();
+  const { t } = useLanguage();
   // Simple bouncing animation for the 3 dots
   const dot1 = new Animated.Value(0);
   const dot2 = new Animated.Value(0);
@@ -51,9 +53,9 @@ export const SignInSuccessScreen: React.FC = () => {
           <Check color={colors.white} size={32} strokeWidth={3} />
         </View>
 
-        <Text style={styles.title}>Sign In Successful</Text>
+        <Text style={styles.title}>{t('signInSuccessful')}</Text>
         <Text style={styles.subtitle}>
-          Welcome back to CareMate. Taking you to your dashboard...
+          {t('welcomeBackDashboard')}
         </Text>
 
         <View style={styles.dotsContainer}>

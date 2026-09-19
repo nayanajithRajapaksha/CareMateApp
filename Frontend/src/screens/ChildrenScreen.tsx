@@ -6,6 +6,7 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { colors, typography, layout } from '../theme';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { childService } from '../services/childService';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const mockChildrenData = [
   {
@@ -30,6 +31,7 @@ const mockChildrenData = [
 ];
 
 export const ChildrenScreen: React.FC = () => {
+  const { t } = useLanguage();
   const navigation = useNavigation<any>();
   const [childrenData, setChildrenData] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -57,10 +59,10 @@ export const ChildrenScreen: React.FC = () => {
 
   const renderEmptyState = () => (
     <View style={styles.emptyContainer}>
-      <Text style={styles.emptyTitle}>No Children Added</Text>
-      <Text style={styles.emptySubtitle}>You haven't added any children profiles yet. Add your child to start managing their health records and vaccination schedules.</Text>
+      <Text style={styles.emptyTitle}>{t('noChildrenAdded')}</Text>
+      <Text style={styles.emptySubtitle}>{t('noChildrenAddedLongSubtitle')}</Text>
       <PrimaryButton 
-        title="Register a Child" 
+        title={t('registerChild')} 
         onPress={() => navigation.navigate('RegisterChild')}
         style={{ marginTop: 24, width: '80%' }}
       />
@@ -72,13 +74,13 @@ export const ChildrenScreen: React.FC = () => {
         
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>My Children</Text>
-          <Text style={styles.headerSubtitle}>Manage profiles and vaccination schedules.</Text>
+          <Text style={styles.headerTitle}>{t('myChildrenTitle')}</Text>
+          <Text style={styles.headerSubtitle}>{t('myChildrenSubtitle')}</Text>
         </View>
 
         {/* Children List */}
         {loading ? (
-          <Text style={{ textAlign: 'center', marginTop: 40, color: colors.textMuted }}>Loading...</Text>
+          <Text style={{ textAlign: 'center', marginTop: 40, color: colors.textMuted }}>{t('loadingText')}</Text>
         ) : displayData.length === 0 ? (
           renderEmptyState()
         ) : (
@@ -113,11 +115,11 @@ export const ChildrenScreen: React.FC = () => {
                 <View style={styles.actionButtonsRow}>
                   <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('ScheduleTab', { childId: child.id })}>
                     <Calendar color={colors.primary} size={16} style={{ marginRight: 6 }} />
-                    <Text style={styles.actionButtonText}>Schedule</Text>
+                    <Text style={styles.actionButtonText}>{t('scheduleBtn')}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('ChildRecords', { child })}>
                     <FileText color={colors.primary} size={16} style={{ marginRight: 6 }} />
-                    <Text style={styles.actionButtonText}>Records</Text>
+                    <Text style={styles.actionButtonText}>{t('recordsBtn')}</Text>
                   </TouchableOpacity>
                 </View>
               </View>

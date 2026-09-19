@@ -1,0 +1,15 @@
+node_modules/
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# Ignore generated native folders entirely!
+android/
+ios/
+
+# macOS
+.DS_Store
+
+# local env files
+.env*.local

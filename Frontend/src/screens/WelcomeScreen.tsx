@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { colors, typography, layout } from '../theme';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useLanguage } from '../i18n/LanguageContext';
 
 type RootStackParamList = {
   Welcome: undefined;
@@ -18,6 +19,8 @@ interface Props {
 }
 
 export const WelcomeScreen: React.FC<Props> = ({ navigation }) => {
+  const { t } = useLanguage();
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
@@ -30,21 +33,21 @@ export const WelcomeScreen: React.FC<Props> = ({ navigation }) => {
           />
         </View>
 
-        <Text style={styles.title}>Welcome to CareMate</Text>
+        <Text style={styles.title}>{t('welcomeTitle')}</Text>
         <Text style={styles.subtitle}>
-          Supporting healthier families, every step of the way.
+          {t('welcomeSubtitle')}
         </Text>
 
       </View>
 
       <View style={styles.footer}>
         <PrimaryButton 
-          title="Get Started" 
+          title={t('getStarted')} 
           onPress={() => navigation.navigate('SignUp')} 
         />
         <View style={{ height: 16 }} />
         <PrimaryButton 
-          title="Sign In" 
+          title={t('signIn')} 
           variant="outline"
           onPress={() => navigation.navigate('SignIn')} 
         />

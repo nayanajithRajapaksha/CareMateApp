@@ -8,49 +8,9 @@ import * as ImagePicker from 'expo-image-picker';
 import { authService } from '../services/authService';
 import { profileService, UserProfile } from '../services/profileService';
 import { colors, typography, layout } from '../theme';
+import { useLanguage } from '../i18n/LanguageContext';
 
-const menuItems = [
-  {
-    id: 'security',
-    icon: Shield,
-    title: 'Account Security',
-    subtitle: 'Password, 2FA, Devices',
-    rightElement: <ChevronRight color={colors.textMuted} size={20} />
-  },
-  {
-    id: 'notifications',
-    icon: Bell,
-    title: 'Notification Preferences',
-    subtitle: 'Email, App Notifications',
-    rightElement: <ChevronRight color={colors.textMuted} size={20} />
-  },
-  {
-    id: 'language',
-    icon: Globe,
-    title: 'Language',
-    subtitle: 'English / Sinhala / Tamil',
-    rightElement: (
-      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-        <Text style={{ color: colors.primary, marginRight: 4, fontWeight: '500' }}>English</Text>
-        <ChevronRight color={colors.textMuted} size={20} />
-      </View>
-    )
-  },
-  {
-    id: 'privacy',
-    icon: FileKey,
-    title: 'Privacy Policy',
-    subtitle: 'Terms, Data usage',
-    rightElement: <ExternalLink color={colors.textMuted} size={20} />
-  },
-  {
-    id: 'support',
-    icon: HelpCircle,
-    title: 'Help & Support',
-    subtitle: 'FAQs, Contact us',
-    rightElement: <ChevronRight color={colors.textMuted} size={20} />
-  }
-];
+// menuItems is now built inside the component to access the t() function
 
 const getInitials = (fullName?: string): string => {
   if (!fullName?.trim()) {
@@ -68,6 +28,50 @@ const getInitials = (fullName?: string): string => {
 
 export const ProfileScreen: React.FC = () => {
   const navigation = useNavigation<any>();
+  const { t } = useLanguage();
+
+  const menuItems = [
+    {
+      id: 'security',
+      icon: Shield,
+      title: t('accountSecurity'),
+      subtitle: t('accountSecuritySub'),
+      rightElement: <ChevronRight color={colors.textMuted} size={20} />
+    },
+    {
+      id: 'notifications',
+      icon: Bell,
+      title: t('notificationPreferences'),
+      subtitle: t('notificationPreferencesSub'),
+      rightElement: <ChevronRight color={colors.textMuted} size={20} />
+    },
+    {
+      id: 'language',
+      icon: Globe,
+      title: t('language'),
+      subtitle: t('languageSub'),
+      rightElement: (
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <Text style={{ color: colors.primary, marginRight: 4, fontWeight: '500' }}>{t('currentLanguageName')}</Text>
+          <ChevronRight color={colors.textMuted} size={20} />
+        </View>
+      )
+    },
+    {
+      id: 'privacy',
+      icon: FileKey,
+      title: t('privacyPolicy'),
+      subtitle: t('privacyPolicySub'),
+      rightElement: <ExternalLink color={colors.textMuted} size={20} />
+    },
+    {
+      id: 'support',
+      icon: HelpCircle,
+      title: t('helpSupport'),
+      subtitle: t('helpSupportSub'),
+      rightElement: <ChevronRight color={colors.textMuted} size={20} />
+    }
+  ];
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [isEditModalVisible, setEditModalVisible] = useState(false);
@@ -90,7 +94,7 @@ export const ProfileScreen: React.FC = () => {
     try {
       const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (!permissionResult.granted) {
-        Alert.alert('Permission to access camera roll is required!');
+        Alert.alert(t('alertCameraPermission'));
         return;
       }
 
@@ -106,7 +110,7 @@ export const ProfileScreen: React.FC = () => {
       }
     } catch (error) {
       console.error('Error picking image:', error);
-      Alert.alert('Error', 'Failed to pick image.');
+      Alert.alert(t('error'), t('alertPickImageFailed'));
     }
   };
 
@@ -119,10 +123,10 @@ export const ProfileScreen: React.FC = () => {
       if (profile) {
         setProfile({ ...profile, profile_pic_url: res.profile_pic_url });
       }
-      Alert.alert('Success', 'Profile picture updated successfully!');
+      Alert.alert(t('success'), t('alertProfilePicUpdated'));
     } catch (error: any) {
       console.error('Error uploading image:', error);
-      Alert.alert('Error', error.message || 'Failed to upload image.');
+      Alert.alert(t('error'), error.message || t('alertUploadFailed'));
     } finally {
       setIsUploadingImage(false);
     }
@@ -139,7 +143,7 @@ export const ProfileScreen: React.FC = () => {
       setProfile(res.profile);
     } catch (error) {
       console.error('Failed to fetch profile', error);
-      Alert.alert('Error', 'Failed to load profile.');
+      Alert.alert(t('error'), t('alertProfileLoadFailed'));
     } finally {
       setLoading(false);
     }
@@ -155,7 +159,7 @@ export const ProfileScreen: React.FC = () => {
 
   const handleSaveProfile = async () => {
     if (!editFullName.trim()) {
-      Alert.alert('Validation Error', 'Full Name is required.');
+      Alert.alert(t('alertValidationError'), t('alertFullNameRequired'));
       return;
     }
 
@@ -167,10 +171,10 @@ export const ProfileScreen: React.FC = () => {
       });
       setProfile(res.profile);
       setEditModalVisible(false);
-      Alert.alert('Success', 'Profile updated successfully.');
+      Alert.alert(t('success'), t('alertProfileUpdated'));
     } catch (error) {
       console.error('Failed to update profile', error);
-      Alert.alert('Error', 'Failed to update profile.');
+      Alert.alert(t('error'), t('alertProfileUpdateFailed'));
     } finally {
       setIsSaving(false);
     }
@@ -202,29 +206,29 @@ export const ProfileScreen: React.FC = () => {
   const handleChangePassword = async () => {
     if (!currentPassword || !newPassword || !confirmPassword) {
       setPasswordMessageType('error');
-      setPasswordMessage('Please fill in all password fields.');
-      Alert.alert('Validation Error', 'Please fill in all password fields.');
+      setPasswordMessage(t('alertFillAllPasswordFields'));
+      Alert.alert(t('alertValidationError'), t('alertFillAllPasswordFields'));
       return;
     }
 
     if (newPassword !== confirmPassword) {
       setPasswordMessageType('error');
-      setPasswordMessage('Confirm password does not match the new password.');
-      Alert.alert('Validation Error', 'Confirm password does not match the new password.');
+      setPasswordMessage(t('alertConfirmPasswordMismatch'));
+      Alert.alert(t('alertValidationError'), t('alertConfirmPasswordMismatch'));
       return;
     }
 
     if (newPassword === currentPassword) {
       setPasswordMessageType('error');
-      setPasswordMessage('New password must be different from your current password.');
-      Alert.alert('Validation Error', 'New password must be different from your current password.');
+      setPasswordMessage(t('alertNewPasswordSameAsCurrent'));
+      Alert.alert(t('alertValidationError'), t('alertNewPasswordSameAsCurrent'));
       return;
     }
 
     if (newPassword.length < 6) {
       setPasswordMessageType('error');
-      setPasswordMessage('New password must be at least 6 characters long.');
-      Alert.alert('Validation Error', 'New password must be at least 6 characters long.');
+      setPasswordMessage(t('alertPasswordMinLength'));
+      Alert.alert(t('alertValidationError'), t('alertPasswordMinLength'));
       return;
     }
 
@@ -235,14 +239,14 @@ export const ProfileScreen: React.FC = () => {
       setNewPassword('');
       setConfirmPassword('');
       setPasswordMessageType('success');
-      setPasswordMessage('Password changed successfully.');
-      Alert.alert('Password Changed', 'Password changed successfully.');
+      setPasswordMessage(t('alertPasswordChangedSuccess'));
+      Alert.alert(t('alertPasswordChanged'), t('alertPasswordChangedSuccess'));
     } catch (error: any) {
-      const message = error?.message || 'Unable to update your password.';
+      const message = error?.message || t('alertUnableToUpdatePassword');
       setPasswordMessageType('error');
       setPasswordMessage(message);
       Alert.alert(
-        message === 'Current password is incorrect.' ? 'Incorrect Password' : 'Password Update Failed',
+        message === 'Current password is incorrect.' ? t('alertIncorrectPassword') : t('alertPasswordUpdateFailed'),
         message
       );
     } finally {
@@ -257,7 +261,7 @@ export const ProfileScreen: React.FC = () => {
       navigation.reset({ index: 0, routes: [{ name: 'SignIn' }] });
     } catch (error) {
       console.error('Logout error:', error);
-      Alert.alert('Error', 'Unable to sign out right now.');
+      Alert.alert(t('error'), t('alertLogoutError'));
     }
   };
 
@@ -269,7 +273,7 @@ export const ProfileScreen: React.FC = () => {
     if (canOpen) {
       await Linking.openURL(url);
     } else {
-      Alert.alert('Help & Support', 'Email us at support@caremate.app');
+      Alert.alert(t('helpSupport'), 'Email us at support@caremate.app');
     }
   };
 
@@ -301,13 +305,13 @@ export const ProfileScreen: React.FC = () => {
             </TouchableOpacity>
           </View>
           
-          <Text style={styles.userName}>{profile?.full_name || 'User'}</Text>
+          <Text style={styles.userName}>{profile?.full_name || t('user')}</Text>
           <Text style={styles.userInfo}>{profile?.email}</Text>
-          <Text style={styles.userInfo}>{profile?.contact_number || 'No contact number'}</Text>
+          <Text style={styles.userInfo}>{profile?.contact_number || t('noContactNumber')}</Text>
           
           <TouchableOpacity style={styles.editProfileBtn} onPress={openEditModal}>
             <UserIcon color={colors.primary} size={16} style={{ marginRight: 6 }} />
-            <Text style={styles.editProfileText}>Edit Profile</Text>
+            <Text style={styles.editProfileText}>{t('editProfile')}</Text>
           </TouchableOpacity>
         </View>
 
@@ -341,7 +345,7 @@ export const ProfileScreen: React.FC = () => {
 
         {/* Footer Text */}
         <View style={styles.footerContainer}>
-          <Text style={styles.footerText}>App Version 2.4.1 (Build 492)</Text>
+          <Text style={styles.footerText}>{t('appVersion')}</Text>
         </View>
 
       </ScrollView>
@@ -360,29 +364,29 @@ export const ProfileScreen: React.FC = () => {
         >
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Edit Profile</Text>
+              <Text style={styles.modalTitle}>{t('editProfile')}</Text>
               <TouchableOpacity onPress={() => setEditModalVisible(false)}>
                 <X color={colors.textDark} size={24} />
               </TouchableOpacity>
             </View>
 
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Full Name</Text>
+              <Text style={styles.label}>{t('fullName')}</Text>
               <TextInput
                 style={styles.input}
                 value={editFullName}
                 onChangeText={setEditFullName}
-                placeholder="Enter your full name"
+                placeholder={t('enterFullName')}
               />
             </View>
 
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Contact Number</Text>
+              <Text style={styles.label}>{t('contactNumber')}</Text>
               <TextInput
                 style={styles.input}
                 value={editContactNumber}
                 onChangeText={setEditContactNumber}
-                placeholder="Enter contact number"
+                placeholder={t('enterContactNumber')}
                 keyboardType="phone-pad"
               />
             </View>
@@ -395,7 +399,7 @@ export const ProfileScreen: React.FC = () => {
               {isSaving ? (
                 <ActivityIndicator color={colors.white} />
               ) : (
-                <Text style={styles.saveButtonText}>Save Changes</Text>
+                <Text style={styles.saveButtonText}>{t('saveChanges')}</Text>
               )}
             </TouchableOpacity>
           </View>
@@ -412,9 +416,9 @@ export const ProfileScreen: React.FC = () => {
           <View style={styles.actionModalContent}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>
-                {activeAction === 'notifications' ? 'Notification Preferences' :
-                  activeAction === 'privacy' ? 'Privacy Policy' :
-                  activeAction === 'support' ? 'Help & Support' : 'Settings'}
+                {activeAction === 'notifications' ? t('notificationPreferences') :
+                  activeAction === 'privacy' ? t('privacyPolicy') :
+                  activeAction === 'support' ? t('helpSupport') : t('settings')}
               </Text>
               <TouchableOpacity onPress={() => setActiveAction(null)}>
                 <X color={colors.textDark} size={24} />
@@ -424,38 +428,38 @@ export const ProfileScreen: React.FC = () => {
             {activeAction === 'security' && (
               <View>
                 <Text style={styles.modalBodyText}>
-                  Manage your account access. You can change your password or sign out from this device.
+                  {t('securityDescription')}
                 </Text>
 
                 <View style={styles.inputGroup}>
-                  <Text style={styles.label}>Current Password</Text>
+                  <Text style={styles.label}>{t('currentPassword')}</Text>
                   <TextInput
                     style={styles.input}
                     value={currentPassword}
                     onChangeText={setCurrentPassword}
-                    placeholder="Enter current password"
+                    placeholder={t('enterCurrentPassword')}
                     secureTextEntry
                   />
                 </View>
 
                 <View style={styles.inputGroup}>
-                  <Text style={styles.label}>New Password</Text>
+                  <Text style={styles.label}>{t('newPassword')}</Text>
                   <TextInput
                     style={styles.input}
                     value={newPassword}
                     onChangeText={setNewPassword}
-                    placeholder="Enter new password"
+                    placeholder={t('enterNewPassword')}
                     secureTextEntry
                   />
                 </View>
 
                 <View style={styles.inputGroup}>
-                  <Text style={styles.label}>Confirm Password</Text>
+                  <Text style={styles.label}>{t('confirmPassword')}</Text>
                   <TextInput
                     style={styles.input}
                     value={confirmPassword}
                     onChangeText={setConfirmPassword}
-                    placeholder="Confirm new password"
+                    placeholder={t('confirmNewPassword')}
                     secureTextEntry
                   />
                 </View>
@@ -467,11 +471,11 @@ export const ProfileScreen: React.FC = () => {
                 )}
 
                 <TouchableOpacity style={styles.supportButton} onPress={handleChangePassword} disabled={isChangingPassword}>
-                  <Text style={styles.supportButtonText}>{isChangingPassword ? 'Updating...' : 'Change Password'}</Text>
+                  <Text style={styles.supportButtonText}>{isChangingPassword ? t('updating') : t('changePassword')}</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity style={styles.closeActionButton} onPress={handleLogout}>
-                  <Text style={styles.closeActionButtonText}>Log Out</Text>
+                  <Text style={styles.closeActionButtonText}>{t('logOut')}</Text>
                 </TouchableOpacity>
               </View>
             )}
@@ -479,7 +483,7 @@ export const ProfileScreen: React.FC = () => {
             {activeAction === 'notifications' && (
               <View>
                 <View style={styles.toggleRow}>
-                  <Text style={styles.toggleLabel}>Email notifications</Text>
+                  <Text style={styles.toggleLabel}>{t('emailNotifications')}</Text>
                   <TouchableOpacity
                     style={[styles.toggle, emailNotifications && styles.toggleOn]}
                     onPress={() => setEmailNotifications(prev => !prev)}
@@ -489,7 +493,7 @@ export const ProfileScreen: React.FC = () => {
                 </View>
 
                 <View style={styles.toggleRow}>
-                  <Text style={styles.toggleLabel}>App notifications</Text>
+                  <Text style={styles.toggleLabel}>{t('appNotifications')}</Text>
                   <TouchableOpacity
                     style={[styles.toggle, pushNotifications && styles.toggleOn]}
                     onPress={() => setPushNotifications(prev => !prev)}
@@ -502,24 +506,24 @@ export const ProfileScreen: React.FC = () => {
 
             {activeAction === 'privacy' && (
               <Text style={styles.modalBodyText}>
-                CareMate protects your child and family data with access controls, secure storage, and limited sharing. We use your information only to provide care coordination, reminders, and health record support.
+                {t('privacyDescription')}
               </Text>
             )}
 
             {activeAction === 'support' && (
               <View>
                 <Text style={styles.modalBodyText}>
-                  Need help with your account or child profiles? Our support team is available to assist you.
+                  {t('supportDescription')}
                 </Text>
                 <TouchableOpacity style={styles.supportButton} onPress={openSupportEmail}>
-                  <Text style={styles.supportButtonText}>Contact Support</Text>
+                  <Text style={styles.supportButtonText}>{t('contactSupport')}</Text>
                 </TouchableOpacity>
               </View>
             )}
 
             {activeAction !== 'security' && (
               <TouchableOpacity style={styles.closeActionButton} onPress={() => setActiveAction(null)}>
-                <Text style={styles.closeActionButtonText}>Close</Text>
+                <Text style={styles.closeActionButtonText}>{t('close')}</Text>
               </TouchableOpacity>
             )}
           </View>

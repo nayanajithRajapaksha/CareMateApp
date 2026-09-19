@@ -8,6 +8,7 @@ import { colors, typography, layout } from '../theme';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import { API_BASE_URL } from '../services/apiConfig';
+import { useLanguage } from '../i18n/LanguageContext';
 
 type RootStackParamList = {
   SignIn: undefined;
@@ -24,6 +25,7 @@ interface Props {
 }
 
 export const ResetPasswordScreen: React.FC<Props> = ({ navigation, route }) => {
+  const { t } = useLanguage();
   const { email } = route.params;
   const [otp, setOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -31,11 +33,11 @@ export const ResetPasswordScreen: React.FC<Props> = ({ navigation, route }) => {
 
   const handleReset = async () => {
     if (!otp || !newPassword) {
-      Alert.alert('Error', 'Please enter the OTP and a new password.');
+      Alert.alert(t('error'), t('alertEnterOTPAndPassword'));
       return;
     }
     if (newPassword.length < 6) {
-      Alert.alert('Error', 'Password must be at least 6 characters long.');
+      Alert.alert(t('error'), t('alertPasswordMin6'));
       return;
     }
 
@@ -51,11 +53,11 @@ export const ResetPasswordScreen: React.FC<Props> = ({ navigation, route }) => {
         throw new Error(data.error || 'Failed to reset password');
       }
 
-      Alert.alert('Success', 'Password has been reset successfully. Please sign in with your new password.', [
+      Alert.alert(t('success'), t('passwordResetSuccess'), [
         { text: 'OK', onPress: () => navigation.navigate('SignIn') }
       ]);
     } catch (error: any) {
-      Alert.alert('Error', error.message);
+      Alert.alert(t('error'), error.message);
     } finally {
       setLoading(false);
     }
@@ -69,14 +71,14 @@ export const ResetPasswordScreen: React.FC<Props> = ({ navigation, route }) => {
       >
         <View style={styles.content}>
           <View style={styles.header}>
-            <Text style={styles.title}>Reset Password</Text>
+            <Text style={styles.title}>{t('resetPassword')}</Text>
             <Text style={styles.subtitle}>
-              Enter the 6-digit code sent to {email} along with your new password.
+              {t('resetPasswordSubtitle', { email })}
             </Text>
           </View>
 
           <View style={styles.form}>
-            <Text style={styles.label}>6-Digit OTP</Text>
+            <Text style={styles.label}>{t('sixDigitOTP')}</Text>
             <InputField 
               placeholder="123456"
               icon={KeyRound}
@@ -86,9 +88,9 @@ export const ResetPasswordScreen: React.FC<Props> = ({ navigation, route }) => {
               maxLength={6}
             />
 
-            <Text style={styles.label}>New Password</Text>
+            <Text style={styles.label}>{t('newPassword')}</Text>
             <InputField 
-              placeholder="Enter new password"
+              placeholder={t('enterNewPassword')}
               icon={Lock}
               secureTextEntry
               value={newPassword}
@@ -99,14 +101,14 @@ export const ResetPasswordScreen: React.FC<Props> = ({ navigation, route }) => {
               <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 20 }} />
             ) : (
               <PrimaryButton 
-                title="Reset Password" 
+                title={t('resetPassword')} 
                 onPress={handleReset} 
               />
             )}
           </View>
 
           <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate('SignIn')}>
-            <Text style={styles.backButtonText}>Back to Sign In</Text>
+            <Text style={styles.backButtonText}>{t('backToSignIn')}</Text>
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
