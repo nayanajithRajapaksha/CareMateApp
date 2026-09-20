@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Edit2, Check, X, Search, Building2, Phone, Baby, Clock, BellRing } from 'lucide-react';
+import { Edit2, Check, X, Search, Building2, Phone, Baby, Clock, BellRing, Shield } from 'lucide-react';
 import { phmService } from '../services/phmService';
 import { staffService } from '../services/staffService';
+import { VaccinationCardModal } from '../components/VaccinationCardModal';
 
 import { appointmentService } from '../services/appointmentService';
 import { useAuth } from '../contexts/AuthContext';
@@ -93,10 +94,12 @@ export const PHMDashboard: React.FC = () => {
     return midwifeHospital.split(',').map(h => h.trim()).filter(Boolean);
   }, [midwifeHospital]);
 
-  // Edit Child State
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<any>({});
   const [childSearch, setChildSearch] = useState('');
+  
+  // Vaccination Modal State
+  const [vaccinationModalChild, setVaccinationModalChild] = useState<{ id: string, name: string } | null>(null);
 
   // Parent Assignment State
   const [parentSearch, setParentSearch] = useState('');
@@ -545,9 +548,14 @@ export const PHMDashboard: React.FC = () => {
                               </button>
                             </div>
                           ) : (
-                            <button onClick={() => handleEditClick(child)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-primary)' }} title="Edit Record">
-                              <Edit2 size={18} />
-                            </button>
+                            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+                              <button onClick={() => setVaccinationModalChild({ id: child.id, name: child.full_name })} style={{ background: 'rgba(59, 130, 246, 0.1)', border: 'none', cursor: 'pointer', color: 'var(--color-primary)', padding: '6px 12px', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 600 }} title="Vaccination Card">
+                                <Shield size={16} /> Vaccinations
+                              </button>
+                              <button onClick={() => handleEditClick(child)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-primary)', padding: '6px' }} title="Edit Record">
+                                <Edit2 size={18} />
+                              </button>
+                            </div>
                           )}
                         </td>
                       </tr>
@@ -701,6 +709,14 @@ export const PHMDashboard: React.FC = () => {
         </div>
       )}
       </>)}
+
+      {vaccinationModalChild && (
+        <VaccinationCardModal
+          childId={vaccinationModalChild.id}
+          childName={vaccinationModalChild.name}
+          onClose={() => setVaccinationModalChild(null)}
+        />
+      )}
     </div>
   );
 };

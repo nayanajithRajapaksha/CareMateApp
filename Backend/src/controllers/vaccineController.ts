@@ -130,3 +130,69 @@ export const markVaccineAdministered = async (req: AuthRequest, res: Response): 
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+export const updateVaccine = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const { name, recommended_age_months, minimum_interval_days } = req.body;
+
+    if (!name || recommended_age_months === undefined) {
+      res.status(400).json({ error: 'Name and recommended_age_months are required' });
+      return;
+    }
+
+    const result = await pool.query(
+      `UPDATE vaccines 
+       SET name = $1, recommended_age_months = $2, minimum_interval_days = $3
+       WHERE id = $4
+       RETURNING *`,
+      [name, recommended_age_months, minimum_interval_days || 0, id]
+    );
+
+    if (result.rowCount === 0) {
+      res.status(404).json({ error: 'Vaccine not found' });
+      return;
+    }
+
+    res.status(200).json({ message: 'Vaccine updated successfully', vaccine: result.rows[0] });
+  } catch (error) {
+    console.error('Error updating vaccine:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const removeVaccineRecord = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { id, record_id } = req.params; // child_id, record_id
+
+    await pool.query('BEGIN');
+
+    // Fetch the record to know which vaccine it was
+    const recordRes = await pool.query(`SELECT vaccine_id FROM vaccination_records WHERE id = $1 AND child_id = $2`, [record_id, id]);
+    
+    if (recordRes.rowCount === 0) {
+      await pool.query('ROLLBACK');
+      res.status(404).json({ error: 'Vaccination record not found' });
+      return;
+    }
+
+    const vaccineId = recordRes.rows[0].vaccine_id;
+
+    // Delete the record
+    await pool.query(`DELETE FROM vaccination_records WHERE id = $1`, [record_id]);
+
+    // Revert the milestone back to 'Upcoming'
+    await pool.query(
+      `UPDATE vaccination_milestones SET status = 'Upcoming' WHERE child_id = $1 AND vaccine_id = $2`,
+      [id, vaccineId]
+    );
+
+    await pool.query('COMMIT');
+
+    res.status(200).json({ message: 'Vaccination record removed successfully' });
+  } catch (error) {
+    await pool.query('ROLLBACK');
+    console.error('Error removing vaccine record:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};

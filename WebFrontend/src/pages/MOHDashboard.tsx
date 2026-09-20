@@ -6,8 +6,9 @@ import { clinicService } from '../services/clinicService';
 import { ClinicManager, type Clinic } from './ClinicManager';
 import { BlogManager } from '../components/BlogManager';
 import { SpecialistManager } from './SpecialistManager';
+import { VaccineManager } from './VaccineManager';
 
-type Tab = 'dashboard' | 'parents' | 'clinics' | 'blogs' | 'specialists';
+type Tab = 'dashboard' | 'parents' | 'clinics' | 'blogs' | 'specialists' | 'vaccines';
 
 interface ParentUser {
   profile_id: string;
@@ -33,6 +34,7 @@ export const MOHDashboard: React.FC = () => {
   if (location.pathname.startsWith('/moh/clinics')) activeTab = 'clinics';
   if (location.pathname.startsWith('/moh/blogs')) activeTab = 'blogs';
   if (location.pathname.startsWith('/moh/specialists')) activeTab = 'specialists';
+  if (location.pathname.startsWith('/moh/vaccines')) activeTab = 'vaccines';
   
   const [phms, setPhms] = useState<any[]>([]);
   const [assignedPhms, setAssignedPhms] = useState<any[]>([]);
@@ -184,6 +186,10 @@ export const MOHDashboard: React.FC = () => {
       ) : activeTab === 'specialists' ? (
         <div style={{ flex: 1, overflow: 'hidden' }}>
           <SpecialistManager />
+        </div>
+      ) : activeTab === 'vaccines' ? (
+        <div style={{ flex: 1, overflow: 'hidden' }}>
+          <VaccineManager />
         </div>
       ) : activeTab === 'clinics' ? (
         <div style={{ flex: 1, overflow: 'hidden' }}>

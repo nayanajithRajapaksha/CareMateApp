@@ -3,7 +3,7 @@ const { Pool } = require('pg');
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
 async function checkSchema() {
-  const tables = ['vaccines', 'vaccination_milestones', 'vaccination_records'];
+  const tables = ['profiles', 'clinics'];
   
   for (const table of tables) {
     const res = await pool.query(`

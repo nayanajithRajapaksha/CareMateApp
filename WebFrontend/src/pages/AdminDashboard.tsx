@@ -4,6 +4,7 @@ import { UserPlus, Users, Search, ShieldCheck, User, Building2, Phone } from 'lu
 import { authService } from '../services/authService';
 import { BlogManager } from '../components/BlogManager';
 import { NotificationManager } from './NotificationManager';
+import { VaccineManager } from './VaccineManager';
 
 interface SystemUser {
   id: string;
@@ -26,6 +27,8 @@ export const AdminDashboard: React.FC = () => {
     ? 'users' 
     : location.pathname.includes('/notifications')
     ? 'notifications'
+    : location.pathname.includes('/vaccines')
+    ? 'vaccines'
     : 'config';
 
   // State for Registration Form
@@ -124,6 +127,7 @@ export const AdminDashboard: React.FC = () => {
           {activeTab === 'blogs' ? 'Educational Blogs' : 
            activeTab === 'notifications' ? 'Notification Management' : 
            activeTab === 'users' ? 'Manage Users' : 
+           activeTab === 'vaccines' ? 'Vaccine Management' :
            'System Config'}
         </h3>
       </div>
@@ -132,6 +136,8 @@ export const AdminDashboard: React.FC = () => {
         <BlogManager />
       ) : activeTab === 'notifications' ? (
         <NotificationManager />
+      ) : activeTab === 'vaccines' ? (
+        <VaccineManager />
       ) : activeTab === 'config' ? (
         /* System Config / Register MOH Section */
         <div className="card" style={{ maxWidth: 650 }}>

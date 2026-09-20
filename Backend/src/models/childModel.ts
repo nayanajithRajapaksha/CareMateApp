@@ -128,15 +128,24 @@ export const updateChildMedicalProfile = async (child_id: string, medical: Parti
   await pool.query(query, values);
 };
 
-export const getAllChildren = async () => {
-  const res = await pool.query(
-    `SELECT 
+export const getAllChildren = async (hospital?: string) => {
+  let query = `
+    SELECT 
       c.id, c.full_name, c.dob, c.gender, c.relationship, c.birth_cert_number, c.parent_id,
       m.blood_group, m.birth_weight_kg, m.allergies, m.existing_conditions, m.primary_clinic
      FROM children c
      LEFT JOIN child_medical_profiles m ON c.id = m.child_id
-     ORDER BY c.created_at DESC`
-  );
+  `;
+  
+  const values: any[] = [];
+  if (hospital) {
+    query += ` WHERE m.primary_clinic = $1`;
+    values.push(hospital);
+  }
+  
+  query += ` ORDER BY c.created_at DESC`;
+
+  const res = await pool.query(query, values);
   return res.rows;
 };
 

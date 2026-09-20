@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet, Navigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { LayoutDashboard, Users, Settings, LogOut, BookOpen, Baby, UserCheck, Building2, Map, Edit2, X, Bell, Clock, Key } from 'lucide-react';
+import { LayoutDashboard, Users, Settings, LogOut, BookOpen, Baby, UserCheck, Building2, Map, Edit2, X, Bell, Clock, Key, Shield } from 'lucide-react';
 import logo from '../assets/logo.png';
 
 import { authService } from '../services/authService';
@@ -110,6 +110,9 @@ export const AppLayout: React.FC = () => {
               <Link to="/admin/notifications" className={`nav-item ${location.pathname.startsWith('/admin/notifications') ? 'active' : ''}`}>
                 <Bell size={20} /> Notifications
               </Link>
+              <Link to="/admin/vaccines" className={`nav-item ${location.pathname.startsWith('/admin/vaccines') ? 'active' : ''}`}>
+                <Shield size={20} /> Vaccine Management
+              </Link>
             </>
           )}
 
@@ -131,6 +134,9 @@ export const AppLayout: React.FC = () => {
               </Link>
               <Link to="/moh/specialists" className={`nav-item ${location.pathname.startsWith('/moh/specialists') ? 'active' : ''}`}>
                 <Users size={20} /> Manage Specialists
+              </Link>
+              <Link to="/moh/vaccines" className={`nav-item ${location.pathname.startsWith('/moh/vaccines') ? 'active' : ''}`}>
+                <Shield size={20} /> Vaccine Management
               </Link>
             </>
           )}

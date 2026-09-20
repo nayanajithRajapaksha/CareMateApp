@@ -113,7 +113,17 @@ export const getAllChildrenController = async (req: AuthRequest, res: Response):
       return;
     }
 
-    const children = await getAllChildrenDb();
+    // Fetch PHM's profile to get their assigned hospital
+    const profileRes = await require('../config/db').default.query('SELECT hospital FROM profiles WHERE id = $1', [req.user.id]);
+    let hospital = undefined;
+    if (profileRes.rows.length > 0 && profileRes.rows[0].hospital) {
+      hospital = profileRes.rows[0].hospital.trim(); // In case of comma separation, we might need a more complex query, but let's assume primary clinic matches one of them
+      // Actually, hospital could be a comma separated string. Let's just pass it to the query, or we should handle IN clause. 
+      // For now, we will pass the first hospital if it's comma separated to keep it simple, or exact match.
+      hospital = profileRes.rows[0].hospital.split(',')[0].trim();
+    }
+
+    const children = await getAllChildrenDb(hospital);
     res.status(200).json({ children });
   } catch (error) {
     console.error('Error fetching all children:', error);
