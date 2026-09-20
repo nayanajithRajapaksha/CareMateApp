@@ -1,4 +1,7 @@
-import React, { useState, useEffect } from 'react';
+const fs = require('fs');
+const path = require('path');
+
+const newContent = `import React, { useState, useEffect } from 'react';
 import { Shield, Plus, Edit2, Search, Trash2 } from 'lucide-react';
 import { vaccineService, type Vaccine } from '../services/vaccineService';
 
@@ -88,7 +91,7 @@ export const VaccineManager: React.FC = () => {
   };
 
   const handleDelete = async (name: string) => {
-    if (window.confirm(`Are you sure you want to delete the vaccine group "${name}"? This will delete all its doses.`)) {
+    if (window.confirm(\`Are you sure you want to delete the vaccine group "\${name}"? This will delete all its doses.\`)) {
       try {
         await vaccineService.deleteVaccineGroup(name);
         fetchVaccines();
@@ -169,7 +172,7 @@ export const VaccineManager: React.FC = () => {
                         {totalDoses} {totalDoses === 1 ? 'Dose' : 'Doses'}
                       </td>
                       <td style={{ padding: '16px', color: 'var(--color-text-muted)' }}>
-                        {firstAge === lastAge ? `${firstAge} months` : `${firstAge} - ${lastAge} months`}
+                        {firstAge === lastAge ? \`\${firstAge} months\` : \`\${firstAge} - \${lastAge} months\`}
                       </td>
                       <td style={{ padding: '16px', textAlign: 'right' }}>
                         <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
@@ -299,3 +302,8 @@ export const VaccineManager: React.FC = () => {
     </div>
   );
 };
+`;
+
+const dest = path.join(__dirname, 'WebFrontend', 'src', 'pages', 'VaccineManager.tsx');
+fs.writeFileSync(dest, newContent, 'utf-8');
+console.log('File written successfully.');

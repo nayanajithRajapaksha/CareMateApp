@@ -3,12 +3,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sendOverdueWarning = exports.removeVaccineRecord = exports.updateVaccine = exports.markVaccineAdministered = exports.getChildVaccinations = exports.addVaccine = exports.getVaccines = void 0;
+exports.updateVaccineGroup = exports.deleteVaccineGroup = exports.deleteVaccine = exports.sendOverdueWarning = exports.removeVaccineRecord = exports.updateVaccine = exports.markVaccineAdministered = exports.getChildVaccinations = exports.addVaccine = exports.getVaccines = void 0;
 const db_1 = __importDefault(require("../config/db"));
 const notificationService_1 = require("../services/notificationService");
 const getVaccines = async (req, res) => {
     try {
-        const result = await db_1.default.query(`SELECT id, name, recommended_age_months, minimum_interval_days, created_at 
+        const result = await db_1.default.query(`SELECT id, name, recommended_age_months, minimum_interval_days, dose_number, previous_dose_id, created_at 
        FROM vaccines 
        ORDER BY recommended_age_months ASC`);
         res.status(200).json({ vaccines: result.rows });
@@ -21,17 +21,44 @@ const getVaccines = async (req, res) => {
 exports.getVaccines = getVaccines;
 const addVaccine = async (req, res) => {
     try {
-        const { name, recommended_age_months, minimum_interval_days } = req.body;
-        if (!name || recommended_age_months === undefined) {
-            res.status(400).json({ error: 'Name and recommended_age_months are required' });
+        const { name, recommended_age_months, minimum_interval_days, dose_number, previous_dose_id, doses } = req.body;
+        if (!name) {
+            res.status(400).json({ error: 'Name is required' });
             return;
         }
-        const result = await db_1.default.query(`INSERT INTO vaccines (name, recommended_age_months, minimum_interval_days) 
-       VALUES ($1, $2, $3) 
-       RETURNING *`, [name, recommended_age_months, minimum_interval_days || 0]);
+        if (doses && Array.isArray(doses) && doses.length > 0) {
+            await db_1.default.query('BEGIN');
+            let prevId = null;
+            const createdVaccines = [];
+            for (let i = 0; i < doses.length; i++) {
+                const dose = doses[i];
+                if (dose.recommended_age_months === undefined) {
+                    await db_1.default.query('ROLLBACK');
+                    res.status(400).json({ error: `recommended_age_months is required for dose ${i + 1}` });
+                    return;
+                }
+                const doseResult = await db_1.default.query(`INSERT INTO vaccines (name, recommended_age_months, minimum_interval_days, dose_number, previous_dose_id) 
+           VALUES ($1, $2, $3, $4, $5) 
+           RETURNING *`, [name, dose.recommended_age_months, dose.minimum_interval_days || 0, dose.dose_number || (i + 1), prevId]);
+                prevId = doseResult.rows[0].id;
+                createdVaccines.push(doseResult.rows[0]);
+            }
+            await db_1.default.query('COMMIT');
+            res.status(201).json({ message: 'Vaccines added successfully', vaccines: createdVaccines });
+            return;
+        }
+        // Fallback for single dose creation
+        if (recommended_age_months === undefined) {
+            res.status(400).json({ error: 'recommended_age_months is required' });
+            return;
+        }
+        const result = await db_1.default.query(`INSERT INTO vaccines (name, recommended_age_months, minimum_interval_days, dose_number, previous_dose_id) 
+       VALUES ($1, $2, $3, $4, $5) 
+       RETURNING *`, [name, recommended_age_months, minimum_interval_days || 0, dose_number || 1, previous_dose_id || null]);
         res.status(201).json({ message: 'Vaccine added successfully', vaccine: result.rows[0] });
     }
     catch (error) {
+        await db_1.default.query('ROLLBACK');
         console.error('Error adding vaccine:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
@@ -107,15 +134,15 @@ exports.markVaccineAdministered = markVaccineAdministered;
 const updateVaccine = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, recommended_age_months, minimum_interval_days } = req.body;
+        const { name, recommended_age_months, minimum_interval_days, dose_number, previous_dose_id } = req.body;
         if (!name || recommended_age_months === undefined) {
             res.status(400).json({ error: 'Name and recommended_age_months are required' });
             return;
         }
         const result = await db_1.default.query(`UPDATE vaccines 
-       SET name = $1, recommended_age_months = $2, minimum_interval_days = $3
-       WHERE id = $4
-       RETURNING *`, [name, recommended_age_months, minimum_interval_days || 0, id]);
+       SET name = $1, recommended_age_months = $2, minimum_interval_days = $3, dose_number = $4, previous_dose_id = $5
+       WHERE id = $6
+       RETURNING *`, [name, recommended_age_months, minimum_interval_days || 0, dose_number || 1, previous_dose_id || null, id]);
         if (result.rowCount === 0) {
             res.status(404).json({ error: 'Vaccine not found' });
             return;
@@ -211,4 +238,110 @@ const sendOverdueWarning = async (req, res) => {
     }
 };
 exports.sendOverdueWarning = sendOverdueWarning;
+const deleteVaccine = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const checkRes = await db_1.default.query('SELECT id FROM vaccines WHERE id = $1', [id]);
+        if (checkRes.rowCount === 0) {
+            res.status(404).json({ error: 'Vaccine not found' });
+            return;
+        }
+        await db_1.default.query('DELETE FROM vaccines WHERE id = $1', [id]);
+        res.status(200).json({ message: 'Vaccine deleted successfully' });
+    }
+    catch (error) {
+        if (error.code === '23503') { // foreign_key_violation
+            res.status(400).json({ error: 'Cannot delete vaccine because it has already been administered to children.' });
+        }
+        else {
+            console.error('Error deleting vaccine:', error);
+            res.status(500).json({ error: 'Internal server error' });
+        }
+    }
+};
+exports.deleteVaccine = deleteVaccine;
+const deleteVaccineGroup = async (req, res) => {
+    try {
+        const { name } = req.params;
+        const checkRes = await db_1.default.query('SELECT id FROM vaccines WHERE name = $1', [name]);
+        if (checkRes.rowCount === 0) {
+            res.status(404).json({ error: 'Vaccine group not found' });
+            return;
+        }
+        await db_1.default.query('DELETE FROM vaccines WHERE name = $1', [name]);
+        res.status(200).json({ message: 'Vaccine group deleted successfully' });
+    }
+    catch (error) {
+        if (error.code === '23503') { // foreign_key_violation
+            res.status(400).json({ error: 'Cannot delete vaccine group because it has already been administered to children.' });
+        }
+        else {
+            console.error('Error deleting vaccine group:', error);
+            res.status(500).json({ error: 'Internal server error' });
+        }
+    }
+};
+exports.deleteVaccineGroup = deleteVaccineGroup;
+const updateVaccineGroup = async (req, res) => {
+    try {
+        const { name: oldName } = req.params;
+        const { name: newName, doses } = req.body;
+        if (!doses || !Array.isArray(doses) || doses.length === 0) {
+            res.status(400).json({ error: 'At least one dose is required' });
+            return;
+        }
+        const existingRes = await db_1.default.query('SELECT * FROM vaccines WHERE name = $1 ORDER BY dose_number ASC', [oldName]);
+        const existingDoses = existingRes.rows;
+        await db_1.default.query('BEGIN');
+        let prevId = null;
+        const updatedVaccines = [];
+        for (let i = 0; i < doses.length; i++) {
+            const dose = doses[i];
+            if (dose.recommended_age_months === undefined) {
+                await db_1.default.query('ROLLBACK');
+                res.status(400).json({ error: `recommended_age_months is required for dose ${i + 1}` });
+                return;
+            }
+            if (i < existingDoses.length) {
+                // Update existing row
+                const existingId = existingDoses[i].id;
+                const doseResult = await db_1.default.query(`UPDATE vaccines 
+           SET name = $1, recommended_age_months = $2, minimum_interval_days = $3, dose_number = $4, previous_dose_id = $5 
+           WHERE id = $6 RETURNING *`, [newName || oldName, dose.recommended_age_months, dose.minimum_interval_days || 0, dose.dose_number || (i + 1), prevId, existingId]);
+                prevId = doseResult.rows[0].id;
+                updatedVaccines.push(doseResult.rows[0]);
+            }
+            else {
+                // Insert new row
+                const doseResult = await db_1.default.query(`INSERT INTO vaccines (name, recommended_age_months, minimum_interval_days, dose_number, previous_dose_id) 
+           VALUES ($1, $2, $3, $4, $5) RETURNING *`, [newName || oldName, dose.recommended_age_months, dose.minimum_interval_days || 0, dose.dose_number || (i + 1), prevId]);
+                prevId = doseResult.rows[0].id;
+                updatedVaccines.push(doseResult.rows[0]);
+            }
+        }
+        // Delete any remaining doses
+        for (let i = doses.length; i < existingDoses.length; i++) {
+            const existingId = existingDoses[i].id;
+            try {
+                await db_1.default.query('DELETE FROM vaccines WHERE id = $1', [existingId]);
+            }
+            catch (err) {
+                if (err.code === '23503') {
+                    await db_1.default.query('ROLLBACK');
+                    res.status(400).json({ error: `Cannot remove dose ${i + 1} because it has already been administered.` });
+                    return;
+                }
+                throw err;
+            }
+        }
+        await db_1.default.query('COMMIT');
+        res.status(200).json({ message: 'Vaccine group updated successfully', vaccines: updatedVaccines });
+    }
+    catch (error) {
+        await db_1.default.query('ROLLBACK');
+        console.error('Error updating vaccine group:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+exports.updateVaccineGroup = updateVaccineGroup;
 //# sourceMappingURL=vaccineController.js.map

@@ -50,6 +50,21 @@ export const vaccineService = {
     return response.vaccine;
   },
 
+  deleteVaccine: async (id: string): Promise<void> => {
+    await apiClient(`/vaccines/${id}`, { method: 'DELETE' });
+  },
+
+  updateVaccineGroup: async (name: string, data: any): Promise<any> => {
+    return await apiClient(`/vaccines/group/${encodeURIComponent(name)}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  deleteVaccineGroup: async (name: string): Promise<void> => {
+    await apiClient(`/vaccines/group/${encodeURIComponent(name)}`, { method: 'DELETE' });
+  },
+
   getChildVaccinations: async (childId: string): Promise<ChildVaccinationTimeline> => {
     return await apiClient(`/vaccines/child/${childId}`, { method: 'GET' });
   },

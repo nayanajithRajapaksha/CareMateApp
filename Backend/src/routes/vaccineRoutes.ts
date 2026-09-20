@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { verifyToken, requireAnyRole } from '../middleware/authMiddleware';
-import { getVaccines, addVaccine, getChildVaccinations, markVaccineAdministered, updateVaccine, removeVaccineRecord, sendOverdueWarning } from '../controllers/vaccineController';
+import { getVaccines, addVaccine, getChildVaccinations, markVaccineAdministered, updateVaccine, removeVaccineRecord, sendOverdueWarning, deleteVaccine, deleteVaccineGroup, updateVaccineGroup } from '../controllers/vaccineController';
 
 const router = Router();
 
@@ -11,6 +11,9 @@ router.use(verifyToken);
 router.get('/', getVaccines);
 router.post('/', requireAnyRole(['admin', 'moh', 'supervisor']), addVaccine);
 router.put('/:id', requireAnyRole(['admin', 'moh', 'supervisor']), updateVaccine);
+router.delete('/:id', requireAnyRole(['admin', 'moh', 'supervisor']), deleteVaccine);
+router.put('/group/:name', requireAnyRole(['admin', 'moh', 'supervisor']), updateVaccineGroup);
+router.delete('/group/:name', requireAnyRole(['admin', 'moh', 'supervisor']), deleteVaccineGroup);
 
 // Child specific timeline
 router.get('/child/:id', getChildVaccinations);

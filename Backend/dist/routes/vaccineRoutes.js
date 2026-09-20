@@ -10,6 +10,9 @@ router.use(authMiddleware_1.verifyToken);
 router.get('/', vaccineController_1.getVaccines);
 router.post('/', (0, authMiddleware_1.requireAnyRole)(['admin', 'moh', 'supervisor']), vaccineController_1.addVaccine);
 router.put('/:id', (0, authMiddleware_1.requireAnyRole)(['admin', 'moh', 'supervisor']), vaccineController_1.updateVaccine);
+router.delete('/:id', (0, authMiddleware_1.requireAnyRole)(['admin', 'moh', 'supervisor']), vaccineController_1.deleteVaccine);
+router.put('/group/:name', (0, authMiddleware_1.requireAnyRole)(['admin', 'moh', 'supervisor']), vaccineController_1.updateVaccineGroup);
+router.delete('/group/:name', (0, authMiddleware_1.requireAnyRole)(['admin', 'moh', 'supervisor']), vaccineController_1.deleteVaccineGroup);
 // Child specific timeline
 router.get('/child/:id', vaccineController_1.getChildVaccinations);
 router.post('/child/:id', (0, authMiddleware_1.requireAnyRole)(['phm', 'midwife']), vaccineController_1.markVaccineAdministered);
