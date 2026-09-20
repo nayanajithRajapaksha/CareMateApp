@@ -130,7 +130,7 @@ export const VaccineManager: React.FC = () => {
       {loading ? (
         <div style={{ padding: 40, textAlign: 'center' }}>Loading vaccines...</div>
       ) : (
-        <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+        <div className="card" style={{ padding: 0, overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead style={{ backgroundColor: 'var(--color-surface)', borderBottom: '1px solid var(--color-border)' }}>
               <tr>
@@ -247,7 +247,7 @@ export const VaccineManager: React.FC = () => {
                       )}
                     </div>
                     
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 16 }}>
                       <div className="input-group" style={{ marginBottom: 0 }}>
                         <label className="input-label">Recommended Age (Months)</label>
                         <input 
