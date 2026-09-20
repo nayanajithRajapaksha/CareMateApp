@@ -8,6 +8,7 @@ export const getVaccines = async (req: AuthRequest, res: Response): Promise<void
     const result = await pool.query(
       `SELECT id, name, recommended_age_months, minimum_interval_days, dose_number, previous_dose_id, created_at 
        FROM vaccines 
+       WHERE is_active = TRUE
        ORDER BY recommended_age_months ASC`
     );
 
@@ -80,8 +81,14 @@ export const getChildVaccinations = async (req: AuthRequest, res: Response): Pro
   try {
     const { id } = req.params; // child_id
 
-    // Fetch master schedule
-    const vaccinesRes = await pool.query(`SELECT * FROM vaccines ORDER BY recommended_age_months ASC`);
+    // Fetch master schedule (include active vaccines, plus any soft-deleted ones this child already has records for)
+    const vaccinesRes = await pool.query(
+      `SELECT DISTINCT v.* FROM vaccines v 
+       LEFT JOIN vaccination_records r ON v.id = r.vaccine_id AND r.child_id = $1
+       WHERE v.is_active = TRUE OR r.id IS NOT NULL
+       ORDER BY v.recommended_age_months ASC`, 
+       [id]
+    );
     const vaccines = vaccinesRes.rows;
 
     // Fetch milestones (scheduled/upcoming)
@@ -309,16 +316,12 @@ export const deleteVaccine = async (req: AuthRequest, res: Response): Promise<vo
       return;
     }
 
-    await pool.query('DELETE FROM vaccines WHERE id = $1', [id]);
+    await pool.query('UPDATE vaccines SET is_active = FALSE WHERE id = $1', [id]);
 
     res.status(200).json({ message: 'Vaccine deleted successfully' });
   } catch (error: any) {
-    if (error.code === '23503') { // foreign_key_violation
-      res.status(400).json({ error: 'Cannot delete vaccine because it has already been administered to children.' });
-    } else {
-      console.error('Error deleting vaccine:', error);
-      res.status(500).json({ error: 'Internal server error' });
-    }
+    console.error('Error deleting vaccine:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 };
 
@@ -332,16 +335,12 @@ export const deleteVaccineGroup = async (req: AuthRequest, res: Response): Promi
       return;
     }
 
-    await pool.query('DELETE FROM vaccines WHERE name = $1', [name]);
+    await pool.query('UPDATE vaccines SET is_active = FALSE WHERE name = $1', [name]);
 
     res.status(200).json({ message: 'Vaccine group deleted successfully' });
   } catch (error: any) {
-    if (error.code === '23503') { // foreign_key_violation
-      res.status(400).json({ error: 'Cannot delete vaccine group because it has already been administered to children.' });
-    } else {
-      console.error('Error deleting vaccine group:', error);
-      res.status(500).json({ error: 'Internal server error' });
-    }
+    console.error('Error deleting vaccine group:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 };
 
@@ -394,17 +393,12 @@ export const updateVaccineGroup = async (req: AuthRequest, res: Response): Promi
       }
     }
 
-    // Delete any remaining doses
+    // Delete any remaining doses (soft delete)
     for (let i = doses.length; i < existingDoses.length; i++) {
       const existingId = existingDoses[i].id;
       try {
-        await pool.query('DELETE FROM vaccines WHERE id = $1', [existingId]);
+        await pool.query('UPDATE vaccines SET is_active = FALSE WHERE id = $1', [existingId]);
       } catch (err: any) {
-        if (err.code === '23503') {
-          await pool.query('ROLLBACK');
-          res.status(400).json({ error: `Cannot remove dose ${i + 1} because it has already been administered.` });
-          return;
-        }
         throw err;
       }
     }
