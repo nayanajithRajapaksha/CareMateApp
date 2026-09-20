@@ -165,7 +165,7 @@ const sendOverdueWarning = async (req, res) => {
         // Fetch child and parent info
         const childRes = await db_1.default.query(`SELECT c.full_name as child_name, u.email as parent_email, p.full_name as parent_name
        FROM children c
-       JOIN users u ON c.parent_id = u.id
+       JOIN app_users u ON c.parent_id = u.id
        LEFT JOIN profiles p ON u.id = p.id
        WHERE c.id = $1`, [id]);
         if (childRes.rowCount === 0) {
