@@ -128,7 +128,7 @@ export const updateChildMedicalProfile = async (child_id: string, medical: Parti
   await pool.query(query, values);
 };
 
-export const getAllChildren = async (hospital?: string) => {
+export const getAllChildren = async (hospitals: string[] = []) => {
   let query = `
     SELECT 
       c.id, c.full_name, c.dob, c.gender, c.relationship, c.birth_cert_number, c.parent_id,
@@ -138,9 +138,9 @@ export const getAllChildren = async (hospital?: string) => {
   `;
   
   const values: any[] = [];
-  if (hospital) {
-    query += ` WHERE m.primary_clinic = $1`;
-    values.push(hospital);
+  if (hospitals.length > 0) {
+    query += ` WHERE m.primary_clinic = ANY($1)`;
+    values.push(hospitals);
   }
   
   query += ` ORDER BY c.created_at DESC`;

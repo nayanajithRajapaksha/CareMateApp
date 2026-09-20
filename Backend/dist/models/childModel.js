@@ -99,13 +99,21 @@ const updateChildMedicalProfile = async (child_id, medical) => {
     await db_1.default.query(query, values);
 };
 exports.updateChildMedicalProfile = updateChildMedicalProfile;
-const getAllChildren = async () => {
-    const res = await db_1.default.query(`SELECT 
+const getAllChildren = async (hospitals = []) => {
+    let query = `
+    SELECT 
       c.id, c.full_name, c.dob, c.gender, c.relationship, c.birth_cert_number, c.parent_id,
       m.blood_group, m.birth_weight_kg, m.allergies, m.existing_conditions, m.primary_clinic
      FROM children c
      LEFT JOIN child_medical_profiles m ON c.id = m.child_id
-     ORDER BY c.created_at DESC`);
+  `;
+    const values = [];
+    if (hospitals.length > 0) {
+        query += ` WHERE m.primary_clinic = ANY($1)`;
+        values.push(hospitals);
+    }
+    query += ` ORDER BY c.created_at DESC`;
+    const res = await db_1.default.query(query, values);
     return res.rows;
 };
 exports.getAllChildren = getAllChildren;

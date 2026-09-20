@@ -11,6 +11,8 @@ router.use(authMiddleware_1.verifyToken);
 router.get('/profile', userController_1.getProfile);
 router.put('/profile', userController_1.updateProfile);
 router.put('/push-token', userController_1.updatePushToken);
+router.get('/notifications', userController_1.getUserNotifications);
+router.put('/notifications/:id/read', userController_1.markNotificationAsRead);
 router.get('/all', (0, authMiddleware_1.requireRole)('admin'), userController_1.getAllUsers);
 const multer_1 = __importDefault(require("multer"));
 const cloudinary_1 = require("cloudinary");

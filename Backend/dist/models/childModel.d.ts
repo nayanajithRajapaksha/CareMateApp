@@ -17,5 +17,5 @@ export declare const createChildWithMedicalProfile: (child: ChildData, medical: 
 export declare const getChildrenByParentId: (parent_id: string) => Promise<any[]>;
 export declare const updateChildDetails: (child_id: string, child: Partial<ChildData>) => Promise<void>;
 export declare const updateChildMedicalProfile: (child_id: string, medical: Partial<MedicalProfileData>) => Promise<void>;
-export declare const getAllChildren: () => Promise<any[]>;
+export declare const getAllChildren: (hospitals?: string[]) => Promise<any[]>;
 //# sourceMappingURL=childModel.d.ts.map

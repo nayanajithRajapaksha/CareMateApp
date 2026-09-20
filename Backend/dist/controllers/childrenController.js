@@ -82,11 +82,18 @@ const updateChild = async (req, res) => {
 exports.updateChild = updateChild;
 const getAllChildrenController = async (req, res) => {
     try {
-        if (req.user?.role?.toLowerCase() !== 'phm') {
-            res.status(403).json({ error: 'Forbidden. Only PHMs can view all children.' });
+        const userRole = req.user?.role?.toLowerCase();
+        if (userRole !== 'phm' && userRole !== 'midwife') {
+            res.status(403).json({ error: 'Forbidden. Only PHMs/Midwives can view all children.' });
             return;
         }
-        const children = await (0, childModel_1.getAllChildren)();
+        // Fetch PHM's profile to get their assigned hospital
+        const profileRes = await require('../config/db').default.query('SELECT hospital FROM profiles WHERE id = $1', [req.user.id]);
+        let hospitals = [];
+        if (profileRes.rows.length > 0 && profileRes.rows[0].hospital) {
+            hospitals = profileRes.rows[0].hospital.split(',').map((h) => h.trim()).filter(Boolean);
+        }
+        const children = await (0, childModel_1.getAllChildren)(hospitals);
         res.status(200).json({ children });
     }
     catch (error) {

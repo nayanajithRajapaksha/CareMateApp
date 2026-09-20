@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updatePushToken = exports.getAllUsers = exports.updateProfile = exports.getProfile = void 0;
+exports.markNotificationAsRead = exports.getUserNotifications = exports.updatePushToken = exports.getAllUsers = exports.updateProfile = exports.getProfile = void 0;
 const db_1 = __importDefault(require("../config/db"));
 const getProfile = async (req, res) => {
     try {
@@ -92,4 +92,40 @@ const updatePushToken = async (req, res) => {
     }
 };
 exports.updatePushToken = updatePushToken;
+const getUserNotifications = async (req, res) => {
+    try {
+        const userId = req.user?.id;
+        if (!userId) {
+            res.status(401).json({ error: 'Unauthorized' });
+            return;
+        }
+        const result = await db_1.default.query(`SELECT id, title, message, type, is_read, created_at 
+       FROM app_notifications 
+       WHERE user_id = $1 
+       ORDER BY created_at DESC`, [userId]);
+        res.status(200).json({ notifications: result.rows });
+    }
+    catch (error) {
+        console.error('Error fetching notifications:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+exports.getUserNotifications = getUserNotifications;
+const markNotificationAsRead = async (req, res) => {
+    try {
+        const userId = req.user?.id;
+        const { id } = req.params;
+        if (!userId) {
+            res.status(401).json({ error: 'Unauthorized' });
+            return;
+        }
+        await db_1.default.query(`UPDATE app_notifications SET is_read = true WHERE id = $1 AND user_id = $2`, [id, userId]);
+        res.status(200).json({ message: 'Notification marked as read' });
+    }
+    catch (error) {
+        console.error('Error marking notification as read:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+exports.markNotificationAsRead = markNotificationAsRead;
 //# sourceMappingURL=userController.js.map

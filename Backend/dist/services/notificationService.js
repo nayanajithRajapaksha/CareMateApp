@@ -7,6 +7,7 @@ exports.sendPushNotification = exports.sendEmailReminder = void 0;
 // (Nodemailer removed - using EmailJS)
 const expo_server_sdk_1 = require("expo-server-sdk");
 const dotenv_1 = __importDefault(require("dotenv"));
+const db_1 = __importDefault(require("../config/db"));
 dotenv_1.default.config();
 // Initialize Expo SDK
 const expo = new expo_server_sdk_1.Expo();
@@ -54,9 +55,17 @@ const sendEmailReminder = async (to, subject, html) => {
     }
 };
 exports.sendEmailReminder = sendEmailReminder;
-const sendPushNotification = async (pushToken, title, body, data = {}) => {
-    if (!expo_server_sdk_1.Expo.isExpoPushToken(pushToken)) {
-        console.error(`Push token ${pushToken} is not a valid Expo push token`);
+const sendPushNotification = async (userId, pushToken, title, body, data = {}) => {
+    if (userId) {
+        try {
+            await db_1.default.query('INSERT INTO app_notifications (user_id, title, message) VALUES ($1, $2, $3)', [userId, title, body]);
+        }
+        catch (dbError) {
+            console.error('Failed to insert notification into DB:', dbError);
+        }
+    }
+    if (!pushToken || !expo_server_sdk_1.Expo.isExpoPushToken(pushToken)) {
+        console.error(`Push token ${pushToken} is missing or not a valid Expo push token`);
         return false;
     }
     const messages = [{
