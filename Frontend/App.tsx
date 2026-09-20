@@ -60,8 +60,8 @@ export default function App() {
             <Stack.Screen name="SupervisorDashboard" component={SupervisorDashboardScreen} />
           </Stack.Navigator>
         </NavigationContainer>
+        </AuthProvider>
       </LanguageProvider>
-      </AuthProvider>
     </SafeAreaProvider>
   );
 }
