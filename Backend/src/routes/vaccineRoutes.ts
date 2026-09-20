@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { verifyToken, requireAnyRole } from '../middleware/authMiddleware';
-import { getVaccines, addVaccine, getChildVaccinations, markVaccineAdministered, updateVaccine, removeVaccineRecord } from '../controllers/vaccineController';
+import { getVaccines, addVaccine, getChildVaccinations, markVaccineAdministered, updateVaccine, removeVaccineRecord, sendOverdueWarning } from '../controllers/vaccineController';
 
 const router = Router();
 
@@ -16,5 +16,6 @@ router.put('/:id', requireAnyRole(['admin', 'moh', 'supervisor']), updateVaccine
 router.get('/child/:id', getChildVaccinations);
 router.post('/child/:id', requireAnyRole(['phm', 'midwife']), markVaccineAdministered);
 router.delete('/child/:id/record/:record_id', requireAnyRole(['phm', 'midwife']), removeVaccineRecord);
+router.post('/child/:id/warning', requireAnyRole(['phm', 'midwife']), sendOverdueWarning);
 
 export default router;

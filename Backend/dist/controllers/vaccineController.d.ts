@@ -6,4 +6,5 @@ export declare const getChildVaccinations: (req: AuthRequest, res: Response) => 
 export declare const markVaccineAdministered: (req: AuthRequest, res: Response) => Promise<void>;
 export declare const updateVaccine: (req: AuthRequest, res: Response) => Promise<void>;
 export declare const removeVaccineRecord: (req: AuthRequest, res: Response) => Promise<void>;
+export declare const sendOverdueWarning: (req: AuthRequest, res: Response) => Promise<void>;
 //# sourceMappingURL=vaccineController.d.ts.map

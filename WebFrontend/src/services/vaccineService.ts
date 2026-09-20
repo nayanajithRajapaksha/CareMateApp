@@ -65,5 +65,12 @@ export const vaccineService = {
     return await apiClient(`/vaccines/child/${childId}/record/${recordId}`, {
       method: 'DELETE',
     });
+  },
+
+  sendOverdueWarning: async (childId: string, vaccineId: string) => {
+    return await apiClient(`/vaccines/child/${childId}/warning`, {
+      method: 'POST',
+      body: JSON.stringify({ vaccine_id: vaccineId }),
+    });
   }
 };

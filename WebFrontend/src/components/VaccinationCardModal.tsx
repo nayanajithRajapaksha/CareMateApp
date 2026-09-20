@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, CheckCircle, Circle, AlertCircle } from 'lucide-react';
+import { X, CheckCircle, Circle, AlertCircle, Bell } from 'lucide-react';
 import { vaccineService, type ChildVaccinationTimeline } from '../services/vaccineService';
 
 interface VaccinationCardModalProps {
@@ -13,6 +13,7 @@ export const VaccinationCardModal: React.FC<VaccinationCardModalProps> = ({ chil
   const [timeline, setTimeline] = useState<ChildVaccinationTimeline | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [warningLoading, setWarningLoading] = useState<string | null>(null);
 
   const fetchTimeline = async () => {
     setLoading(true);
@@ -44,6 +45,21 @@ export const VaccinationCardModal: React.FC<VaccinationCardModalProps> = ({ chil
       fetchTimeline();
     } catch (err: any) {
       alert(err.message || 'Failed to update vaccination status');
+    }
+  };
+
+  const handleSendWarning = async (e: React.MouseEvent, vaccineId: string) => {
+    e.stopPropagation();
+    if (!window.confirm('Send an urgent overdue warning email to the parent?')) return;
+    
+    setWarningLoading(vaccineId);
+    try {
+      await vaccineService.sendOverdueWarning(childId, vaccineId);
+      alert('Warning email sent successfully!');
+    } catch (err: any) {
+      alert(err.message || 'Failed to send warning email.');
+    } finally {
+      setWarningLoading(null);
     }
   };
 
@@ -147,9 +163,25 @@ export const VaccinationCardModal: React.FC<VaccinationCardModalProps> = ({ chil
                           {item.status}
                         </span>
                         {safety && (
-                          <span style={{ fontSize: 12, fontWeight: 600, color: safety.isSafe ? 'var(--color-success)' : 'var(--color-error)', backgroundColor: safety.isSafe ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', padding: '4px 8px', borderRadius: 12 }}>
-                            {safety.isSafe ? 'Safe' : `Unsafe (Passed by ${safety.passedByDays} days)`}
-                          </span>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                            <span style={{ fontSize: 12, fontWeight: 600, color: safety.isSafe ? 'var(--color-success)' : 'var(--color-error)', backgroundColor: safety.isSafe ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', padding: '4px 8px', borderRadius: 12 }}>
+                              {safety.isSafe ? 'Safe' : `Unsafe (Passed by ${safety.passedByDays} days)`}
+                            </span>
+                            {!safety.isSafe && (
+                              <button 
+                                onClick={(e) => handleSendWarning(e, item.id)}
+                                disabled={warningLoading === item.id}
+                                style={{ 
+                                  background: 'rgba(239, 68, 68, 0.1)', border: 'none', cursor: 'pointer', 
+                                  color: 'var(--color-error)', padding: '4px', borderRadius: '50%',
+                                  display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                }}
+                                title="Send reminder email to parent"
+                              >
+                                <Bell size={14} />
+                              </button>
+                            )}
+                          </div>
                         )}
                       </div>
                     </div>

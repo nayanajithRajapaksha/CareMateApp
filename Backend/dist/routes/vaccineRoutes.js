@@ -14,5 +14,6 @@ router.put('/:id', (0, authMiddleware_1.requireAnyRole)(['admin', 'moh', 'superv
 router.get('/child/:id', vaccineController_1.getChildVaccinations);
 router.post('/child/:id', (0, authMiddleware_1.requireAnyRole)(['phm', 'midwife']), vaccineController_1.markVaccineAdministered);
 router.delete('/child/:id/record/:record_id', (0, authMiddleware_1.requireAnyRole)(['phm', 'midwife']), vaccineController_1.removeVaccineRecord);
+router.post('/child/:id/warning', (0, authMiddleware_1.requireAnyRole)(['phm', 'midwife']), vaccineController_1.sendOverdueWarning);
 exports.default = router;
 //# sourceMappingURL=vaccineRoutes.js.map

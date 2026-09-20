@@ -3,8 +3,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.removeVaccineRecord = exports.updateVaccine = exports.markVaccineAdministered = exports.getChildVaccinations = exports.addVaccine = exports.getVaccines = void 0;
+exports.sendOverdueWarning = exports.removeVaccineRecord = exports.updateVaccine = exports.markVaccineAdministered = exports.getChildVaccinations = exports.addVaccine = exports.getVaccines = void 0;
 const db_1 = __importDefault(require("../config/db"));
+const notificationService_1 = require("../services/notificationService");
 const getVaccines = async (req, res) => {
     try {
         const result = await db_1.default.query(`SELECT id, name, recommended_age_months, minimum_interval_days, created_at 
@@ -153,4 +154,61 @@ const removeVaccineRecord = async (req, res) => {
     }
 };
 exports.removeVaccineRecord = removeVaccineRecord;
+const sendOverdueWarning = async (req, res) => {
+    try {
+        const { id } = req.params; // child_id
+        const { vaccine_id } = req.body;
+        if (!vaccine_id) {
+            res.status(400).json({ error: 'vaccine_id is required' });
+            return;
+        }
+        // Fetch child and parent info
+        const childRes = await db_1.default.query(`SELECT c.full_name as child_name, u.email as parent_email, p.full_name as parent_name
+       FROM children c
+       JOIN users u ON c.parent_id = u.id
+       LEFT JOIN profiles p ON u.id = p.id
+       WHERE c.id = $1`, [id]);
+        if (childRes.rowCount === 0) {
+            res.status(404).json({ error: 'Child not found' });
+            return;
+        }
+        const { child_name, parent_email, parent_name } = childRes.rows[0];
+        // Fetch vaccine info
+        const vaccineRes = await db_1.default.query(`SELECT name FROM vaccines WHERE id = $1`, [vaccine_id]);
+        if (vaccineRes.rowCount === 0) {
+            res.status(404).json({ error: 'Vaccine not found' });
+            return;
+        }
+        const vaccineName = vaccineRes.rows[0].name;
+        // Send email
+        if (parent_email) {
+            const subject = `Urgent: Overdue Vaccination for ${child_name}`;
+            const html = `
+        <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+          <h2 style="color: #DC4C4C;">Vaccination Overdue Warning</h2>
+          <p>Dear ${parent_name || 'Parent'},</p>
+          <p>This is an important notification regarding your child, <strong>${child_name}</strong>.</p>
+          <p>The <strong>${vaccineName}</strong> vaccination is currently overdue. Please contact your family clinic or PHM midwife as soon as possible to schedule this vaccination.</p>
+          <br/>
+          <p>Thank you,<br/>CareMate Health Team</p>
+        </div>
+      `;
+            const success = await (0, notificationService_1.sendEmailReminder)(parent_email, subject, html);
+            if (success) {
+                res.status(200).json({ message: 'Warning notification sent to parent successfully.' });
+            }
+            else {
+                res.status(500).json({ error: 'Failed to send warning email. Please check email service configuration.' });
+            }
+        }
+        else {
+            res.status(400).json({ error: 'Parent does not have an email address configured.' });
+        }
+    }
+    catch (error) {
+        console.error('Error sending overdue warning:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+exports.sendOverdueWarning = sendOverdueWarning;
 //# sourceMappingURL=vaccineController.js.map
