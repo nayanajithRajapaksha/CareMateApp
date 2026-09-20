@@ -99,6 +99,58 @@ export const ChildVaccinationScreen: React.FC = () => {
               timeline.map((vaccine, index) => {
                 const isLast = index === timeline.length - 1;
                 
+                let dueDate = new Date(child.dob);
+                dueDate.setMonth(dueDate.getMonth() + vaccine.recommended_age_months);
+                
+                let deadlineDate = new Date(dueDate);
+                deadlineDate.setDate(deadlineDate.getDate() + (vaccine.minimum_interval_days || 0));
+
+                let isBlocked = false;
+
+                if (vaccine.previous_dose_id) {
+                  const prevDose = timeline.find((v: any) => v.id === vaccine.previous_dose_id);
+                  if (prevDose && prevDose.is_completed && prevDose.administered_date) {
+                    dueDate = new Date(prevDose.administered_date);
+                    dueDate.setDate(dueDate.getDate() + (vaccine.minimum_interval_days || 0));
+                    deadlineDate = new Date(dueDate);
+                    deadlineDate.setDate(deadlineDate.getDate() + 14); // 14 days grace period for subsequent doses
+                  } else {
+                    isBlocked = true;
+                  }
+                }
+
+                const today = new Date();
+                today.setHours(0,0,0,0);
+                const dueDateCompare = new Date(dueDate);
+                dueDateCompare.setHours(0,0,0,0);
+                const deadlineDateCompare = new Date(deadlineDate);
+                deadlineDateCompare.setHours(0,0,0,0);
+                
+                const isOverdue = !vaccine.is_completed && !isBlocked && today > deadlineDateCompare;
+                const isUpcoming = !vaccine.is_completed && !isOverdue;
+
+                let iconColor = colors.border;
+                let badgeBg = '#F1F5F9';
+                let badgeTextCol = colors.textMuted;
+                let statusLabel = 'Upcoming';
+
+                if (vaccine.is_completed) {
+                  iconColor = colors.primary; // Green
+                  badgeBg = '#DCFCE7';
+                  badgeTextCol = '#15803D';
+                  statusLabel = 'Completed';
+                } else if (isOverdue) {
+                  iconColor = '#EF4444'; // Red
+                  badgeBg = '#FEE2E2';
+                  badgeTextCol = '#B91C1C';
+                  statusLabel = 'Overdue';
+                } else if (isUpcoming) {
+                  iconColor = '#3B82F6'; // Blue
+                  badgeBg = '#DBEAFE';
+                  badgeTextCol = '#1D4ED8';
+                  statusLabel = isBlocked ? 'Blocked' : 'Upcoming';
+                }
+
                 return (
                   <TouchableOpacity 
                     key={vaccine.id} 
@@ -113,8 +165,10 @@ export const ChildVaccinationScreen: React.FC = () => {
                     <View style={styles.iconContainer}>
                       {vaccine.is_completed ? (
                         <CheckCircle color={colors.primary} size={28} fill="#DCFCE7" />
+                      ) : isOverdue ? (
+                        <ShieldAlert color="#EF4444" size={28} fill="#FEE2E2" />
                       ) : (
-                        <Circle color={colors.border} size={28} />
+                        <Circle color={iconColor} size={28} />
                       )}
                     </View>
 
@@ -125,9 +179,9 @@ export const ChildVaccinationScreen: React.FC = () => {
                           <Text style={[styles.vaccineName, vaccine.is_completed && styles.vaccineNameCompleted]}>
                             {vaccine.name} {vaccine.dose_number && vaccine.dose_number > 1 ? `(Dose ${vaccine.dose_number})` : ''}
                           </Text>
-                          <View style={[styles.statusBadge, { backgroundColor: vaccine.is_completed ? '#DCFCE7' : '#F1F5F9' }]}>
-                            <Text style={[styles.statusText, { color: vaccine.is_completed ? '#15803D' : colors.textMuted }]}>
-                              {vaccine.is_completed ? 'Completed' : 'Upcoming'}
+                          <View style={[styles.statusBadge, { backgroundColor: badgeBg }]}>
+                            <Text style={[styles.statusText, { color: badgeTextCol }]}>
+                              {statusLabel}
                             </Text>
                           </View>
                         </View>
@@ -150,61 +204,25 @@ export const ChildVaccinationScreen: React.FC = () => {
                         )}
                         
                         {!vaccine.is_completed && role === 'parent' && (
-                          (() => {
-                            let dueDate = new Date(child.dob);
-                            dueDate.setMonth(dueDate.getMonth() + vaccine.recommended_age_months);
-                            
-                            let deadlineDate = new Date(dueDate);
-                            deadlineDate.setDate(deadlineDate.getDate() + (vaccine.minimum_interval_days || 0));
-
-                            let isBlocked = false;
-
-                            if (vaccine.previous_dose_id) {
-                              const prevDose = timeline.find((v: any) => v.id === vaccine.previous_dose_id);
-                              if (prevDose && prevDose.is_completed && prevDose.administered_date) {
-                                dueDate = new Date(prevDose.administered_date);
-                                dueDate.setDate(dueDate.getDate() + (vaccine.minimum_interval_days || 0));
-                                deadlineDate = new Date(dueDate);
-                                deadlineDate.setDate(deadlineDate.getDate() + 14); // 14 days grace period for subsequent doses
-                              } else {
-                                isBlocked = true;
-                              }
-                            }
-
-                            if (isBlocked) {
-                              return (
-                                <View style={{ marginTop: 12 }}>
-                                  <Text style={{ fontSize: 13, color: colors.textMuted }}>Waiting on previous dose</Text>
-                                </View>
-                              );
-                            }
-
-                            const today = new Date();
-                            today.setHours(0,0,0,0);
-                            dueDate.setHours(0,0,0,0);
-                            deadlineDate.setHours(0,0,0,0);
-                            
-                            if (today >= dueDate) {
-                              const isOverdue = today > deadlineDate;
-                              return (
-                                <View style={{ marginTop: 12 }}>
-                                  {isOverdue && (
-                                    <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8, backgroundColor: 'rgba(239, 68, 68, 0.1)', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12, alignSelf: 'flex-start' }}>
-                                      <ShieldAlert size={14} color="#EF4444" style={{ marginRight: 4 }} />
-                                      <Text style={{ fontSize: 12, color: '#EF4444', fontWeight: 'bold' }}>Unsafe (Overdue)</Text>
-                                    </View>
-                                  )}
-                                  <TouchableOpacity 
-                                    style={{ backgroundColor: colors.primary, paddingHorizontal: 16, paddingVertical: 8, borderRadius: 8, alignSelf: 'flex-start' }}
-                                    onPress={() => navigation.navigate('ScheduleTab', { childId: child.id })}
-                                  >
-                                    <Text style={{ color: 'white', fontSize: 13, fontWeight: 'bold' }}>Book Clinic</Text>
-                                  </TouchableOpacity>
-                                </View>
-                              );
-                            }
-                            return null;
-                          })()
+                          <View style={{ marginTop: 12 }}>
+                            {isBlocked && (
+                               <Text style={{ fontSize: 13, color: colors.textMuted }}>Waiting on previous dose</Text>
+                            )}
+                            {isOverdue && (
+                              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8, backgroundColor: 'rgba(239, 68, 68, 0.1)', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12, alignSelf: 'flex-start' }}>
+                                <ShieldAlert size={14} color="#EF4444" style={{ marginRight: 4 }} />
+                                <Text style={{ fontSize: 12, color: '#EF4444', fontWeight: 'bold' }}>Unsafe (Overdue)</Text>
+                              </View>
+                            )}
+                            {!isBlocked && (today >= dueDateCompare) && (
+                              <TouchableOpacity 
+                                style={{ backgroundColor: colors.primary, paddingHorizontal: 16, paddingVertical: 8, borderRadius: 8, alignSelf: 'flex-start' }}
+                                onPress={() => navigation.navigate('ScheduleTab', { childId: child.id })}
+                              >
+                                <Text style={{ color: 'white', fontSize: 13, fontWeight: 'bold' }}>Book Clinic</Text>
+                              </TouchableOpacity>
+                            )}
+                          </View>
                         )}
                       </View>
                     </View>
