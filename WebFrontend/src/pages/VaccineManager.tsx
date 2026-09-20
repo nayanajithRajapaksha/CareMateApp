@@ -9,13 +9,15 @@ export const VaccineManager: React.FC = () => {
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingVaccine, setEditingVaccine] = useState<Vaccine | null>(null);
-  
+  const [form, setForm] = useState({
     name: '',
     recommended_age_months: 0,
     minimum_interval_days: 0,
     dose_number: 1,
     previous_dose_id: '' as string | null,
   });
+
+  const [doses, setDoses] = useState([{ recommended_age_months: 0, minimum_interval_days: 0 }]);
 
   const [saving, setSaving] = useState(false);
 
@@ -53,6 +55,7 @@ export const VaccineManager: React.FC = () => {
         dose_number: 1,
         previous_dose_id: ''
       });
+      setDoses([{ recommended_age_months: 0, minimum_interval_days: 0 }]);
     }
     setIsModalOpen(true);
   };
@@ -64,7 +67,10 @@ export const VaccineManager: React.FC = () => {
       if (editingVaccine) {
         await vaccineService.updateVaccine(editingVaccine.id, form);
       } else {
-        await vaccineService.addVaccine(form);
+        await vaccineService.addVaccine({
+          name: form.name,
+          doses: doses
+        });
       }
       setIsModalOpen(false);
       fetchVaccines();
@@ -185,59 +191,130 @@ export const VaccineManager: React.FC = () => {
                 />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-                <div className="input-group">
-                  <label className="input-label">Recommended Age (Months)</label>
-                  <input 
-                    type="number" 
-                    className="input-field" 
-                    required
-                    min={0}
-                    value={form.recommended_age_months}
-                    onChange={e => setForm({...form, recommended_age_months: parseInt(e.target.value) || 0})}
-                  />
-                </div>
+              {editingVaccine ? (
+                <>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                    <div className="input-group">
+                      <label className="input-label">Recommended Age (Months)</label>
+                      <input 
+                        type="number" 
+                        className="input-field" 
+                        required
+                        min={0}
+                        value={form.recommended_age_months}
+                        onChange={e => setForm({...form, recommended_age_months: parseInt(e.target.value) || 0})}
+                      />
+                    </div>
 
-                <div className="input-group">
-                  <label className="input-label">Dose Number</label>
-                  <input 
-                    type="number" 
-                    className="input-field" 
-                    min={1}
-                    required
-                    value={form.dose_number}
-                    onChange={e => setForm({...form, dose_number: parseInt(e.target.value) || 1})}
-                  />
-                </div>
-              </div>
+                    <div className="input-group">
+                      <label className="input-label">Dose Number</label>
+                      <input 
+                        type="number" 
+                        className="input-field" 
+                        min={1}
+                        required
+                        value={form.dose_number}
+                        onChange={e => setForm({...form, dose_number: parseInt(e.target.value) || 1})}
+                      />
+                    </div>
+                  </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-                <div className="input-group">
-                  <label className="input-label">Previous Dose</label>
-                  <select
-                    className="input-field"
-                    value={form.previous_dose_id || ''}
-                    onChange={e => setForm({...form, previous_dose_id: e.target.value || null})}
-                  >
-                    <option value="">None (Dose 1)</option>
-                    {vaccines.filter(v => v.id !== editingVaccine?.id).map(v => (
-                      <option key={v.id} value={v.id}>{v.name} (Dose {v.dose_number || 1})</option>
-                    ))}
-                  </select>
-                </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                    <div className="input-group">
+                      <label className="input-label">Previous Dose</label>
+                      <select
+                        className="input-field"
+                        value={form.previous_dose_id || ''}
+                        onChange={e => setForm({...form, previous_dose_id: e.target.value || null})}
+                      >
+                        <option value="">None (Dose 1)</option>
+                        {vaccines.filter(v => v.id !== editingVaccine?.id).map(v => (
+                          <option key={v.id} value={v.id}>{v.name} (Dose {v.dose_number || 1})</option>
+                        ))}
+                      </select>
+                    </div>
 
-                <div className="input-group">
-                  <label className="input-label">Min Interval (Days)</label>
-                  <input 
-                    type="number" 
-                    className="input-field" 
-                    min={0}
-                    value={form.minimum_interval_days}
-                    onChange={e => setForm({...form, minimum_interval_days: parseInt(e.target.value) || 0})}
-                    disabled={!form.previous_dose_id}
-                  />
+                    <div className="input-group">
+                      <label className="input-label">Min Interval (Days)</label>
+                      <input 
+                        type="number" 
+                        className="input-field" 
+                        min={0}
+                        value={form.minimum_interval_days}
+                        onChange={e => setForm({...form, minimum_interval_days: parseInt(e.target.value) || 0})}
+                        disabled={!form.previous_dose_id}
+                      />
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <h3 className="text-h3" style={{ fontSize: 16, margin: 0 }}>Doses Schedule</h3>
+                    <button 
+                      type="button" 
+                      className="btn btn-secondary" 
+                      style={{ padding: '4px 12px', fontSize: 13 }}
+                      onClick={() => setDoses([...doses, { recommended_age_months: 0, minimum_interval_days: 0 }])}
+                    >
+                      <Plus size={14} /> Add Dose
+                    </button>
+                  </div>
+                  
+                  {doses.map((dose, index) => (
+                    <div key={index} style={{ padding: 16, backgroundColor: 'var(--color-surface)', borderRadius: 12, border: '1px solid var(--color-border)' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
+                        <span style={{ fontWeight: 600, fontSize: 14 }}>Dose {index + 1}</span>
+                        {doses.length > 1 && (
+                          <button 
+                            type="button" 
+                            style={{ color: '#EF4444', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13 }}
+                            onClick={() => setDoses(doses.filter((_, i) => i !== index))}
+                          >
+                            Remove
+                          </button>
+                        )}
+                      </div>
+                      
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                        <div className="input-group" style={{ marginBottom: 0 }}>
+                          <label className="input-label">Recommended Age (Months)</label>
+                          <input 
+                            type="number" 
+                            className="input-field" 
+                            required
+                            min={0}
+                            value={dose.recommended_age_months}
+                            onChange={e => {
+                              const newDoses = [...doses];
+                              newDoses[index].recommended_age_months = parseInt(e.target.value) || 0;
+                              setDoses(newDoses);
+                            }}
+                          />
+                        </div>
+
+                        {index > 0 && (
+                          <div className="input-group" style={{ marginBottom: 0 }}>
+                            <label className="input-label">Interval from Dose {index} (Days)</label>
+                            <input 
+                              type="number" 
+                              className="input-field" 
+                              required
+                              min={0}
+                              value={dose.minimum_interval_days}
+                              onChange={e => {
+                                const newDoses = [...doses];
+                                newDoses[index].minimum_interval_days = parseInt(e.target.value) || 0;
+                                setDoses(newDoses);
+                              }}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              </div>
+              )}
 
               <div style={{ display: 'flex', gap: 12, marginTop: 24 }}>
                 <button type="button" className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setIsModalOpen(false)}>Cancel</button>

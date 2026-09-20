@@ -34,12 +34,12 @@ export const vaccineService = {
     return response.vaccines;
   },
 
-  addVaccine: async (data: Omit<Vaccine, 'id'>): Promise<Vaccine> => {
+  addVaccine: async (data: any): Promise<Vaccine> => {
     const response = await apiClient('/vaccines', {
       method: 'POST',
       body: JSON.stringify(data),
     });
-    return response.vaccine;
+    return response.vaccine || response.vaccines;
   },
 
   updateVaccine: async (id: string, data: Omit<Vaccine, 'id'>): Promise<Vaccine> => {

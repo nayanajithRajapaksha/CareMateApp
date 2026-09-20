@@ -20,10 +20,44 @@ export const getVaccines = async (req: AuthRequest, res: Response): Promise<void
 
 export const addVaccine = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { name, recommended_age_months, minimum_interval_days, dose_number, previous_dose_id } = req.body;
+    const { name, recommended_age_months, minimum_interval_days, dose_number, previous_dose_id, doses } = req.body;
 
-    if (!name || recommended_age_months === undefined) {
-      res.status(400).json({ error: 'Name and recommended_age_months are required' });
+    if (!name) {
+      res.status(400).json({ error: 'Name is required' });
+      return;
+    }
+
+    if (doses && Array.isArray(doses) && doses.length > 0) {
+      await pool.query('BEGIN');
+      let prevId = null;
+      const createdVaccines = [];
+      
+      for (let i = 0; i < doses.length; i++) {
+        const dose = doses[i];
+        if (dose.recommended_age_months === undefined) {
+          await pool.query('ROLLBACK');
+          res.status(400).json({ error: `recommended_age_months is required for dose ${i + 1}` });
+          return;
+        }
+
+        const result = await pool.query(
+          `INSERT INTO vaccines (name, recommended_age_months, minimum_interval_days, dose_number, previous_dose_id) 
+           VALUES ($1, $2, $3, $4, $5) 
+           RETURNING *`,
+          [name, dose.recommended_age_months, dose.minimum_interval_days || 0, dose.dose_number || (i + 1), prevId]
+        );
+        prevId = result.rows[0].id;
+        createdVaccines.push(result.rows[0]);
+      }
+      
+      await pool.query('COMMIT');
+      res.status(201).json({ message: 'Vaccines added successfully', vaccines: createdVaccines });
+      return;
+    }
+
+    // Fallback for single dose creation
+    if (recommended_age_months === undefined) {
+      res.status(400).json({ error: 'recommended_age_months is required' });
       return;
     }
 
@@ -36,6 +70,7 @@ export const addVaccine = async (req: AuthRequest, res: Response): Promise<void>
 
     res.status(201).json({ message: 'Vaccine added successfully', vaccine: result.rows[0] });
   } catch (error) {
+    await pool.query('ROLLBACK');
     console.error('Error adding vaccine:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
