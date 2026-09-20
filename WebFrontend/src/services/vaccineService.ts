@@ -1,4 +1,4 @@
-import api from './apiClient';
+import { apiClient } from './apiClient';
 
 export interface Vaccine {
   id: string;
@@ -35,36 +35,44 @@ export interface ChildVaccinationTimeline {
 
 export const vaccineService = {
   getVaccines: async (): Promise<Vaccine[]> => {
-    const response = await api.get('/vaccines');
-    return response.data.vaccines;
+    const response = await apiClient('/vaccines', { method: 'GET' });
+    return response.vaccines;
   },
 
   addVaccine: async (data: Omit<Vaccine, 'id'>): Promise<Vaccine> => {
-    const response = await api.post('/vaccines', data);
-    return response.data.vaccine;
+    const response = await apiClient('/vaccines', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+    return response.vaccine;
   },
 
   updateVaccine: async (id: string, data: Omit<Vaccine, 'id'>): Promise<Vaccine> => {
-    const response = await api.put(`/vaccines/${id}`, data);
-    return response.data.vaccine;
+    const response = await apiClient(`/vaccines/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+    return response.vaccine;
   },
 
   getChildVaccinations: async (childId: string): Promise<ChildVaccinationTimeline> => {
-    const response = await api.get(`/vaccines/child/${childId}`);
-    return response.data;
+    return await apiClient(`/vaccines/child/${childId}`, { method: 'GET' });
   },
 
   markVaccineAdministered: async (childId: string, vaccineId: string, administered_date: string, batch_number?: string) => {
-    const response = await api.post(`/vaccines/child/${childId}`, {
-      vaccine_id: vaccineId,
-      administered_date,
-      batch_number
+    return await apiClient(`/vaccines/child/${childId}`, {
+      method: 'POST',
+      body: JSON.stringify({
+        vaccine_id: vaccineId,
+        administered_date,
+        batch_number
+      }),
     });
-    return response.data;
   },
 
   removeVaccineRecord: async (childId: string, recordId: string) => {
-    const response = await api.delete(`/vaccines/child/${childId}/record/${recordId}`);
-    return response.data;
+    return await apiClient(`/vaccines/child/${childId}/record/${recordId}`, {
+      method: 'DELETE',
+    });
   }
 };

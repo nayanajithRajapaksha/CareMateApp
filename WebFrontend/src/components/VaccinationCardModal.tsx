@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, CheckCircle, Circle, AlertCircle } from 'lucide-react';
-import { vaccineService, ChildVaccinationTimeline } from '../services/vaccineService';
+import { vaccineService, type ChildVaccinationTimeline } from '../services/vaccineService';
 
 interface VaccinationCardModalProps {
   childId: string;
@@ -30,7 +30,7 @@ export const VaccinationCardModal: React.FC<VaccinationCardModalProps> = ({ chil
     fetchTimeline();
   }, [childId]);
 
-  const handleToggleVaccine = async (milestoneId: string, vaccineId: string, status: string, recordId?: string) => {
+  const handleToggleVaccine = async (vaccineId: string, status: string, recordId?: string) => {
     try {
       if (status === 'Upcoming') {
         const today = new Date().toISOString().split('T')[0];
@@ -125,7 +125,7 @@ export const VaccinationCardModal: React.FC<VaccinationCardModalProps> = ({ chil
                   </div>
 
                   <div 
-                    onClick={() => handleToggleVaccine(item.id, item.vaccine_id, item.status, item.isRecord ? item.id : undefined)}
+                    onClick={() => handleToggleVaccine(item.vaccine_id, item.status, item.isRecord ? item.id : undefined)}
                     style={{ 
                       flex: 1, 
                       backgroundColor: item.status === 'Completed' ? 'rgba(16, 185, 129, 0.05)' : 'var(--color-surface)',

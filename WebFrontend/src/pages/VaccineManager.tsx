@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Shield, Plus, Edit2, Search } from 'lucide-react';
-import { vaccineService, Vaccine } from '../services/vaccineService';
+import { vaccineService, type Vaccine } from '../services/vaccineService';
 
 export const VaccineManager: React.FC = () => {
   const [vaccines, setVaccines] = useState<Vaccine[]>([]);
