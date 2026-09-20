@@ -7,30 +7,21 @@ export interface Vaccine {
   minimum_interval_days?: number;
 }
 
-export interface VaccinationMilestone {
-  id: string;
-  vaccine_id: string;
-  scheduled_date: string;
+export interface TimelineItem {
+  id: string; // vaccine_id
+  name: string;
+  recommended_age_months: number;
+  minimum_interval_days: number;
+  is_completed: boolean;
+  administered_date: string | null;
+  scheduled_date: string | null;
   status: 'Upcoming' | 'Completed';
-  vaccine: {
-    name: string;
-  };
-}
-
-export interface VaccinationRecord {
-  id: string;
-  vaccine_id: string;
-  phm_id: string;
-  administered_date: string;
-  batch_number?: string;
-  vaccine: {
-    name: string;
-  };
+  milestone_id: string | null;
+  record_id: string | null;
 }
 
 export interface ChildVaccinationTimeline {
-  milestones: VaccinationMilestone[];
-  records: VaccinationRecord[];
+  timeline: TimelineItem[];
 }
 
 export const vaccineService = {

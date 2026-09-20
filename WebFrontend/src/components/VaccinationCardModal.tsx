@@ -46,42 +46,15 @@ export const VaccinationCardModal: React.FC<VaccinationCardModalProps> = ({ chil
     }
   };
 
-  // Combine milestones and records for a sorted view
-  const combinedList = () => {
-    if (!timeline) return [];
-    
-    const items: any[] = [];
-    
-    timeline.records.forEach(r => {
-      items.push({
-        id: r.id,
-        vaccine_id: r.vaccine_id,
-        name: r.vaccine.name,
-        date: r.administered_date,
-        status: 'Completed',
-        sortDate: new Date(r.administered_date).getTime(),
-        isRecord: true
-      });
-    });
-
-    timeline.milestones.forEach(m => {
-      if (m.status === 'Upcoming') {
-        items.push({
-          id: m.id,
-          vaccine_id: m.vaccine_id,
-          name: m.vaccine.name,
-          date: m.scheduled_date,
-          status: 'Upcoming',
-          sortDate: new Date(m.scheduled_date).getTime(),
-          isRecord: false
-        });
-      }
-    });
-
-    return items.sort((a, b) => a.sortDate - b.sortDate);
-  };
-
-  const list = combinedList();
+  // Sort timeline by date if available, else by recommended age
+  const list = (timeline?.timeline || []).slice().sort((a, b) => {
+    const dateA = a.administered_date || a.scheduled_date;
+    const dateB = b.administered_date || b.scheduled_date;
+    if (dateA && dateB) {
+      return new Date(dateA).getTime() - new Date(dateB).getTime();
+    }
+    return a.recommended_age_months - b.recommended_age_months;
+  });
 
   return (
     <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 16 }}>
@@ -112,7 +85,7 @@ export const VaccinationCardModal: React.FC<VaccinationCardModalProps> = ({ chil
               <div style={{ position: 'absolute', left: 9, top: 20, bottom: 20, width: 2, backgroundColor: 'var(--color-border)' }} />
 
               {list.map((item, index) => (
-                <div key={`${item.vaccine_id}-${index}`} style={{ display: 'flex', gap: 16, marginBottom: 24, position: 'relative' }}>
+                <div key={`${item.id}-${index}`} style={{ display: 'flex', gap: 16, marginBottom: 24, position: 'relative' }}>
                   <div style={{ 
                     position: 'absolute', left: -24, top: 4, 
                     backgroundColor: 'var(--color-bg)', padding: 2, borderRadius: '50%'
@@ -125,7 +98,7 @@ export const VaccinationCardModal: React.FC<VaccinationCardModalProps> = ({ chil
                   </div>
 
                   <div 
-                    onClick={() => handleToggleVaccine(item.vaccine_id, item.status, item.isRecord ? item.id : undefined)}
+                    onClick={() => handleToggleVaccine(item.id, item.status, item.record_id || undefined)}
                     style={{ 
                       flex: 1, 
                       backgroundColor: item.status === 'Completed' ? 'rgba(16, 185, 129, 0.05)' : 'var(--color-surface)',
@@ -149,7 +122,11 @@ export const VaccinationCardModal: React.FC<VaccinationCardModalProps> = ({ chil
                     </div>
                     <div style={{ fontSize: 13, color: 'var(--color-text-muted)', marginTop: 4 }}>
                       {item.status === 'Completed' ? 'Administered: ' : 'Scheduled: '}
-                      {new Date(item.date).toLocaleDateString()}
+                      {item.administered_date 
+                        ? new Date(item.administered_date).toLocaleDateString()
+                        : item.scheduled_date 
+                          ? new Date(item.scheduled_date).toLocaleDateString() 
+                          : 'Not scheduled'}
                     </div>
                   </div>
                 </div>
