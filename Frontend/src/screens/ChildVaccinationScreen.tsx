@@ -140,6 +140,43 @@ export const ChildVaccinationScreen: React.FC = () => {
                             <Text style={styles.actionText}>Tap to mark administered</Text>
                           </View>
                         )}
+                        
+                        {!vaccine.is_completed && role === 'parent' && (
+                          (() => {
+                            const dobDate = new Date(child.dob);
+                            const dueDate = new Date(dobDate);
+                            dueDate.setMonth(dueDate.getMonth() + vaccine.recommended_age_months);
+                            
+                            const deadlineDate = new Date(dueDate);
+                            deadlineDate.setDate(deadlineDate.getDate() + (vaccine.minimum_interval_days || 0));
+
+                            const today = new Date();
+                            today.setHours(0,0,0,0);
+                            dueDate.setHours(0,0,0,0);
+                            deadlineDate.setHours(0,0,0,0);
+                            
+                            if (today >= dueDate) {
+                              const isOverdue = today > deadlineDate;
+                              return (
+                                <View style={{ marginTop: 12 }}>
+                                  {isOverdue && (
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8, backgroundColor: 'rgba(239, 68, 68, 0.1)', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12, alignSelf: 'flex-start' }}>
+                                      <ShieldAlert size={14} color="#EF4444" style={{ marginRight: 4 }} />
+                                      <Text style={{ fontSize: 12, color: '#EF4444', fontWeight: 'bold' }}>Unsafe (Overdue)</Text>
+                                    </View>
+                                  )}
+                                  <TouchableOpacity 
+                                    style={{ backgroundColor: colors.primary, paddingHorizontal: 16, paddingVertical: 8, borderRadius: 8, alignSelf: 'flex-start' }}
+                                    onPress={() => navigation.navigate('ScheduleTab', { childId: child.id })}
+                                  >
+                                    <Text style={{ color: 'white', fontSize: 13, fontWeight: 'bold' }}>Book Clinic</Text>
+                                  </TouchableOpacity>
+                                </View>
+                              );
+                            }
+                            return null;
+                          })()
+                        )}
                       </View>
                     </View>
                   </TouchableOpacity>

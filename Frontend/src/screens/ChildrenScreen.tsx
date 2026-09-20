@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { MoreVertical, Calendar, FileText, AlertCircle, Plus, Pencil } from 'lucide-react-native';
+import { MoreVertical, Calendar, FileText, AlertCircle, Plus, Pencil, ShieldPlus } from 'lucide-react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { colors, typography, layout } from '../theme';
 import { PrimaryButton } from '../components/PrimaryButton';
@@ -116,6 +116,10 @@ export const ChildrenScreen: React.FC = () => {
                   <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('ScheduleTab', { childId: child.id })}>
                     <Calendar color={colors.primary} size={16} style={{ marginRight: 6 }} />
                     <Text style={styles.actionButtonText}>{t('scheduleBtn')}</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('ChildVaccination', { child })}>
+                    <ShieldPlus color={colors.primary} size={16} style={{ marginRight: 6 }} />
+                    <Text style={styles.actionButtonText}>Vaccines</Text>
                   </TouchableOpacity>
                   <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('ChildRecords', { child })}>
                     <FileText color={colors.primary} size={16} style={{ marginRight: 6 }} />

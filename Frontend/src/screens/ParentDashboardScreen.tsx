@@ -1,13 +1,14 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Bell, CheckCircle2, Calendar, Stethoscope, Syringe, MessageSquare, ChevronRight, Plus } from 'lucide-react-native';
+import { Bell, CheckCircle2, Calendar, Stethoscope, Syringe, MessageSquare, ChevronRight, Plus, ShieldAlert } from 'lucide-react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { colors, typography, layout } from '../theme';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { childService } from '../services/childService';
 import { profileService } from '../services/profileService';
 import { appointmentService } from '../services/appointmentService';
+import { vaccineService } from '../services/vaccineService';
 import { useLanguage } from '../i18n/LanguageContext';
 import { usePushNotifications } from '../hooks/usePushNotifications';
 
@@ -59,7 +60,48 @@ export const ParentDashboardScreen: React.FC = () => {
             appointmentService.getMine().catch(() => ({ appointments: [] }))
           ]);
 
-          setChildrenData(childrenResponse.children || []);
+          let children = childrenResponse.children || [];
+          
+          children = await Promise.all(children.map(async (child: any) => {
+            try {
+               const timelineRes = await vaccineService.getChildTimeline(child.id);
+               const timeline = timelineRes.timeline || [];
+               
+               let maxOverdueDays = -1;
+               
+               timeline.forEach((item: any) => {
+                 if (item.status !== 'Completed') {
+                   const dobDate = new Date(child.dob);
+                   const dueDate = new Date(dobDate);
+                   dueDate.setMonth(dueDate.getMonth() + item.recommended_age_months);
+                   
+                   const deadlineDate = new Date(dueDate);
+                   deadlineDate.setDate(deadlineDate.getDate() + (item.minimum_interval_days || 0));
+
+                   const today = new Date();
+                   today.setHours(0,0,0,0);
+                   deadlineDate.setHours(0,0,0,0);
+                   
+                   if (today > deadlineDate) {
+                     const diffTime = Math.abs(today.getTime() - deadlineDate.getTime());
+                     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                     if (diffDays > maxOverdueDays) {
+                       maxOverdueDays = diffDays;
+                     }
+                   }
+                 }
+               });
+               
+               return {
+                 ...child,
+                 safetyStatus: maxOverdueDays > -1 ? { safe: false, days: maxOverdueDays } : { safe: true }
+               };
+            } catch (err) {
+               return { ...child, safetyStatus: { safe: true } }; // fallback
+            }
+          }));
+
+          setChildrenData(children);
           setUserName(profileResponse.profile?.full_name || 'User');
           setAppointments((appointmentsResponse.appointments || []).filter((a: any) => a.status === 'booked'));
         } catch (error) {
@@ -134,7 +176,13 @@ export const ParentDashboardScreen: React.FC = () => {
               <Text style={styles.actionText}>{t('clinicAction')}</Text>
             </TouchableOpacity>
             
-            <TouchableOpacity style={styles.actionItem} onPress={() => navigation.navigate('ChildrenTab')}>
+            <TouchableOpacity style={styles.actionItem} onPress={() => {
+              if (displayData.length === 1) {
+                navigation.navigate('ChildVaccination', { child: displayData[0] });
+              } else {
+                navigation.navigate('ChildrenTab');
+              }
+            }}>
               <View style={styles.actionIconContainer}>
                 <Syringe color={colors.textDark} size={24} />
               </View>
@@ -206,9 +254,20 @@ export const ParentDashboardScreen: React.FC = () => {
                       <Text style={styles.childName}>{child.full_name}</Text>
                       <Text style={styles.childAge}> · {child.gender}</Text>
                     </Text>
-                    <View style={styles.childStatusRow}>
-                      <Calendar color={colors.primary} size={14} />
-                      <Text style={styles.childStatusText}>{t('upToDate')}</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
+                      {child.safetyStatus?.safe ? (
+                        <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(16, 185, 129, 0.1)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 8 }}>
+                          <CheckCircle2 color="#10B981" size={14} />
+                          <Text style={{ color: '#10B981', fontSize: 12, fontWeight: 'bold', marginLeft: 4 }}>Safe</Text>
+                        </View>
+                      ) : (
+                        <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(239, 68, 68, 0.1)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 8 }}>
+                          <ShieldAlert color="#EF4444" size={14} />
+                          <Text style={{ color: '#EF4444', fontSize: 12, fontWeight: 'bold', marginLeft: 4 }}>
+                            Unsafe (Passed by {child.safetyStatus?.days} days)
+                          </Text>
+                        </View>
+                      )}
                     </View>
                   </View>
                   
