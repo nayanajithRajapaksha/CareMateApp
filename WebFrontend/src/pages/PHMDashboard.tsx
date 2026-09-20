@@ -99,7 +99,7 @@ export const PHMDashboard: React.FC = () => {
   const [childSearch, setChildSearch] = useState('');
   
   // Vaccination Modal State
-  const [vaccinationModalChild, setVaccinationModalChild] = useState<{ id: string, name: string } | null>(null);
+  const [vaccinationModalChild, setVaccinationModalChild] = useState<{ id: string, name: string, dob: string } | null>(null);
 
   // Parent Assignment State
   const [parentSearch, setParentSearch] = useState('');
@@ -549,7 +549,7 @@ export const PHMDashboard: React.FC = () => {
                             </div>
                           ) : (
                             <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-                              <button onClick={() => setVaccinationModalChild({ id: child.id, name: child.full_name })} style={{ background: 'rgba(59, 130, 246, 0.1)', border: 'none', cursor: 'pointer', color: 'var(--color-primary)', padding: '6px 12px', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 600 }} title="Vaccination Card">
+                              <button onClick={() => setVaccinationModalChild({ id: child.id, name: child.full_name, dob: child.dob })} style={{ background: 'rgba(59, 130, 246, 0.1)', border: 'none', cursor: 'pointer', color: 'var(--color-primary)', padding: '6px 12px', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 600 }} title="Vaccination Card">
                                 <Shield size={16} /> Vaccinations
                               </button>
                               <button onClick={() => handleEditClick(child)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-primary)', padding: '6px' }} title="Edit Record">
@@ -714,6 +714,7 @@ export const PHMDashboard: React.FC = () => {
         <VaccinationCardModal
           childId={vaccinationModalChild.id}
           childName={vaccinationModalChild.name}
+          childDob={vaccinationModalChild.dob}
           onClose={() => setVaccinationModalChild(null)}
         />
       )}

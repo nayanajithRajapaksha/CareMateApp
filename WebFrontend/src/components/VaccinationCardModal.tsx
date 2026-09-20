@@ -5,10 +5,11 @@ import { vaccineService, type ChildVaccinationTimeline } from '../services/vacci
 interface VaccinationCardModalProps {
   childId: string;
   childName: string;
+  childDob: string;
   onClose: () => void;
 }
 
-export const VaccinationCardModal: React.FC<VaccinationCardModalProps> = ({ childId, childName, onClose }) => {
+export const VaccinationCardModal: React.FC<VaccinationCardModalProps> = ({ childId, childName, childDob, onClose }) => {
   const [timeline, setTimeline] = useState<ChildVaccinationTimeline | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -56,6 +57,29 @@ export const VaccinationCardModal: React.FC<VaccinationCardModalProps> = ({ chil
     return a.recommended_age_months - b.recommended_age_months;
   });
 
+  const getSafetyStatus = (item: any) => {
+    if (item.status === 'Completed') return null;
+
+    const dobDate = new Date(childDob);
+    const dueDate = new Date(dobDate);
+    dueDate.setMonth(dueDate.getMonth() + item.recommended_age_months);
+    
+    const deadlineDate = new Date(dueDate);
+    deadlineDate.setDate(deadlineDate.getDate() + (item.minimum_interval_days || 0));
+
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    deadlineDate.setHours(0,0,0,0);
+
+    if (today > deadlineDate) {
+      const diffTime = Math.abs(today.getTime() - deadlineDate.getTime());
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      return { isSafe: false, passedByDays: diffDays };
+    }
+    
+    return { isSafe: true };
+  };
+
   return (
     <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 16 }}>
       <div className="card" style={{ width: '100%', maxWidth: 500, maxHeight: '90vh', display: 'flex', flexDirection: 'column', animation: 'fadeIn 0.2s ease-out' }}>
@@ -84,7 +108,9 @@ export const VaccinationCardModal: React.FC<VaccinationCardModalProps> = ({ chil
               {/* Vertical line */}
               <div style={{ position: 'absolute', left: 9, top: 20, bottom: 20, width: 2, backgroundColor: 'var(--color-border)' }} />
 
-              {list.map((item, index) => (
+              {list.map((item, index) => {
+                const safety = getSafetyStatus(item);
+                return (
                 <div key={`${item.id}-${index}`} style={{ display: 'flex', gap: 16, marginBottom: 24, position: 'relative' }}>
                   <div style={{ 
                     position: 'absolute', left: -24, top: 4, 
@@ -116,9 +142,16 @@ export const VaccinationCardModal: React.FC<VaccinationCardModalProps> = ({ chil
                       <h4 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: item.status === 'Completed' ? 'var(--color-success)' : 'var(--color-text-dark)' }}>
                         {item.name}
                       </h4>
-                      <span style={{ fontSize: 12, fontWeight: 600, color: item.status === 'Completed' ? 'var(--color-success)' : 'var(--color-text-muted)', backgroundColor: item.status === 'Completed' ? 'rgba(16, 185, 129, 0.1)' : 'var(--color-bg)', padding: '4px 8px', borderRadius: 12 }}>
-                        {item.status}
-                      </span>
+                      <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                        <span style={{ fontSize: 12, fontWeight: 600, color: item.status === 'Completed' ? 'var(--color-success)' : 'var(--color-text-muted)', backgroundColor: item.status === 'Completed' ? 'rgba(16, 185, 129, 0.1)' : 'var(--color-bg)', padding: '4px 8px', borderRadius: 12 }}>
+                          {item.status}
+                        </span>
+                        {safety && (
+                          <span style={{ fontSize: 12, fontWeight: 600, color: safety.isSafe ? 'var(--color-success)' : 'var(--color-error)', backgroundColor: safety.isSafe ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', padding: '4px 8px', borderRadius: 12 }}>
+                            {safety.isSafe ? 'Safe' : `Unsafe (Passed by ${safety.passedByDays} days)`}
+                          </span>
+                        )}
+                      </div>
                     </div>
                     <div style={{ fontSize: 13, color: 'var(--color-text-muted)', marginTop: 4 }}>
                       {item.status === 'Completed' ? 'Administered: ' : 'Scheduled: '}
@@ -130,7 +163,7 @@ export const VaccinationCardModal: React.FC<VaccinationCardModalProps> = ({ chil
                     </div>
                   </div>
                 </div>
-              ))}
+              )})}
             </div>
           </div>
         )}
