@@ -45,6 +45,14 @@ export const ChildVaccinationScreen: React.FC = () => {
       return; 
     }
 
+    if (vaccine.previous_dose_id) {
+      const prevDose = timeline.find((v: any) => v.id === vaccine.previous_dose_id);
+      if (!prevDose || !prevDose.is_completed) {
+        Alert.alert('Blocked', 'Please mark the previous dose as administered first.');
+        return;
+      }
+    }
+
     Alert.alert(
       'Mark as Administered',
       `Are you sure you want to mark ${vaccine.name} as administered today?`,
@@ -115,7 +123,7 @@ export const ChildVaccinationScreen: React.FC = () => {
                       <View style={styles.card}>
                         <View style={styles.cardHeader}>
                           <Text style={[styles.vaccineName, vaccine.is_completed && styles.vaccineNameCompleted]}>
-                            {vaccine.name}
+                            {vaccine.name} {vaccine.dose_number && vaccine.dose_number > 1 ? `(Dose ${vaccine.dose_number})` : ''}
                           </Text>
                           <View style={[styles.statusBadge, { backgroundColor: vaccine.is_completed ? '#DCFCE7' : '#F1F5F9' }]}>
                             <Text style={[styles.statusText, { color: vaccine.is_completed ? '#15803D' : colors.textMuted }]}>
@@ -143,12 +151,33 @@ export const ChildVaccinationScreen: React.FC = () => {
                         
                         {!vaccine.is_completed && role === 'parent' && (
                           (() => {
-                            const dobDate = new Date(child.dob);
-                            const dueDate = new Date(dobDate);
+                            let dueDate = new Date(child.dob);
                             dueDate.setMonth(dueDate.getMonth() + vaccine.recommended_age_months);
                             
-                            const deadlineDate = new Date(dueDate);
+                            let deadlineDate = new Date(dueDate);
                             deadlineDate.setDate(deadlineDate.getDate() + (vaccine.minimum_interval_days || 0));
+
+                            let isBlocked = false;
+
+                            if (vaccine.previous_dose_id) {
+                              const prevDose = timeline.find((v: any) => v.id === vaccine.previous_dose_id);
+                              if (prevDose && prevDose.is_completed && prevDose.administered_date) {
+                                dueDate = new Date(prevDose.administered_date);
+                                dueDate.setDate(dueDate.getDate() + (vaccine.minimum_interval_days || 0));
+                                deadlineDate = new Date(dueDate);
+                                deadlineDate.setDate(deadlineDate.getDate() + 14); // 14 days grace period for subsequent doses
+                              } else {
+                                isBlocked = true;
+                              }
+                            }
+
+                            if (isBlocked) {
+                              return (
+                                <View style={{ marginTop: 12 }}>
+                                  <Text style={{ fontSize: 13, color: colors.textMuted }}>Waiting on previous dose</Text>
+                                </View>
+                              );
+                            }
 
                             const today = new Date();
                             today.setHours(0,0,0,0);

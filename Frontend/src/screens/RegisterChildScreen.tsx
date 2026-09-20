@@ -93,7 +93,8 @@ export const RegisterChildScreen: React.FC = () => {
 
         setUploadingImage(true);
         try {
-          await childService.uploadChildProfilePic(editingChild.id, imageUri);
+          const result = await childService.uploadChildProfilePic(editingChild.id, imageUri);
+          setProfilePic(result.profile_pic_url); // Set remote URL
           Alert.alert('Success', 'Profile picture updated successfully!');
         } catch (error: any) {
           console.error('Error uploading profile pic:', error);

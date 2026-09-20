@@ -5,6 +5,8 @@ export interface Vaccine {
   name: string;
   recommended_age_months: number;
   minimum_interval_days?: number;
+  dose_number?: number;
+  previous_dose_id?: string | null;
 }
 
 export interface TimelineItem {
@@ -12,6 +14,8 @@ export interface TimelineItem {
   name: string;
   recommended_age_months: number;
   minimum_interval_days: number;
+  dose_number?: number;
+  previous_dose_id?: string | null;
   is_completed: boolean;
   administered_date: string | null;
   scheduled_date: string | null;

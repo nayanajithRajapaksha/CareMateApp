@@ -6,7 +6,7 @@ import { sendEmailReminder } from '../services/notificationService';
 export const getVaccines = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const result = await pool.query(
-      `SELECT id, name, recommended_age_months, minimum_interval_days, created_at 
+      `SELECT id, name, recommended_age_months, minimum_interval_days, dose_number, previous_dose_id, created_at 
        FROM vaccines 
        ORDER BY recommended_age_months ASC`
     );
@@ -20,7 +20,7 @@ export const getVaccines = async (req: AuthRequest, res: Response): Promise<void
 
 export const addVaccine = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { name, recommended_age_months, minimum_interval_days } = req.body;
+    const { name, recommended_age_months, minimum_interval_days, dose_number, previous_dose_id } = req.body;
 
     if (!name || recommended_age_months === undefined) {
       res.status(400).json({ error: 'Name and recommended_age_months are required' });
@@ -28,10 +28,10 @@ export const addVaccine = async (req: AuthRequest, res: Response): Promise<void>
     }
 
     const result = await pool.query(
-      `INSERT INTO vaccines (name, recommended_age_months, minimum_interval_days) 
-       VALUES ($1, $2, $3) 
+      `INSERT INTO vaccines (name, recommended_age_months, minimum_interval_days, dose_number, previous_dose_id) 
+       VALUES ($1, $2, $3, $4, $5) 
        RETURNING *`,
-      [name, recommended_age_months, minimum_interval_days || 0]
+      [name, recommended_age_months, minimum_interval_days || 0, dose_number || 1, previous_dose_id || null]
     );
 
     res.status(201).json({ message: 'Vaccine added successfully', vaccine: result.rows[0] });
@@ -135,7 +135,7 @@ export const markVaccineAdministered = async (req: AuthRequest, res: Response): 
 export const updateVaccine = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { name, recommended_age_months, minimum_interval_days } = req.body;
+    const { name, recommended_age_months, minimum_interval_days, dose_number, previous_dose_id } = req.body;
 
     if (!name || recommended_age_months === undefined) {
       res.status(400).json({ error: 'Name and recommended_age_months are required' });
@@ -144,10 +144,10 @@ export const updateVaccine = async (req: AuthRequest, res: Response): Promise<vo
 
     const result = await pool.query(
       `UPDATE vaccines 
-       SET name = $1, recommended_age_months = $2, minimum_interval_days = $3
-       WHERE id = $4
+       SET name = $1, recommended_age_months = $2, minimum_interval_days = $3, dose_number = $4, previous_dose_id = $5
+       WHERE id = $6
        RETURNING *`,
-      [name, recommended_age_months, minimum_interval_days || 0, id]
+      [name, recommended_age_months, minimum_interval_days || 0, dose_number || 1, previous_dose_id || null, id]
     );
 
     if (result.rowCount === 0) {

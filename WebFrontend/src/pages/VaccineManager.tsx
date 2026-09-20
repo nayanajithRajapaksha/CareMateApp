@@ -10,10 +10,11 @@ export const VaccineManager: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingVaccine, setEditingVaccine] = useState<Vaccine | null>(null);
   
-  const [form, setForm] = useState({
     name: '',
     recommended_age_months: 0,
     minimum_interval_days: 0,
+    dose_number: 1,
+    previous_dose_id: '' as string | null,
   });
 
   const [saving, setSaving] = useState(false);
@@ -39,14 +40,18 @@ export const VaccineManager: React.FC = () => {
       setForm({
         name: vaccine.name,
         recommended_age_months: vaccine.recommended_age_months,
-        minimum_interval_days: vaccine.minimum_interval_days || 0
+        minimum_interval_days: vaccine.minimum_interval_days || 0,
+        dose_number: vaccine.dose_number || 1,
+        previous_dose_id: vaccine.previous_dose_id || ''
       });
     } else {
       setEditingVaccine(null);
       setForm({
         name: '',
         recommended_age_months: 0,
-        minimum_interval_days: 0
+        minimum_interval_days: 0,
+        dose_number: 1,
+        previous_dose_id: ''
       });
     }
     setIsModalOpen(true);
@@ -110,6 +115,7 @@ export const VaccineManager: React.FC = () => {
               <tr>
                 <th style={{ padding: '16px', textAlign: 'left', fontSize: 13, fontWeight: 600, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>Vaccine Name</th>
                 <th style={{ padding: '16px', textAlign: 'left', fontSize: 13, fontWeight: 600, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>Recommended Age</th>
+                <th style={{ padding: '16px', textAlign: 'left', fontSize: 13, fontWeight: 600, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>Dose No.</th>
                 <th style={{ padding: '16px', textAlign: 'left', fontSize: 13, fontWeight: 600, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>Interval (Days)</th>
                 <th style={{ padding: '16px', textAlign: 'right', fontSize: 13, fontWeight: 600, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>Actions</th>
               </tr>
@@ -134,6 +140,9 @@ export const VaccineManager: React.FC = () => {
                     </td>
                     <td style={{ padding: '16px', color: 'var(--color-text-muted)' }}>
                       {vaccine.recommended_age_months} months
+                    </td>
+                    <td style={{ padding: '16px', color: 'var(--color-text-muted)' }}>
+                      {vaccine.dose_number || 1}
                     </td>
                     <td style={{ padding: '16px', color: 'var(--color-text-muted)' }}>
                       {vaccine.minimum_interval_days || 0} days
@@ -190,6 +199,34 @@ export const VaccineManager: React.FC = () => {
                 </div>
 
                 <div className="input-group">
+                  <label className="input-label">Dose Number</label>
+                  <input 
+                    type="number" 
+                    className="input-field" 
+                    min={1}
+                    required
+                    value={form.dose_number}
+                    onChange={e => setForm({...form, dose_number: parseInt(e.target.value) || 1})}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                <div className="input-group">
+                  <label className="input-label">Previous Dose</label>
+                  <select
+                    className="input-field"
+                    value={form.previous_dose_id || ''}
+                    onChange={e => setForm({...form, previous_dose_id: e.target.value || null})}
+                  >
+                    <option value="">None (Dose 1)</option>
+                    {vaccines.filter(v => v.id !== editingVaccine?.id).map(v => (
+                      <option key={v.id} value={v.id}>{v.name} (Dose {v.dose_number || 1})</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="input-group">
                   <label className="input-label">Min Interval (Days)</label>
                   <input 
                     type="number" 
@@ -197,6 +234,7 @@ export const VaccineManager: React.FC = () => {
                     min={0}
                     value={form.minimum_interval_days}
                     onChange={e => setForm({...form, minimum_interval_days: parseInt(e.target.value) || 0})}
+                    disabled={!form.previous_dose_id}
                   />
                 </div>
               </div>

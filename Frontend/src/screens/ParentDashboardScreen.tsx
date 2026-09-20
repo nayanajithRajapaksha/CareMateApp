@@ -71,12 +71,24 @@ export const ParentDashboardScreen: React.FC = () => {
                
                timeline.forEach((item: any) => {
                  if (item.status !== 'Completed') {
-                   const dobDate = new Date(child.dob);
-                   const dueDate = new Date(dobDate);
+                   let dueDate = new Date(child.dob);
                    dueDate.setMonth(dueDate.getMonth() + item.recommended_age_months);
                    
-                   const deadlineDate = new Date(dueDate);
+                   let deadlineDate = new Date(dueDate);
                    deadlineDate.setDate(deadlineDate.getDate() + (item.minimum_interval_days || 0));
+
+                   if (item.previous_dose_id) {
+                     const prevDose = timeline.find((v: any) => v.id === item.previous_dose_id);
+                     if (prevDose && prevDose.is_completed && prevDose.administered_date) {
+                       dueDate = new Date(prevDose.administered_date);
+                       dueDate.setDate(dueDate.getDate() + (item.minimum_interval_days || 0));
+                       deadlineDate = new Date(dueDate);
+                       deadlineDate.setDate(deadlineDate.getDate() + 14); // 14 days grace period for subsequent doses
+                     } else {
+                       // Blocked by previous dose, cannot be overdue yet
+                       return;
+                     }
+                   }
 
                    const today = new Date();
                    today.setHours(0,0,0,0);

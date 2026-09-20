@@ -7,15 +7,6 @@ import { AuthProvider } from './src/context/AuthContext';
 
 import { SplashScreen } from './src/screens/SplashScreen';
 import { LanguageScreen } from './src/screens/LanguageScreen';
-import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { LanguageProvider } from './src/i18n/LanguageContext';
-import { AuthProvider } from './src/context/AuthContext';
-
-import { SplashScreen } from './src/screens/SplashScreen';
-import { LanguageScreen } from './src/screens/LanguageScreen';
 import { WelcomeScreen } from './src/screens/WelcomeScreen';
 import { SignInScreen } from './src/screens/SignInScreen';
 import { SignUpScreen } from './src/screens/SignUpScreen';
@@ -70,6 +61,7 @@ export default function App() {
           </Stack.Navigator>
         </NavigationContainer>
       </LanguageProvider>
+      </AuthProvider>
     </SafeAreaProvider>
   );
 }
