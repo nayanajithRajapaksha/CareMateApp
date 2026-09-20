@@ -40,14 +40,14 @@ export const addVaccine = async (req: AuthRequest, res: Response): Promise<void>
           return;
         }
 
-        const result = await pool.query(
+        const doseResult: any = await pool.query(
           `INSERT INTO vaccines (name, recommended_age_months, minimum_interval_days, dose_number, previous_dose_id) 
            VALUES ($1, $2, $3, $4, $5) 
            RETURNING *`,
           [name, dose.recommended_age_months, dose.minimum_interval_days || 0, dose.dose_number || (i + 1), prevId]
         );
-        prevId = result.rows[0].id;
-        createdVaccines.push(result.rows[0]);
+        prevId = doseResult.rows[0].id;
+        createdVaccines.push(doseResult.rows[0]);
       }
       
       await pool.query('COMMIT');
