@@ -1,4 +1,4 @@
-jjjjjjjjjjjjvvvvvvvvvvvcimport React from 'react';
+import React from 'react';
 import { Shield, Edit2, Trash2 } from 'lucide-react';
 import type { Vaccine } from '../services/vaccineService';
 
