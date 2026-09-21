@@ -3,7 +3,7 @@ import { Outlet, Navigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { LayoutDashboard, Users, Settings, LogOut, BookOpen, Baby, UserCheck, Building2, Map, Edit2, X, Bell, Clock, Key, Shield } from 'lucide-react';
 import logo from '../assets/logo.png';
-import { NotificationDropdown } from '../components/NotificationDropdown';
+
 
 import { authService } from '../services/authService';
 
@@ -211,9 +211,7 @@ export const AppLayout: React.FC = () => {
       </aside>
 
       <main className="main-content">
-        <div style={{ padding: '12px 24px', display: 'flex', justifyContent: 'flex-end', borderBottom: '1px solid var(--color-border)', backgroundColor: 'var(--color-surface)', height: 60, alignItems: 'center' }}>
-           <NotificationDropdown />
-        </div>
+
         <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
           <Outlet />
         </div>
