@@ -1,4 +1,4 @@
-import React from 'react';
+jjjjjjjjjjjjvvvvvvvvvvvcimport React from 'react';
 import { Shield, Edit2, Trash2 } from 'lucide-react';
 import type { Vaccine } from '../services/vaccineService';
 
@@ -34,7 +34,7 @@ export const VaccineTable: React.FC<VaccineTableProps> = ({ groups, onEdit, onDe
               const totalDoses = sorted.length;
               const firstAge = sorted[0].recommended_age_months;
               const lastAge = sorted[totalDoses - 1].recommended_age_months;
-              
+
               return (
                 <tr key={name} style={{ borderBottom: '1px solid var(--color-border)' }}>
                   <td style={{ padding: '16px' }}>
@@ -53,15 +53,15 @@ export const VaccineTable: React.FC<VaccineTableProps> = ({ groups, onEdit, onDe
                   </td>
                   <td style={{ padding: '16px', textAlign: 'right' }}>
                     <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-                      <button 
-                        className="btn btn-secondary" 
+                      <button
+                        className="btn btn-secondary"
                         style={{ padding: '6px 12px' }}
                         onClick={() => onEdit(group)}
                       >
                         <Edit2 size={16} /> Edit
                       </button>
-                      <button 
-                        className="btn btn-secondary" 
+                      <button
+                        className="btn btn-secondary"
                         style={{ padding: '6px 12px', color: '#EF4444', borderColor: '#FEE2E2', backgroundColor: '#FEF2F2' }}
                         onClick={() => onDelete(name)}
                       >
