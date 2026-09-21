@@ -197,7 +197,7 @@ export const MOHDashboard: React.FC = () => {
         </div>
       ) : activeTab === 'parents' ? (
         /* Tab 2: Manage Parents Section */
-        <div style={{ padding: 24, overflowY: 'auto', flex: 1 }}>
+        <div className="page-container" style={{ overflowY: 'auto', flex: 1 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
             <h3 className="text-h2" style={{ margin: 0 }}>Parent Clinic Assignment</h3>
             <span style={{ color: 'var(--color-text-muted)', fontSize: 14 }}>
@@ -315,7 +315,7 @@ export const MOHDashboard: React.FC = () => {
         </div>
       ) : (
         /* Tab 3: Supervisor Dashboard (Midwives Management) */
-        <div style={{ padding: 24, overflowY: 'auto', flex: 1 }}>
+        <div className="page-container" style={{ overflowY: 'auto', flex: 1 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
             <h3 className="text-h2" style={{ margin: 0 }}>Midwives Management</h3>
             <button

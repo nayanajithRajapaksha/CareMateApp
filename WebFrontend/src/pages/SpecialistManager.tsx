@@ -108,7 +108,7 @@ export const SpecialistManager: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: 24, overflowY: 'auto', flex: 1, height: '100%' }}>
+    <div className="page-container" style={{ overflowY: 'auto', flex: 1, height: '100%' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
         <h3 className="text-h2" style={{ margin: 0 }}>Manage Clinic Specialists</h3>
       </div>

@@ -167,7 +167,7 @@ export const BlogManager: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 24 }}>
+    <div className="page-container" style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
         <div>
