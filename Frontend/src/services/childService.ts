@@ -1,7 +1,6 @@
 import { apiClient } from './apiClient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_BASE_URL } from './apiConfig';
-import { supabase } from '../lib/supabase';
 
 export const childService = {
   registerChild: async (childData: any) => {
@@ -24,36 +23,32 @@ export const childService = {
 
   uploadChildProfilePic: async (childId: string, imageUri: string, mimeType: string = 'image/jpeg'): Promise<{ profile_pic_url: string }> => {
     try {
-      // 1. Convert local URI to Blob for Supabase upload
-      const response = await fetch(imageUri);
-      const blob = await response.blob();
-      
-      const fileExt = imageUri.split('.').pop() || 'jpg';
-      const filePath = `children/${childId}-${Date.now()}.${fileExt}`;
-      
-      // 2. Upload to Supabase Storage 'avatars' bucket
-      const { data, error } = await supabase.storage
-        .from('avatars')
-        .upload(filePath, blob, {
-          contentType: mimeType,
-          upsert: true
-        });
+      // Convert local URI to a blob, then send through backend API.
+      // This avoids the Supabase RLS "new row violates row-level security policy"
+      // error that occurs when uploading directly from the mobile app with the
+      // anon key (which has no authenticated Supabase session).
+      const imageResponse = await fetch(imageUri);
+      const blob = await imageResponse.blob();
 
-      if (error) {
-        throw new Error(error.message);
+      const filename = imageUri.split('/').pop() || 'child_profile.jpg';
+
+      const formData = new FormData();
+      formData.append('profile_pic', blob, filename);
+
+      const token = await AsyncStorage.getItem('userToken');
+      const response = await fetch(`${API_BASE_URL}/children/${childId}/profile-pic`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData,
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to upload profile picture');
       }
-
-      // 3. Get the public URL
-      const { data: publicUrlData } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(filePath);
-        
-      const publicUrl = publicUrlData.publicUrl;
-
-      // 4. Update the child record in our database
-      await childService.updateChild(childId, { profile_pic_url: publicUrl });
-
-      return { profile_pic_url: publicUrl };
+      return data;
     } catch (err: any) {
       console.error('Upload Error:', err);
       throw new Error(err.message || 'Failed to upload profile picture');

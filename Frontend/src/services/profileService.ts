@@ -28,14 +28,17 @@ export const profileService = {
     });
   },
   uploadProfilePic: async (imageUri: string, mimeType: string = 'image/jpeg'): Promise<{ profile_pic_url: string }> => {
-    const formData = new FormData();
+    // Convert the local image URI to a blob, then attach it to FormData.
+    // This avoids the "unsupported FormDataPart implementation" error that
+    // occurs when React Native's FormData receives a plain {uri,name,type} object
+    // on certain platforms/engines.
+    const imageResponse = await fetch(imageUri);
+    const blob = await imageResponse.blob();
+
     const filename = imageUri.split('/').pop() || 'profile.jpg';
-    
-    formData.append('profile_pic', {
-      uri: imageUri,
-      name: filename,
-      type: mimeType
-    } as any);
+
+    const formData = new FormData();
+    formData.append('profile_pic', blob, filename);
 
     const token = await AsyncStorage.getItem('userToken');
     const response = await fetch(`${API_BASE_URL}/users/profile-pic`, {
