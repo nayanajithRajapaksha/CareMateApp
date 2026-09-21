@@ -544,6 +544,9 @@ export const ProfileScreen: React.FC = () => {
             {activeAction === 'privacy' && (
               <Text style={styles.modalBodyText}>
                 {t('privacyDescription')}
+              </Text>
+            )}
+
             {activeAction === 'support' && (
               <View>
                 <Text style={styles.modalBodyText}>
