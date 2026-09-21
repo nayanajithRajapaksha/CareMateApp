@@ -28,5 +28,15 @@ export const notificationService = {
       method: 'POST',
       body: JSON.stringify({ appointmentId })
     });
+  },
+  
+  getUserNotifications: async (): Promise<{ notifications: any[] }> => {
+    return await apiClient('/users/notifications');
+  },
+  
+  markAsRead: async (id: number): Promise<void> => {
+    return await apiClient(`/users/notifications/${id}/read`, {
+      method: 'PUT'
+    });
   }
 };

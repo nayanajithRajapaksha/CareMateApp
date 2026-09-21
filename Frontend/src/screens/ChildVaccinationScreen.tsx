@@ -129,6 +129,12 @@ export const ChildVaccinationScreen: React.FC = () => {
                 const isOverdue = !vaccine.is_completed && !isBlocked && today > deadlineDateCompare;
                 const isUpcoming = !vaccine.is_completed && !isOverdue;
 
+                let daysRemaining = -1;
+                if (isUpcoming && !isBlocked) {
+                  const diffTime = deadlineDateCompare.getTime() - today.getTime();
+                  daysRemaining = Math.ceil(diffTime / (1000 * 3600 * 24));
+                }
+
                 let iconColor = colors.border;
                 let badgeBg = '#F1F5F9';
                 let badgeTextCol = colors.textMuted;
@@ -185,6 +191,12 @@ export const ChildVaccinationScreen: React.FC = () => {
                             </Text>
                           </View>
                         </View>
+                        
+                        {!vaccine.is_completed && !isBlocked && isUpcoming && daysRemaining > 0 && (
+                          <Text style={{ fontSize: 13, color: '#3B82F6', fontWeight: 'bold', marginBottom: 4 }}>
+                            {daysRemaining} day{daysRemaining !== 1 ? 's' : ''} remaining
+                          </Text>
+                        )}
                         
                         <Text style={styles.ageText}>
                           Due at: {vaccine.recommended_age_months} months

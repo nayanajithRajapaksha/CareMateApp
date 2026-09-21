@@ -68,9 +68,10 @@ export const ParentDashboardScreen: React.FC = () => {
                const timeline = timelineRes.timeline || [];
                
                let maxOverdueDays = -1;
+               let minUpcomingDays = -1;
                
                timeline.forEach((item: any) => {
-                 if (item.status !== 'Completed') {
+                 if (item.status !== 'Completed' && !item.is_completed) {
                    let dueDate = new Date(child.dob);
                    dueDate.setMonth(dueDate.getMonth() + item.recommended_age_months);
                    
@@ -100,13 +101,26 @@ export const ParentDashboardScreen: React.FC = () => {
                      if (diffDays > maxOverdueDays) {
                        maxOverdueDays = diffDays;
                      }
+                   } else if (today <= deadlineDate) {
+                     const diffTime = deadlineDate.getTime() - today.getTime();
+                     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                     if (minUpcomingDays === -1 || diffDays < minUpcomingDays) {
+                       minUpcomingDays = diffDays;
+                     }
                    }
                  }
                });
                
+               let safetyStatus: any = { safe: true };
+               if (maxOverdueDays > -1) {
+                 safetyStatus = { safe: false, days: maxOverdueDays };
+               } else if (minUpcomingDays > -1) {
+                 safetyStatus = { safe: true, upcomingDays: minUpcomingDays };
+               }
+               
                return {
                  ...child,
-                 safetyStatus: maxOverdueDays > -1 ? { safe: false, days: maxOverdueDays } : { safe: true }
+                 safetyStatus
                };
             } catch (err) {
                return { ...child, safetyStatus: { safe: true } }; // fallback
@@ -270,7 +284,11 @@ export const ParentDashboardScreen: React.FC = () => {
                       {child.safetyStatus?.safe ? (
                         <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(16, 185, 129, 0.1)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 8 }}>
                           <CheckCircle2 color="#10B981" size={14} />
-                          <Text style={{ color: '#10B981', fontSize: 12, fontWeight: 'bold', marginLeft: 4 }}>Safe</Text>
+                          <Text style={{ color: '#10B981', fontSize: 12, fontWeight: 'bold', marginLeft: 4 }}>
+                            {child.safetyStatus?.upcomingDays !== undefined 
+                              ? `Next dose in ${child.safetyStatus.upcomingDays} day${child.safetyStatus.upcomingDays !== 1 ? 's' : ''}` 
+                              : 'Up to Date'}
+                          </Text>
                         </View>
                       ) : (
                         <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(239, 68, 68, 0.1)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 8 }}>

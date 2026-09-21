@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, Alert, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Plus, Shield, Clock } from 'lucide-react-native';
+import { Plus, Shield, Clock, Bell } from 'lucide-react-native';
+import { useNavigation } from '@react-navigation/native';
 import { colors, typography, layout } from '../theme';
 import { vaccineService, Vaccine } from '../services/vaccineService';
 import { useLanguage } from '../i18n/LanguageContext';
@@ -9,6 +10,7 @@ import { PrimaryButton } from '../components/PrimaryButton';
 
 export const SupervisorDashboardScreen: React.FC = () => {
   const { t } = useLanguage();
+  const navigation = useNavigation<any>();
   const [vaccines, setVaccines] = useState<Vaccine[]>([]);
   const [loading, setLoading] = useState(true);
   
@@ -72,9 +74,14 @@ export const SupervisorDashboardScreen: React.FC = () => {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Vaccine Master Schedule</Text>
-        <TouchableOpacity style={styles.addButton} onPress={() => setShowAddForm(!showAddForm)}>
-          <Plus color={colors.white} size={20} />
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+          <TouchableOpacity onPress={() => navigation.navigate('Notifications')}>
+            <Bell color={colors.textDark} size={24} />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.addButton} onPress={() => setShowAddForm(!showAddForm)}>
+            <Plus color={colors.white} size={20} />
+          </TouchableOpacity>
+        </View>
       </View>
 
       {showAddForm && (
