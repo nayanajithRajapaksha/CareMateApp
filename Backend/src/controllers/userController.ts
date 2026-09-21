@@ -11,7 +11,7 @@ export const getProfile = async (req: AuthRequest, res: Response): Promise<void>
     }
 
     const result = await pool.query(
-      `SELECT u.email, p.full_name, p.contact_number, p.role, p.hospital
+      `SELECT u.email, p.full_name, p.contact_number, p.role, p.hospital, p.email_notifications, p.push_notifications
        FROM app_users u
        JOIN profiles p ON u.id = p.id
        WHERE u.id = $1`,
@@ -38,7 +38,7 @@ export const updateProfile = async (req: AuthRequest, res: Response): Promise<vo
       return;
     }
 
-    const { full_name, contact_number } = req.body;
+    const { full_name, contact_number, email_notifications, push_notifications } = req.body;
 
     if (!full_name) {
       res.status(400).json({ error: 'Full name is required' });
@@ -48,10 +48,12 @@ export const updateProfile = async (req: AuthRequest, res: Response): Promise<vo
     const result = await pool.query(
       `UPDATE profiles
        SET full_name = $1,
-           contact_number = COALESCE($2, contact_number)
-       WHERE id = $3
-       RETURNING full_name, contact_number, role, hospital`,
-      [full_name, contact_number ?? null, userId]
+           contact_number = COALESCE($2, contact_number),
+           email_notifications = COALESCE($3, email_notifications),
+           push_notifications = COALESCE($4, push_notifications)
+       WHERE id = $5
+       RETURNING full_name, contact_number, role, hospital, email_notifications, push_notifications`,
+      [full_name, contact_number ?? null, email_notifications ?? null, push_notifications ?? null, userId]
     );
 
     if (result.rows.length === 0) {

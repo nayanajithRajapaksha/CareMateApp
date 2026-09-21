@@ -9,13 +9,15 @@ export interface UserProfile {
   role: string;
   hospital: string | null;
   profile_pic_url?: string;
+  email_notifications?: boolean;
+  push_notifications?: boolean;
 }
 
 export const profileService = {
   getProfile: async (): Promise<{ profile: UserProfile }> => {
     return await apiClient('/users/profile');
   },
-  updateProfile: async (data: { full_name: string; contact_number?: string }): Promise<{ message: string, profile: UserProfile }> => {
+  updateProfile: async (data: { full_name: string; contact_number?: string, email_notifications?: boolean, push_notifications?: boolean }): Promise<{ message: string, profile: UserProfile }> => {
     return await apiClient('/users/profile', {
       method: 'PUT',
       body: JSON.stringify(data),

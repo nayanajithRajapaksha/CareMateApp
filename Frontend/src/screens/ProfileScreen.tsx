@@ -131,6 +131,27 @@ export const ProfileScreen: React.FC = () => {
       setIsUploadingImage(false);
     }
   };
+      Alert.alert(t('error'), t('alertPickImageFailed'));
+    }
+  };
+
+  const handleUploadImage = async (uri: string, mimeType: string) => {
+    try {
+      setIsUploadingImage(true);
+      const res = await profileService.uploadProfilePic(uri, mimeType);
+      
+      // Update local profile optimistically
+      if (profile) {
+        setProfile({ ...profile, profile_pic_url: res.profile_pic_url });
+      }
+      Alert.alert(t('success'), t('alertProfilePicUpdated'));
+    } catch (error: any) {
+      console.error('Error uploading image:', error);
+      Alert.alert(t('error'), error.message || t('alertUploadFailed'));
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
 
   useEffect(() => {
     fetchProfile();
@@ -141,6 +162,8 @@ export const ProfileScreen: React.FC = () => {
       setLoading(true);
       const res = await profileService.getProfile();
       setProfile(res.profile);
+      setEmailNotifications(res.profile.email_notifications ?? true);
+      setPushNotifications(res.profile.push_notifications ?? true);
     } catch (error) {
       console.error('Failed to fetch profile', error);
       Alert.alert(t('error'), t('alertProfileLoadFailed'));
@@ -167,7 +190,9 @@ export const ProfileScreen: React.FC = () => {
       setIsSaving(true);
       const res = await profileService.updateProfile({
         full_name: editFullName.trim(),
-        contact_number: editContactNumber.trim()
+        contact_number: editContactNumber.trim(),
+        email_notifications: emailNotifications,
+        push_notifications: pushNotifications
       });
       setProfile(res.profile);
       setEditModalVisible(false);
@@ -177,6 +202,38 @@ export const ProfileScreen: React.FC = () => {
       Alert.alert(t('error'), t('alertProfileUpdateFailed'));
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const toggleEmailNotifications = async () => {
+    const newValue = !emailNotifications;
+    setEmailNotifications(newValue);
+    if (profile) {
+      try {
+        await profileService.updateProfile({
+          full_name: profile.full_name,
+          email_notifications: newValue,
+          push_notifications: pushNotifications
+        });
+      } catch (error) {
+        setEmailNotifications(!newValue); // revert
+      }
+    }
+  };
+
+  const togglePushNotifications = async () => {
+    const newValue = !pushNotifications;
+    setPushNotifications(newValue);
+    if (profile) {
+      try {
+        await profileService.updateProfile({
+          full_name: profile.full_name,
+          email_notifications: emailNotifications,
+          push_notifications: newValue
+        });
+      } catch (error) {
+        setPushNotifications(!newValue); // revert
+      }
     }
   };
 
@@ -486,7 +543,7 @@ export const ProfileScreen: React.FC = () => {
                   <Text style={styles.toggleLabel}>{t('emailNotifications')}</Text>
                   <TouchableOpacity
                     style={[styles.toggle, emailNotifications && styles.toggleOn]}
-                    onPress={() => setEmailNotifications(prev => !prev)}
+                    onPress={toggleEmailNotifications}
                   >
                     <View style={[styles.toggleThumb, emailNotifications && styles.toggleThumbOn]} />
                   </TouchableOpacity>
@@ -496,7 +553,7 @@ export const ProfileScreen: React.FC = () => {
                   <Text style={styles.toggleLabel}>{t('appNotifications')}</Text>
                   <TouchableOpacity
                     style={[styles.toggle, pushNotifications && styles.toggleOn]}
-                    onPress={() => setPushNotifications(prev => !prev)}
+                    onPress={togglePushNotifications}
                   >
                     <View style={[styles.toggleThumb, pushNotifications && styles.toggleThumbOn]} />
                   </TouchableOpacity>
@@ -507,9 +564,6 @@ export const ProfileScreen: React.FC = () => {
             {activeAction === 'privacy' && (
               <Text style={styles.modalBodyText}>
                 {t('privacyDescription')}
-              </Text>
-            )}
-
             {activeAction === 'support' && (
               <View>
                 <Text style={styles.modalBodyText}>

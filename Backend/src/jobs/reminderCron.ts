@@ -4,7 +4,7 @@ import { sendEmailReminder, sendPushNotification } from '../services/notificatio
 
 // Helper function to send email and push notification for a single appointment row
 const sendReminderForAppointment = async (row: any) => {
-  const { parent_id, email, parent_name, expo_push_token, clinic_name, appointment_date, start_time, child_name, child_dob } = row;
+  const { parent_id, email, parent_name, expo_push_token, clinic_name, appointment_date, start_time, child_name, child_dob, email_notifications, push_notifications } = row;
   const dateStr = new Date(appointment_date).toLocaleDateString();
   const timeStr = start_time;
 
@@ -86,12 +86,12 @@ const sendReminderForAppointment = async (row: any) => {
   `;
 
   // Send Email
-  if (email) {
+  if (email && email_notifications !== false) {
     await sendEmailReminder(email, title, html);
   }
 
   // Send Push Notification & log in DB
-  if (parent_id) {
+  if (parent_id && push_notifications !== false) {
     await sendPushNotification(parent_id, expo_push_token, title, body, { appointmentId: row.id });
   }
 };
@@ -101,7 +101,7 @@ const processReminders = async (intervalDays: number) => {
   try {
     const query = `
       SELECT a.id, a.parent_id, a.appointment_date, a.start_time, c.name AS clinic_name, 
-             u.email, p.full_name AS parent_name, p.expo_push_token,
+             u.email, p.full_name AS parent_name, p.expo_push_token, p.email_notifications, p.push_notifications,
              ch.full_name AS child_name, ch.dob AS child_dob
       FROM appointments a
       JOIN clinics c ON c.id = a.clinic_id
@@ -128,7 +128,7 @@ export const runAllFutureReminders = async () => {
   try {
     const query = `
       SELECT a.id, a.parent_id, a.appointment_date, a.start_time, c.name AS clinic_name, 
-             u.email, p.full_name AS parent_name, p.expo_push_token,
+             u.email, p.full_name AS parent_name, p.expo_push_token, p.email_notifications, p.push_notifications,
              ch.full_name AS child_name, ch.dob AS child_dob
       FROM appointments a
       JOIN clinics c ON c.id = a.clinic_id
@@ -156,7 +156,7 @@ export const runSingleReminder = async (appointmentId: string | number) => {
   try {
     const query = `
       SELECT a.id, a.parent_id, a.appointment_date, a.start_time, c.name AS clinic_name, 
-             u.email, p.full_name AS parent_name, p.expo_push_token,
+             u.email, p.full_name AS parent_name, p.expo_push_token, p.email_notifications, p.push_notifications,
              ch.full_name AS child_name, ch.dob AS child_dob
       FROM appointments a
       JOIN clinics c ON c.id = a.clinic_id

@@ -252,7 +252,7 @@ export const sendOverdueWarning = async (req: AuthRequest, res: Response): Promi
 
     // Fetch child and parent info
     const childRes = await pool.query(
-      `SELECT c.full_name as child_name, u.email as parent_email, p.full_name as parent_name
+      `SELECT c.full_name as child_name, u.email as parent_email, p.full_name as parent_name, p.email_notifications
        FROM children c
        JOIN app_users u ON c.parent_id = u.id
        LEFT JOIN profiles p ON u.id = p.id
@@ -265,7 +265,7 @@ export const sendOverdueWarning = async (req: AuthRequest, res: Response): Promi
       return;
     }
 
-    const { child_name, parent_email, parent_name } = childRes.rows[0];
+    const { child_name, parent_email, parent_name, email_notifications } = childRes.rows[0];
 
     // Fetch vaccine info
     const vaccineRes = await pool.query(`SELECT name FROM vaccines WHERE id = $1`, [vaccine_id]);
@@ -278,7 +278,7 @@ export const sendOverdueWarning = async (req: AuthRequest, res: Response): Promi
     const vaccineName = vaccineRes.rows[0].name;
 
     // Send email
-    if (parent_email) {
+    if (parent_email && email_notifications !== false) {
       const subject = `Urgent: Overdue Vaccination for ${child_name}`;
       const html = `
         <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
