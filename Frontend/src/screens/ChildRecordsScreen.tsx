@@ -109,7 +109,7 @@ export const ChildRecordsScreen: React.FC = () => {
                 <Shield color={colors.primary} size={24} />
               </View>
               <View style={styles.vaccineTextContainer}>
-                <Text style={styles.vaccineTitle}>{t('vaccinationTimeline', 'Vaccination Timeline')}</Text>
+                <Text style={styles.vaccineTitle}>{t('vaccinationTimeline')}</Text>
                 <Text style={styles.vaccineSub}>View upcoming and past vaccinations</Text>
               </View>
             </TouchableOpacity>

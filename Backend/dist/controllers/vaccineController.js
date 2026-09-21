@@ -10,6 +10,7 @@ const getVaccines = async (req, res) => {
     try {
         const result = await db_1.default.query(`SELECT id, name, recommended_age_months, minimum_interval_days, dose_number, previous_dose_id, created_at 
        FROM vaccines 
+       WHERE is_active = TRUE
        ORDER BY recommended_age_months ASC`);
         res.status(200).json({ vaccines: result.rows });
     }
@@ -67,8 +68,11 @@ exports.addVaccine = addVaccine;
 const getChildVaccinations = async (req, res) => {
     try {
         const { id } = req.params; // child_id
-        // Fetch master schedule
-        const vaccinesRes = await db_1.default.query(`SELECT * FROM vaccines ORDER BY recommended_age_months ASC`);
+        // Fetch master schedule (include active vaccines, plus any soft-deleted ones this child already has records for)
+        const vaccinesRes = await db_1.default.query(`SELECT DISTINCT v.* FROM vaccines v 
+       LEFT JOIN vaccination_records r ON v.id = r.vaccine_id AND r.child_id = $1
+       WHERE v.is_active = TRUE OR r.id IS NOT NULL
+       ORDER BY v.recommended_age_months ASC`, [id]);
         const vaccines = vaccinesRes.rows;
         // Fetch milestones (scheduled/upcoming)
         const milestonesRes = await db_1.default.query(`SELECT * FROM vaccination_milestones WHERE child_id = $1`, [id]);
@@ -246,17 +250,12 @@ const deleteVaccine = async (req, res) => {
             res.status(404).json({ error: 'Vaccine not found' });
             return;
         }
-        await db_1.default.query('DELETE FROM vaccines WHERE id = $1', [id]);
+        await db_1.default.query('UPDATE vaccines SET is_active = FALSE WHERE id = $1', [id]);
         res.status(200).json({ message: 'Vaccine deleted successfully' });
     }
     catch (error) {
-        if (error.code === '23503') { // foreign_key_violation
-            res.status(400).json({ error: 'Cannot delete vaccine because it has already been administered to children.' });
-        }
-        else {
-            console.error('Error deleting vaccine:', error);
-            res.status(500).json({ error: 'Internal server error' });
-        }
+        console.error('Error deleting vaccine:', error);
+        res.status(500).json({ error: 'Internal server error' });
     }
 };
 exports.deleteVaccine = deleteVaccine;
@@ -268,17 +267,12 @@ const deleteVaccineGroup = async (req, res) => {
             res.status(404).json({ error: 'Vaccine group not found' });
             return;
         }
-        await db_1.default.query('DELETE FROM vaccines WHERE name = $1', [name]);
+        await db_1.default.query('UPDATE vaccines SET is_active = FALSE WHERE name = $1', [name]);
         res.status(200).json({ message: 'Vaccine group deleted successfully' });
     }
     catch (error) {
-        if (error.code === '23503') { // foreign_key_violation
-            res.status(400).json({ error: 'Cannot delete vaccine group because it has already been administered to children.' });
-        }
-        else {
-            console.error('Error deleting vaccine group:', error);
-            res.status(500).json({ error: 'Internal server error' });
-        }
+        console.error('Error deleting vaccine group:', error);
+        res.status(500).json({ error: 'Internal server error' });
     }
 };
 exports.deleteVaccineGroup = deleteVaccineGroup;
@@ -319,18 +313,13 @@ const updateVaccineGroup = async (req, res) => {
                 updatedVaccines.push(doseResult.rows[0]);
             }
         }
-        // Delete any remaining doses
+        // Delete any remaining doses (soft delete)
         for (let i = doses.length; i < existingDoses.length; i++) {
             const existingId = existingDoses[i].id;
             try {
-                await db_1.default.query('DELETE FROM vaccines WHERE id = $1', [existingId]);
+                await db_1.default.query('UPDATE vaccines SET is_active = FALSE WHERE id = $1', [existingId]);
             }
             catch (err) {
-                if (err.code === '23503') {
-                    await db_1.default.query('ROLLBACK');
-                    res.status(400).json({ error: `Cannot remove dose ${i + 1} because it has already been administered.` });
-                    return;
-                }
                 throw err;
             }
         }

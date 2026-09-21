@@ -14,27 +14,10 @@ router.put('/notifications/:id/read', markNotificationAsRead);
 router.get('/all', requireRole('admin'), getAllUsers);
 
 import multer from 'multer';
-import { v2 as cloudinary } from 'cloudinary';
-import { CloudinaryStorage } from 'multer-storage-cloudinary';
+import { supabase } from '../config/supabase';
 import pool from '../config/db';
 
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME || '',
-  api_key: process.env.CLOUDINARY_API_KEY || '',
-  api_secret: process.env.CLOUDINARY_API_SECRET || ''
-});
-
-const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: async (req, file) => {
-    return {
-      folder: 'caremate_profiles',
-      format: 'png',
-      public_id: `${Date.now()}-${file.originalname.split('.')[0]}`
-    };
-  }
-});
-
+const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 router.post('/profile-pic', upload.single('profile_pic'), async (req: any, res: any): Promise<void> => {
@@ -44,7 +27,30 @@ router.post('/profile-pic', upload.single('profile_pic'), async (req: any, res: 
       res.status(400).json({ error: 'No image provided' });
       return;
     }
-    const imageUrl = req.file.path;
+
+    const file = req.file;
+    // ensure originalname is sanitized somewhat and has a predictable format
+    const sanitizedName = file.originalname.split('.')[0].replace(/[^a-zA-Z0-9]/g, '_');
+    const fileName = `caremate_profiles/${Date.now()}-${sanitizedName}.png`;
+
+    const { data, error } = await supabase.storage
+      .from('avatars')
+      .upload(fileName, file.buffer, {
+        contentType: file.mimetype,
+        upsert: true,
+      });
+
+    if (error) {
+      console.error('Supabase upload error:', error);
+      res.status(500).json({ error: 'Failed to upload profile picture to storage' });
+      return;
+    }
+
+    const { data: publicUrlData } = supabase.storage
+      .from('avatars')
+      .getPublicUrl(fileName);
+
+    const imageUrl = publicUrlData.publicUrl;
 
     await pool.query('UPDATE profiles SET profile_pic_url = $1 WHERE id = $2', [imageUrl, userId]);
     res.json({ message: 'Profile picture updated successfully', profile_pic_url: imageUrl });

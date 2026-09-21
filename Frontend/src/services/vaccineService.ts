@@ -5,6 +5,8 @@ export interface Vaccine {
   name: string;
   recommended_age_months: number;
   minimum_interval_days: number;
+  previous_dose_id?: string;
+  dose_number?: number;
 }
 
 export interface TimelineVaccine extends Vaccine {

@@ -30,7 +30,7 @@ export const usePushNotifications = (): PushNotificationState => {
       setExpoPushToken(token);
       if (token) {
         try {
-          await apiClient.put('/users/push-token', { expo_push_token: token.data });
+          await apiClient('/users/push-token', { method: 'PUT', body: JSON.stringify({ expo_push_token: token.data }) });
         } catch (err) {
           console.error('Failed to update push token on backend', err);
         }

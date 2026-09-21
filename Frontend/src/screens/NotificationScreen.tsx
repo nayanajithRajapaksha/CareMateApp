@@ -28,7 +28,7 @@ export const NotificationScreen: React.FC = () => {
 
   const fetchNotifications = async () => {
     try {
-      const response = await apiClient.get('/users/notifications');
+      const response = await apiClient('/users/notifications');
       setNotifications(response.notifications || []);
     } catch (error) {
       console.error('Failed to fetch notifications:', error);
@@ -46,7 +46,7 @@ export const NotificationScreen: React.FC = () => {
     );
 
     try {
-      await apiClient.put(`/users/notifications/${id}/read`);
+      await apiClient(`/users/notifications/${id}/read`, { method: 'PUT' });
     } catch (error) {
       console.error('Failed to mark notification as read:', error);
       // Revert if failed
