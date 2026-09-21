@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Bell, Check, Clock } from 'lucide-react';
+import { Bell, Clock } from 'lucide-react';
 import { notificationService } from '../services/notificationService';
 
 interface NotificationItem {
@@ -14,7 +14,7 @@ interface NotificationItem {
 export const NotificationDropdown: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
-  const [loading, setLoading] = useState(false);
+
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

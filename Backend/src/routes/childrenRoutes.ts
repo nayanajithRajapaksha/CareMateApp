@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { verifyToken, requireRole } from '../middleware/authMiddleware';
 import { registerChild, getChildren, updateChild, getAllChildrenController } from '../controllers/childrenController';
 import multer from 'multer';
-import { supabase } from '../config/supabase';
+import { getSupabase } from '../config/supabase';
 import pool from '../config/db';
 
 const storage = multer.memoryStorage();
@@ -37,7 +37,7 @@ router.post('/:id/profile-pic', requireRole('parent'), upload.single('profile_pi
     const sanitizedName = file.originalname.split('.')[0].replace(/[^a-zA-Z0-9]/g, '_');
     const fileName = `caremate_child_profiles/${Date.now()}-${sanitizedName}.png`;
 
-    const { data, error } = await supabase.storage
+    const { data, error } = await getSupabase().storage
       .from('avatars')
       .upload(fileName, file.buffer, {
         contentType: file.mimetype,
@@ -50,7 +50,7 @@ router.post('/:id/profile-pic', requireRole('parent'), upload.single('profile_pi
       return;
     }
 
-    const { data: publicUrlData } = supabase.storage
+    const { data: publicUrlData } = getSupabase().storage
       .from('avatars')
       .getPublicUrl(fileName);
 

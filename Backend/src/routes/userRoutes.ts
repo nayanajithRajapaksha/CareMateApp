@@ -14,7 +14,7 @@ router.put('/notifications/:id/read', markNotificationAsRead);
 router.get('/all', requireRole('admin'), getAllUsers);
 
 import multer from 'multer';
-import { supabase } from '../config/supabase';
+import { getSupabase } from '../config/supabase';
 import pool from '../config/db';
 
 const storage = multer.memoryStorage();
@@ -33,7 +33,7 @@ router.post('/profile-pic', upload.single('profile_pic'), async (req: any, res: 
     const sanitizedName = file.originalname.split('.')[0].replace(/[^a-zA-Z0-9]/g, '_');
     const fileName = `caremate_profiles/${Date.now()}-${sanitizedName}.png`;
 
-    const { data, error } = await supabase.storage
+    const { data, error } = await getSupabase().storage
       .from('avatars')
       .upload(fileName, file.buffer, {
         contentType: file.mimetype,
@@ -46,7 +46,7 @@ router.post('/profile-pic', upload.single('profile_pic'), async (req: any, res: 
       return;
     }
 
-    const { data: publicUrlData } = supabase.storage
+    const { data: publicUrlData } = getSupabase().storage
       .from('avatars')
       .getPublicUrl(fileName);
 

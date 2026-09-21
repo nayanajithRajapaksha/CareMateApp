@@ -34,7 +34,7 @@ router.post('/:id/profile-pic', (0, authMiddleware_1.requireRole)('parent'), upl
         const file = req.file;
         const sanitizedName = file.originalname.split('.')[0].replace(/[^a-zA-Z0-9]/g, '_');
         const fileName = `caremate_child_profiles/${Date.now()}-${sanitizedName}.png`;
-        const { data, error } = await supabase_1.supabase.storage
+        const { data, error } = await (0, supabase_1.getSupabase)().storage
             .from('avatars')
             .upload(fileName, file.buffer, {
             contentType: file.mimetype,
@@ -45,7 +45,7 @@ router.post('/:id/profile-pic', (0, authMiddleware_1.requireRole)('parent'), upl
             res.status(500).json({ error: 'Failed to upload profile picture to storage' });
             return;
         }
-        const { data: publicUrlData } = supabase_1.supabase.storage
+        const { data: publicUrlData } = (0, supabase_1.getSupabase)().storage
             .from('avatars')
             .getPublicUrl(fileName);
         const imageUrl = publicUrlData.publicUrl;
