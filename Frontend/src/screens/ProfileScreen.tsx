@@ -131,27 +131,7 @@ export const ProfileScreen: React.FC = () => {
       setIsUploadingImage(false);
     }
   };
-      Alert.alert(t('error'), t('alertPickImageFailed'));
-    }
-  };
 
-  const handleUploadImage = async (uri: string, mimeType: string) => {
-    try {
-      setIsUploadingImage(true);
-      const res = await profileService.uploadProfilePic(uri, mimeType);
-      
-      // Update local profile optimistically
-      if (profile) {
-        setProfile({ ...profile, profile_pic_url: res.profile_pic_url });
-      }
-      Alert.alert(t('success'), t('alertProfilePicUpdated'));
-    } catch (error: any) {
-      console.error('Error uploading image:', error);
-      Alert.alert(t('error'), error.message || t('alertUploadFailed'));
-    } finally {
-      setIsUploadingImage(false);
-    }
-  };
 
   useEffect(() => {
     fetchProfile();
