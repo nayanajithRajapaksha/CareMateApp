@@ -61,23 +61,47 @@ export const NotificationScreen: React.FC = () => {
     return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
-  const renderItem = ({ item }: { item: NotificationItem }) => (
-    <TouchableOpacity 
-      style={[styles.notificationCard, !item.is_read && styles.unreadCard]}
-      onPress={() => markAsRead(item.id, item.is_read)}
-      activeOpacity={0.7}
-    >
-      <View style={styles.iconContainer}>
-        <Bell color={item.is_read ? colors.textMuted : colors.primary} size={24} />
-      </View>
-      <View style={styles.contentContainer}>
-        <Text style={[styles.title, !item.is_read && styles.unreadText]}>{item.title}</Text>
-        <Text style={styles.message}>{item.message}</Text>
-        <Text style={styles.timeText}>{formatDate(item.created_at)}</Text>
-      </View>
-      {!item.is_read && <View style={styles.unreadDot} />}
-    </TouchableOpacity>
-  );
+  const [expandedId, setExpandedId] = useState<number | null>(null);
+
+  const handlePress = (item: NotificationItem) => {
+    // Toggle expand state
+    if (expandedId === item.id) {
+      setExpandedId(null);
+    } else {
+      setExpandedId(item.id);
+    }
+
+    // Mark as read if not already read
+    if (!item.is_read) {
+      markAsRead(item.id, item.is_read);
+    }
+  };
+
+  const renderItem = ({ item }: { item: NotificationItem }) => {
+    const isExpanded = expandedId === item.id;
+    return (
+      <TouchableOpacity 
+        style={[styles.notificationCard, !item.is_read && styles.unreadCard]}
+        onPress={() => handlePress(item)}
+        activeOpacity={0.7}
+      >
+        <View style={styles.iconContainer}>
+          <Bell color={item.is_read ? colors.textMuted : colors.primary} size={24} />
+        </View>
+        <View style={styles.contentContainer}>
+          <Text style={[styles.title, !item.is_read && styles.unreadText]}>{item.title}</Text>
+          <Text 
+            style={styles.message}
+            numberOfLines={isExpanded ? undefined : 2}
+          >
+            {item.message}
+          </Text>
+          <Text style={styles.timeText}>{formatDate(item.created_at)}</Text>
+        </View>
+        {!item.is_read && <View style={styles.unreadDot} />}
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <SafeAreaView style={styles.container}>

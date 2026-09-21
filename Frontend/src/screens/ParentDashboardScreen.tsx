@@ -9,6 +9,7 @@ import { childService } from '../services/childService';
 import { profileService } from '../services/profileService';
 import { appointmentService } from '../services/appointmentService';
 import { vaccineService } from '../services/vaccineService';
+import { apiClient } from '../services/apiClient';
 import { useLanguage } from '../i18n/LanguageContext';
 import { usePushNotifications } from '../hooks/usePushNotifications';
 
@@ -47,6 +48,7 @@ export const ParentDashboardScreen: React.FC = () => {
   const navigation = useNavigation<any>();
   const [childrenData, setChildrenData] = React.useState<any[]>([]);
   const [appointments, setAppointments] = React.useState<any[]>([]);
+  const [unreadNotifications, setUnreadNotifications] = React.useState(0);
   const [loading, setLoading] = React.useState(true);
   const [userName, setUserName] = React.useState('User');
 
@@ -54,10 +56,11 @@ export const ParentDashboardScreen: React.FC = () => {
     React.useCallback(() => {
       const fetchData = async () => {
         try {
-          const [childrenResponse, profileResponse, appointmentsResponse] = await Promise.all([
+          const [childrenResponse, profileResponse, appointmentsResponse, notificationsResponse] = await Promise.all([
             childService.getChildren(),
             profileService.getProfile(),
-            appointmentService.getMine().catch(() => ({ appointments: [] }))
+            appointmentService.getMine().catch(() => ({ appointments: [] })),
+            apiClient('/users/notifications').catch(() => ({ notifications: [] }))
           ]);
 
           let children = childrenResponse.children || [];
@@ -130,10 +133,14 @@ export const ParentDashboardScreen: React.FC = () => {
           setChildrenData(children);
           setUserName(profileResponse.profile?.full_name || 'User');
           setAppointments((appointmentsResponse.appointments || []).filter((a: any) => a.status === 'booked'));
+          
+          const unreadCount = (notificationsResponse.notifications || []).filter((n: any) => !n.is_read).length;
+          setUnreadNotifications(unreadCount);
         } catch (error) {
           console.error('Error fetching dashboard data:', error);
           setChildrenData([]);
           setAppointments([]);
+          setUnreadNotifications(0);
         } finally {
           setLoading(false);
         }
@@ -169,6 +176,13 @@ export const ParentDashboardScreen: React.FC = () => {
           </TouchableOpacity>
           <TouchableOpacity style={styles.notificationBtn} onPress={() => navigation.navigate('Notifications')}>
             <Bell color={colors.primary} size={24} />
+            {unreadNotifications > 0 && (
+              <View style={styles.notificationBadge}>
+                <Text style={styles.notificationBadgeText}>
+                  {unreadNotifications > 9 ? '9+' : unreadNotifications}
+                </Text>
+              </View>
+            )}
           </TouchableOpacity>
         </View>
 
