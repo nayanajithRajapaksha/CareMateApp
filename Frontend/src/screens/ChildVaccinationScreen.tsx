@@ -31,7 +31,7 @@ export const ChildVaccinationScreen: React.FC = () => {
       setTimeline(res.timeline || []);
     } catch (error) {
       console.error('Error fetching timeline:', error);
-      Alert.alert('Error', 'Failed to load vaccination timeline');
+      Alert.alert(t('error'), t('failedToLoadTimeline'));
     } finally {
       setLoading(false);
     }
@@ -48,18 +48,18 @@ export const ChildVaccinationScreen: React.FC = () => {
     if (vaccine.previous_dose_id) {
       const prevDose = timeline.find((v: any) => v.id === vaccine.previous_dose_id);
       if (!prevDose || !prevDose.is_completed) {
-        Alert.alert('Blocked', 'Please mark the previous dose as administered first.');
+        Alert.alert(t('blockedTitle'), t('markPreviousDoseFirst'));
         return;
       }
     }
 
     Alert.alert(
-      'Mark as Administered',
-      `Are you sure you want to mark ${vaccine.name} as administered today?`,
+      t('markAsAdministeredTitle'),
+      t('confirmAdministerMessage', { vaccine: vaccine.name }),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('cancelBtn'), style: 'cancel' },
         { 
-          text: 'Confirm', 
+          text: t('confirmBtn'), 
           onPress: async () => {
             try {
               await vaccineService.markAdministered(child.id, {
@@ -68,7 +68,7 @@ export const ChildVaccinationScreen: React.FC = () => {
               fetchTimeline();
             } catch (err) {
               console.error('Error marking administered:', err);
-              Alert.alert('Error', 'Failed to update vaccine record');
+              Alert.alert(t('error'), t('failedToUpdateVaccine'));
             }
           }
         }
@@ -84,7 +84,7 @@ export const ChildVaccinationScreen: React.FC = () => {
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <ArrowLeft color={colors.textDark} size={24} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{child.full_name}'s Vaccines</Text>
+        <Text style={styles.headerTitle}>{t('childVaccinesTitle', { name: child.full_name })}</Text>
         <View style={{ width: 24 }} />
       </View>
 
@@ -94,7 +94,7 @@ export const ChildVaccinationScreen: React.FC = () => {
         ) : (
           <View style={styles.timelineContainer}>
             {timeline.length === 0 ? (
-              <Text style={styles.emptyText}>No vaccines found in the schedule.</Text>
+              <Text style={styles.emptyText}>{t('noVaccinesInSchedule')}</Text>
             ) : (
               timeline.map((vaccine, index) => {
                 const isLast = index === timeline.length - 1;
@@ -144,17 +144,17 @@ export const ChildVaccinationScreen: React.FC = () => {
                   iconColor = colors.primary; // Green
                   badgeBg = '#DCFCE7';
                   badgeTextCol = '#15803D';
-                  statusLabel = 'Completed';
+                  statusLabel = t('completedStatusText');
                 } else if (isOverdue) {
                   iconColor = '#EF4444'; // Red
                   badgeBg = '#FEE2E2';
                   badgeTextCol = '#B91C1C';
-                  statusLabel = 'Overdue';
+                  statusLabel = t('overdueText');
                 } else if (isUpcoming) {
                   iconColor = '#3B82F6'; // Blue
                   badgeBg = '#DBEAFE';
                   badgeTextCol = '#1D4ED8';
-                  statusLabel = isBlocked ? 'Blocked' : 'Upcoming';
+                  statusLabel = isBlocked ? t('blockedTitle') : t('upcomingText');
                 }
 
                 return (
@@ -183,7 +183,7 @@ export const ChildVaccinationScreen: React.FC = () => {
                       <View style={styles.card}>
                         <View style={styles.cardHeader}>
                           <Text style={[styles.vaccineName, vaccine.is_completed && styles.vaccineNameCompleted]}>
-                            {vaccine.name} {vaccine.dose_number && vaccine.dose_number > 1 ? `(Dose ${vaccine.dose_number})` : ''}
+                            {vaccine.name} {vaccine.dose_number && vaccine.dose_number > 1 ? `(${t('doseText')} ${vaccine.dose_number})` : ''}
                           </Text>
                           <View style={[styles.statusBadge, { backgroundColor: badgeBg }]}>
                             <Text style={[styles.statusText, { color: badgeTextCol }]}>
@@ -194,36 +194,36 @@ export const ChildVaccinationScreen: React.FC = () => {
                         
                         {!vaccine.is_completed && !isBlocked && isUpcoming && daysRemaining > 0 && (
                           <Text style={{ fontSize: 13, color: '#3B82F6', fontWeight: 'bold', marginBottom: 4 }}>
-                            {daysRemaining} day{daysRemaining !== 1 ? 's' : ''} remaining
+                            {daysRemaining} {t('daysRemainingText')}
                           </Text>
                         )}
                         
                         <Text style={styles.ageText}>
-                          Due at: {vaccine.recommended_age_months} months
+                          {t('dueAtText')} {vaccine.recommended_age_months} {t('monthsText')}
                         </Text>
                         
                         {vaccine.is_completed && vaccine.administered_date && (
                           <Text style={styles.dateText}>
-                            Administered: {new Date(vaccine.administered_date).toLocaleDateString()}
+                            {t('administeredText')} {new Date(vaccine.administered_date).toLocaleDateString()}
                           </Text>
                         )}
                         
                         {!vaccine.is_completed && (role === 'phm' || role === 'midwife') && (
                           <View style={styles.actionPrompt}>
                             <ShieldAlert size={14} color={colors.primary} />
-                            <Text style={styles.actionText}>Tap to mark administered</Text>
+                            <Text style={styles.actionText}>{t('tapToMarkAdministered')}</Text>
                           </View>
                         )}
                         
                         {!vaccine.is_completed && role === 'parent' && (
                           <View style={{ marginTop: 12 }}>
                             {isBlocked && (
-                               <Text style={{ fontSize: 13, color: colors.textMuted }}>Waiting on previous dose</Text>
+                               <Text style={{ fontSize: 13, color: colors.textMuted }}>{t('waitingOnPreviousDose')}</Text>
                             )}
                             {isOverdue && (
                               <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8, backgroundColor: 'rgba(239, 68, 68, 0.1)', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12, alignSelf: 'flex-start' }}>
                                 <ShieldAlert size={14} color="#EF4444" style={{ marginRight: 4 }} />
-                                <Text style={{ fontSize: 12, color: '#EF4444', fontWeight: 'bold' }}>Unsafe (Overdue)</Text>
+                                <Text style={{ fontSize: 12, color: '#EF4444', fontWeight: 'bold' }}>{t('unsafeOverdue')}</Text>
                               </View>
                             )}
                             {!isBlocked && (today >= dueDateCompare) && (
@@ -231,7 +231,7 @@ export const ChildVaccinationScreen: React.FC = () => {
                                 style={{ backgroundColor: colors.primary, paddingHorizontal: 16, paddingVertical: 8, borderRadius: 8, alignSelf: 'flex-start' }}
                                 onPress={() => navigation.navigate('ScheduleTab', { childId: child.id })}
                               >
-                                <Text style={{ color: 'white', fontSize: 13, fontWeight: 'bold' }}>Book Clinic</Text>
+                                <Text style={{ color: 'white', fontSize: 13, fontWeight: 'bold' }}>{t('bookClinicBtn')}</Text>
                               </TouchableOpacity>
                             )}
                           </View>
