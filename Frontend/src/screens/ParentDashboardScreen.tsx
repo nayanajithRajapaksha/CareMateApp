@@ -195,7 +195,7 @@ export const ParentDashboardScreen: React.FC = () => {
             )}
             <Text style={styles.headerTitle}>CareMate</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.notificationBtn} onPress={() => navigation.navigate('Notifications')}>
+          <TouchableOpacity style={styles.notificationBtn} onPress={() => navigation.navigate('Notification')}>
             <Bell color={colors.primary} size={24} />
             {unreadNotifications > 0 && (
               <View style={styles.notificationBadge}>
