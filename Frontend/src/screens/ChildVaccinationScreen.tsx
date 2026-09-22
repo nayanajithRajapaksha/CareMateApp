@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ArrowLeft, CheckCircle, Circle, ShieldAlert } from 'lucide-react-native';
+import { ArrowLeft, Bell, Info, CheckCircle, Circle, ShieldAlert } from 'lucide-react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { colors, typography, layout } from '../theme';
+import { colors, layout } from '../theme';
 import { vaccineService, TimelineVaccine } from '../services/vaccineService';
 import { useLanguage } from '../i18n/LanguageContext';
 import { useAuth } from '../context/AuthContext';
@@ -78,172 +78,205 @@ export const ChildVaccinationScreen: React.FC = () => {
 
   if (!child) return null;
 
+  // Group timeline items by recommended_age_months
+  const groups = timeline.reduce((acc, vaccine) => {
+    const age = vaccine.recommended_age_months;
+    if (!acc[age]) {
+      acc[age] = {
+        ageMonths: age,
+        title: age === 0 ? 'Birth' : `${age} Months`,
+        ageShort: age === 0 ? 'Birth' : `${age}M`,
+        tag: age === 0 ? 'Hospital' : 'Clinic',
+        tagColor: age === 0 ? '#2B837F' : '#B6D7D7',
+        tagTextColor: age === 0 ? '#FFF' : '#4A6261',
+        vaccines: []
+      };
+    }
+    acc[age].vaccines.push(vaccine);
+    return acc;
+  }, {} as any);
+
+  const groupedTimeline = Object.values(groups).sort((a: any, b: any) => a.ageMonths - b.ageMonths);
+
   return (
     <SafeAreaView style={styles.container}>
+      {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <ArrowLeft color={colors.textDark} size={24} />
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.canGoBack() && navigation.goBack()}>
+          <ArrowLeft color="#053130" size={24} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{t('childVaccinesTitle', { name: child.full_name })}</Text>
-        <View style={{ width: 24 }} />
+        <Text style={styles.headerTitle}>CareMate</Text>
+        <TouchableOpacity style={styles.bellButton}>
+          <Bell color="#053130" size={24} />
+          <View style={styles.notificationDot} />
+        </TouchableOpacity>
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        {/* Title Section */}
+        <Text style={styles.pageTitle}>{child.full_name}'s Milestones</Text>
+        <Text style={styles.pageSubtitle}>
+          A comprehensive guide for your child's first 5 years of immunizations.
+        </Text>
+
+        {/* Info Card */}
+        <View style={styles.infoCard}>
+          <View style={styles.infoIconContainer}>
+            <Info color="#117871" size={20} />
+          </View>
+          <View style={styles.infoTextContainer}>
+            <Text style={styles.infoTitle}>Why Vaccinate?</Text>
+            <Text style={styles.infoDescription}>
+              Vaccines protect your child from serious diseases. Always consult with your pediatrician to personalize this schedule based on your child's specific health needs.
+            </Text>
+          </View>
+        </View>
+
         {loading ? (
           <ActivityIndicator color={colors.primary} style={{ marginTop: 40 }} />
+        ) : groupedTimeline.length === 0 ? (
+          <Text style={{textAlign: 'center', color: '#888', marginTop: 40}}>No vaccines found.</Text>
         ) : (
           <View style={styles.timelineContainer}>
-            {timeline.length === 0 ? (
-              <Text style={styles.emptyText}>{t('noVaccinesInSchedule')}</Text>
-            ) : (
-              timeline.map((vaccine, index) => {
-                const isLast = index === timeline.length - 1;
-                
-                let dueDate = new Date(child.dob);
-                dueDate.setMonth(dueDate.getMonth() + vaccine.recommended_age_months);
-                
-                let deadlineDate = new Date(dueDate);
-                deadlineDate.setDate(deadlineDate.getDate() + (vaccine.minimum_interval_days || 0));
+            {groupedTimeline.map((group: any, index: number) => {
+              const isLastGroup = index === groupedTimeline.length - 1;
 
-                let isBlocked = false;
-
-                if (vaccine.previous_dose_id) {
-                  const prevDose = timeline.find((v: any) => v.id === vaccine.previous_dose_id);
-                  if (prevDose && prevDose.is_completed && prevDose.administered_date) {
-                    dueDate = new Date(prevDose.administered_date);
-                    dueDate.setDate(dueDate.getDate() + (vaccine.minimum_interval_days || 0));
-                    deadlineDate = new Date(dueDate);
-                    deadlineDate.setDate(deadlineDate.getDate() + 14); // 14 days grace period for subsequent doses
-                  } else {
-                    isBlocked = true;
-                  }
-                }
-
-                const today = new Date();
-                today.setHours(0,0,0,0);
-                const dueDateCompare = new Date(dueDate);
-                dueDateCompare.setHours(0,0,0,0);
-                const deadlineDateCompare = new Date(deadlineDate);
-                deadlineDateCompare.setHours(0,0,0,0);
-                
-                const isOverdue = !vaccine.is_completed && !isBlocked && today > deadlineDateCompare;
-                const isUpcoming = !vaccine.is_completed && !isOverdue;
-
-                let daysRemaining = -1;
-                if (isUpcoming && !isBlocked) {
-                  const diffTime = deadlineDateCompare.getTime() - today.getTime();
-                  daysRemaining = Math.ceil(diffTime / (1000 * 3600 * 24));
-                }
-
-                let iconColor = colors.border;
-                let badgeBg = '#F1F5F9';
-                let badgeTextCol = colors.textMuted;
-                let statusLabel = 'Upcoming';
-
-                if (vaccine.is_completed) {
-                  iconColor = colors.primary; // Green
-                  badgeBg = '#DCFCE7';
-                  badgeTextCol = '#15803D';
-                  statusLabel = t('completedStatusText');
-                } else if (isOverdue) {
-                  iconColor = '#EF4444'; // Red
-                  badgeBg = '#FEE2E2';
-                  badgeTextCol = '#B91C1C';
-                  statusLabel = t('overdueText');
-                } else if (isUpcoming) {
-                  iconColor = '#3B82F6'; // Blue
-                  badgeBg = '#DBEAFE';
-                  badgeTextCol = '#1D4ED8';
-                  statusLabel = isBlocked ? t('blockedTitle') : t('upcomingText');
-                }
-
-                return (
-                  <TouchableOpacity 
-                    key={vaccine.id} 
-                    style={styles.timelineItem}
-                    activeOpacity={0.7}
-                    onPress={() => handleVaccinePress(vaccine)}
-                  >
-                    {/* Line behind icon */}
-                    {!isLast && <View style={[styles.timelineLine, { backgroundColor: vaccine.is_completed ? colors.primary : colors.border }]} />}
-                    
-                    {/* Icon */}
-                    <View style={styles.iconContainer}>
-                      {vaccine.is_completed ? (
-                        <CheckCircle color={colors.primary} size={28} fill="#DCFCE7" />
-                      ) : isOverdue ? (
-                        <ShieldAlert color="#EF4444" size={28} fill="#FEE2E2" />
-                      ) : (
-                        <Circle color={iconColor} size={28} />
-                      )}
+              return (
+                <View key={index} style={styles.timelineRow}>
+                  {/* Timeline Line & Circle */}
+                  <View style={styles.timelineLeft}>
+                    <View style={styles.ageCircle}>
+                      <Text style={styles.ageCircleText}>{group.ageShort}</Text>
                     </View>
+                    {!isLastGroup && <View style={styles.timelineLine} />}
+                  </View>
 
-                    {/* Content */}
-                    <View style={styles.contentContainer}>
-                      <View style={styles.card}>
-                        <View style={styles.cardHeader}>
-                          <Text style={[styles.vaccineName, vaccine.is_completed && styles.vaccineNameCompleted]}>
-                            {vaccine.name} {vaccine.dose_number && vaccine.dose_number > 1 ? `(${t('doseText')} ${vaccine.dose_number})` : ''}
-                          </Text>
-                          <View style={[styles.statusBadge, { backgroundColor: badgeBg }]}>
-                            <Text style={[styles.statusText, { color: badgeTextCol }]}>
-                              {statusLabel}
-                            </Text>
-                          </View>
-                        </View>
-                        
-                        {!vaccine.is_completed && !isBlocked && isUpcoming && daysRemaining > 0 && (
-                          <Text style={{ fontSize: 13, color: '#3B82F6', fontWeight: 'bold', marginBottom: 4 }}>
-                            {daysRemaining} {t('daysRemainingText')}
-                          </Text>
-                        )}
-                        
-                        <Text style={styles.ageText}>
-                          {t('dueAtText')} {vaccine.recommended_age_months} {t('monthsText')}
+                  {/* Milestone Card */}
+                  <View style={styles.milestoneCard}>
+                    <View style={styles.milestoneHeader}>
+                      <Text style={styles.milestoneTitle}>{group.title}</Text>
+                      <View style={[styles.tagBadge, { backgroundColor: group.tagColor }]}>
+                        <Text style={[styles.tagText, { color: group.tagTextColor }]}>
+                          {group.tag}
                         </Text>
-                        
-                        {vaccine.is_completed && vaccine.administered_date && (
-                          <Text style={styles.dateText}>
-                            {t('administeredText')} {new Date(vaccine.administered_date).toLocaleDateString()}
-                          </Text>
-                        )}
-                        
-                        {!vaccine.is_completed && (role === 'phm' || role === 'midwife') && (
-                          <View style={styles.actionPrompt}>
-                            <ShieldAlert size={14} color={colors.primary} />
-                            <Text style={styles.actionText}>{t('tapToMarkAdministered')}</Text>
-                          </View>
-                        )}
-                        
-                        {!vaccine.is_completed && role === 'parent' && (
-                          <View style={{ marginTop: 12 }}>
-                            {isBlocked && (
-                               <Text style={{ fontSize: 13, color: colors.textMuted }}>{t('waitingOnPreviousDose')}</Text>
-                            )}
-                            {isOverdue && (
-                              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8, backgroundColor: 'rgba(239, 68, 68, 0.1)', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12, alignSelf: 'flex-start' }}>
-                                <ShieldAlert size={14} color="#EF4444" style={{ marginRight: 4 }} />
-                                <Text style={{ fontSize: 12, color: '#EF4444', fontWeight: 'bold' }}>{t('unsafeOverdue')}</Text>
-                              </View>
-                            )}
-                            {!isBlocked && (today >= dueDateCompare) && (
-                              <TouchableOpacity 
-                                style={{ backgroundColor: colors.primary, paddingHorizontal: 16, paddingVertical: 8, borderRadius: 8, alignSelf: 'flex-start' }}
-                                onPress={() => navigation.navigate('ScheduleTab', { childId: child.id })}
-                              >
-                                <Text style={{ color: 'white', fontSize: 13, fontWeight: 'bold' }}>{t('bookClinicBtn')}</Text>
-                              </TouchableOpacity>
-                            )}
-                          </View>
-                        )}
                       </View>
                     </View>
-                  </TouchableOpacity>
-                );
-              })
-            )}
+
+                    <View style={styles.vaccineList}>
+                      {group.vaccines.map((vaccine: TimelineVaccine, vIndex: number) => {
+                        let dueDate = new Date(child.dob);
+                        dueDate.setMonth(dueDate.getMonth() + vaccine.recommended_age_months);
+                        
+                        let deadlineDate = new Date(dueDate);
+                        deadlineDate.setDate(deadlineDate.getDate() + (vaccine.minimum_interval_days || 0));
+
+                        let isBlocked = false;
+
+                        if (vaccine.previous_dose_id) {
+                          const prevDose = timeline.find((v: any) => v.id === vaccine.previous_dose_id);
+                          if (prevDose && prevDose.is_completed && prevDose.administered_date) {
+                            dueDate = new Date(prevDose.administered_date);
+                            dueDate.setDate(dueDate.getDate() + (vaccine.minimum_interval_days || 0));
+                            deadlineDate = new Date(dueDate);
+                            deadlineDate.setDate(deadlineDate.getDate() + 14); // 14 days grace period for subsequent doses
+                          } else {
+                            isBlocked = true;
+                          }
+                        }
+
+                        const today = new Date();
+                        today.setHours(0,0,0,0);
+                        const dueDateCompare = new Date(dueDate);
+                        dueDateCompare.setHours(0,0,0,0);
+                        const deadlineDateCompare = new Date(deadlineDate);
+                        deadlineDateCompare.setHours(0,0,0,0);
+                        
+                        const isOverdue = !vaccine.is_completed && !isBlocked && today > deadlineDateCompare;
+                        const isUpcoming = !vaccine.is_completed && !isOverdue;
+
+                        let daysRemaining = -1;
+                        if (isUpcoming && !isBlocked) {
+                          const diffTime = deadlineDateCompare.getTime() - today.getTime();
+                          daysRemaining = Math.ceil(diffTime / (1000 * 3600 * 24));
+                        }
+
+                        let iconColor = colors.border;
+                        let badgeBg = '#F1F5F9';
+                        let badgeTextCol = colors.textMuted;
+                        let statusLabel = 'Upcoming';
+
+                        if (vaccine.is_completed) {
+                          iconColor = colors.primary; // Green
+                          badgeBg = '#DCFCE7';
+                          badgeTextCol = '#15803D';
+                          statusLabel = t('completedStatusText');
+                        } else if (isOverdue) {
+                          iconColor = '#EF4444'; // Red
+                          badgeBg = '#FEE2E2';
+                          badgeTextCol = '#B91C1C';
+                          statusLabel = t('overdueText');
+                        } else if (isUpcoming) {
+                          iconColor = '#3B82F6'; // Blue
+                          badgeBg = '#DBEAFE';
+                          badgeTextCol = '#1D4ED8';
+                          statusLabel = isBlocked ? t('blockedTitle') : t('upcomingText');
+                        }
+
+                        return (
+                          <TouchableOpacity 
+                            key={vaccine.id} 
+                            style={[styles.vaccineItem, vIndex > 0 && { borderTopWidth: 1, borderTopColor: '#F0F0F0', paddingTop: 16 }]}
+                            onPress={() => handleVaccinePress(vaccine)}
+                            activeOpacity={0.7}
+                          >
+                            <View style={{marginTop: 2}}>
+                              {vaccine.is_completed ? (
+                                <CheckCircle color={colors.primary} size={22} fill="#DCFCE7" style={styles.vaccineIcon} />
+                              ) : isOverdue ? (
+                                <ShieldAlert color="#EF4444" size={22} fill="#FEE2E2" style={styles.vaccineIcon} />
+                              ) : (
+                                <Circle color={iconColor} size={22} style={styles.vaccineIcon} />
+                              )}
+                            </View>
+                            
+                            <View style={styles.vaccineContent}>
+                              <View style={styles.vaccineHeader}>
+                                <Text style={[styles.vaccineName, vaccine.is_completed && {color: colors.primary}]}>
+                                  {vaccine.name}
+                                </Text>
+                                <View style={[styles.statusBadge, { backgroundColor: badgeBg }]}>
+                                  <Text style={[styles.statusText, { color: badgeTextCol }]}>{statusLabel}</Text>
+                                </View>
+                              </View>
+                              
+                              <Text style={styles.vaccineDose}>
+                                Dose {vaccine.dose_number}
+                                {!vaccine.is_completed && !isBlocked && daysRemaining > 0 && (
+                                  <Text style={{ color: '#3B82F6', fontWeight: 'bold' }}> · {daysRemaining} days left</Text>
+                                )}
+                              </Text>
+
+                              {vaccine.is_completed && vaccine.administered_date && (
+                                <Text style={styles.dateText}>Administered: {new Date(vaccine.administered_date).toLocaleDateString()}</Text>
+                              )}
+                              
+                              {!vaccine.is_completed && role !== 'parent' && (
+                                <Text style={styles.actionPrompt}>Tap to mark administered</Text>
+                              )}
+                            </View>
+                          </TouchableOpacity>
+                        );
+                      })}
+                    </View>
+                  </View>
+                </View>
+              );
+            })}
           </View>
         )}
+        
+        {/* Extra spacing at bottom */}
+        <View style={{ height: 40 }} />
       </ScrollView>
     </SafeAreaView>
   );
@@ -252,117 +285,194 @@ export const ChildVaccinationScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F4FAFA'
+    backgroundColor: '#F4FAFA', // Light cyan background
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: layout.padding,
-    paddingVertical: 16,
-    backgroundColor: colors.white,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.05)'
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    backgroundColor: '#F4FAFA',
   },
   backButton: {
-    padding: 8,
-    marginLeft: -8
+    padding: 5,
   },
   headerTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
-    color: colors.textDark
+    color: '#053130',
+  },
+  bellButton: {
+    padding: 5,
+    position: 'relative',
+  },
+  notificationDot: {
+    position: 'absolute',
+    top: 5,
+    right: 7,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#E74C3C',
+    borderWidth: 1,
+    borderColor: '#FFF',
   },
   scrollContent: {
-    padding: layout.padding,
-    paddingBottom: 40
+    padding: 20,
+  },
+  pageTitle: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    color: '#053130',
+    marginBottom: 8,
+  },
+  pageSubtitle: {
+    fontSize: 15,
+    color: '#4A6261',
+    lineHeight: 22,
+    marginBottom: 20,
+  },
+  infoCard: {
+    flexDirection: 'row',
+    backgroundColor: '#E8F5F5',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 30,
+    borderWidth: 1,
+    borderColor: '#D4ECEC',
+  },
+  infoIconContainer: {
+    marginRight: 12,
+    marginTop: 2,
+  },
+  infoTextContainer: {
+    flex: 1,
+  },
+  infoTitle: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: '#117871',
+    marginBottom: 4,
+  },
+  infoDescription: {
+    fontSize: 14,
+    color: '#4A6261',
+    lineHeight: 20,
   },
   timelineContainer: {
-    paddingVertical: 10
+    paddingLeft: 4,
   },
-  timelineItem: {
+  timelineRow: {
     flexDirection: 'row',
     marginBottom: 24,
-    position: 'relative'
   },
-  timelineLine: {
-    position: 'absolute',
-    left: 13,
-    top: 28,
-    bottom: -24,
-    width: 2,
-    zIndex: 0
+  timelineLeft: {
+    width: 40,
+    alignItems: 'center',
+    marginRight: 16,
   },
-  iconContainer: {
-    width: 28,
-    height: 28,
-    zIndex: 1,
+  ageCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    borderWidth: 2,
+    borderColor: '#117871',
     backgroundColor: '#F4FAFA',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 16
+    zIndex: 2,
   },
-  contentContainer: {
-    flex: 1
+  ageCircleText: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: '#117871',
   },
-  card: {
-    backgroundColor: colors.white,
-    borderRadius: 12,
+  timelineLine: {
+    position: 'absolute',
+    top: 36,
+    bottom: -36, // extend to next circle
+    width: 2,
+    backgroundColor: '#D4ECEC',
+    zIndex: 1,
+  },
+  milestoneCard: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
     padding: 16,
     borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.05)'
+    borderColor: '#E8E8E8',
   },
-  cardHeader: {
+  milestoneHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8
+    marginBottom: 16,
+  },
+  milestoneTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#053130',
+  },
+  tagBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  tagText: {
+    fontSize: 11,
+    fontWeight: 'bold',
+  },
+  vaccineList: {
+    gap: 16,
+  },
+  vaccineItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
+  vaccineIcon: {
+    marginRight: 12,
+  },
+  vaccineContent: {
+    flex: 1,
+  },
+  vaccineHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 2,
   },
   vaccineName: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: 'bold',
-    color: colors.textDark,
-    flex: 1
-  },
-  vaccineNameCompleted: {
-    color: colors.primary
+    color: '#053130',
+    flex: 1,
+    marginRight: 8,
   },
   statusBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 8,
   },
   statusText: {
-    fontSize: 11,
-    fontWeight: 'bold'
+    fontSize: 10,
+    fontWeight: 'bold',
   },
-  ageText: {
-    fontSize: 14,
-    color: colors.textDark,
-    marginBottom: 4
+  vaccineDose: {
+    fontSize: 13,
+    color: '#4A6261',
+    marginBottom: 2,
   },
   dateText: {
-    fontSize: 13,
-    color: colors.textMuted
+    fontSize: 12,
+    color: '#666',
+    marginTop: 4,
   },
   actionPrompt: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 8,
-    paddingTop: 8,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(0,0,0,0.05)'
-  },
-  actionText: {
     fontSize: 12,
-    color: colors.primary,
-    marginLeft: 6,
-    fontWeight: '500'
-  },
-  emptyText: {
-    textAlign: 'center',
-    color: colors.textMuted,
-    fontStyle: 'italic',
-    marginTop: 40
+    color: '#117871',
+    marginTop: 4,
+    fontWeight: '500',
   }
 });

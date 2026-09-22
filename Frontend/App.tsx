@@ -17,8 +17,12 @@ import { CheckEmailScreen } from './src/screens/CheckEmailScreen';
 import { ProfileScreen } from './src/screens/ProfileScreen';
 import { MainTabNavigator } from './src/navigation/MainTabNavigator';
 import { ChildVaccinationScreen } from './src/screens/ChildVaccinationScreen';
+import { VaccineMilestonesScreen } from './src/screens/VaccineMilestonesScreen';
 import { SupervisorDashboardScreen } from './src/screens/SupervisorDashboardScreen';
 import { RegisterChildScreen } from './src/screens/RegisterChildScreen';
+import { PreconceptionCareScreen } from './src/screens/PreconceptionCareScreen';
+import { NutritionGuideScreen } from './src/screens/NutritionGuideScreen';
+import { FamilyPlanningMethodsScreen } from './src/screens/FamilyPlanningMethodsScreen';
 
 import { SelectClinicScreen } from './src/screens/SelectClinicScreen';
 import { FindClinicScreen } from './src/screens/FindClinicScreen';
@@ -57,6 +61,10 @@ export default function App() {
             <Stack.Screen name="ManageAppointments" component={ManageAppointmentsScreen} />
             <Stack.Screen name="Notification" component={NotificationScreen} />
             <Stack.Screen name="ChildVaccination" component={ChildVaccinationScreen} />
+            <Stack.Screen name="VaccineMilestones" component={VaccineMilestonesScreen} />
+            <Stack.Screen name="PreconceptionCare" component={PreconceptionCareScreen} />
+            <Stack.Screen name="NutritionGuide" component={NutritionGuideScreen} />
+            <Stack.Screen name="FamilyPlanningMethods" component={FamilyPlanningMethodsScreen} />
             <Stack.Screen name="SupervisorDashboard" component={SupervisorDashboardScreen} />
           </Stack.Navigator>
         </NavigationContainer>

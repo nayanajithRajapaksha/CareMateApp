@@ -1,144 +1,102 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { MoreVertical, Calendar, FileText, AlertCircle, Plus, Pencil, ShieldPlus } from 'lucide-react-native';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import { colors, typography, layout } from '../theme';
-import { PrimaryButton } from '../components/PrimaryButton';
-import { childService } from '../services/childService';
-import { useLanguage } from '../i18n/LanguageContext';
-
-const mockChildrenData = [
-  {
-    id: '1',
-    name: 'Yenuli Dahamsa',
-    age: '1 yrs 6 mos old',
-    gender: 'Female',
-    profile_pic_url: 'https://i.pravatar.cc/150?img=5',
-    alert: null
-  },
-  {
-    id: '2',
-    name: 'Senuja Perera',
-    age: '18 Months old',
-    gender: 'Male',
-    profile_pic_url: 'https://i.pravatar.cc/150?img=11',
-    alert: {
-      title: 'Upcoming Vaccination',
-      message: 'MMR Dose 1 due next week'
-    }
-  }
-];
+import { Heart, Calendar, ArrowRight, Bell, ArrowLeft, Utensils, UtensilsCrossed } from 'lucide-react-native';
+import { useNavigation } from '@react-navigation/native';
+import { colors } from '../theme';
 
 export const ChildrenScreen: React.FC = () => {
-  const { t } = useLanguage();
   const navigation = useNavigation<any>();
-  const [childrenData, setChildrenData] = React.useState<any[]>([]);
-  const [loading, setLoading] = React.useState(true);
 
-  useFocusEffect(
-    React.useCallback(() => {
-      const fetchChildren = async () => {
-        try {
-          const data = await childService.getChildren();
-          setChildrenData(data.children);
-        } catch (error) {
-          console.error('Error fetching children:', error);
-        } finally {
-          setLoading(false);
-        }
-      };
-
-      fetchChildren();
-    }, [])
-  );
-
-  // Use mock data fallback for testing if API returns empty, or you can strictly use API.
-  // The plan requested to show "no children added" if not added.
-  const displayData = childrenData.length > 0 ? childrenData : [];
-
-  const renderEmptyState = () => (
-    <View style={styles.emptyContainer}>
-      <Text style={styles.emptyTitle}>{t('noChildrenAdded')}</Text>
-      <Text style={styles.emptySubtitle}>{t('noChildrenAddedLongSubtitle')}</Text>
-      <PrimaryButton 
-        title={t('registerChild')} 
-        onPress={() => navigation.navigate('RegisterChild')}
-        style={{ marginTop: 24, width: '80%' }}
-      />
-    </View>
-  );
   return (
     <SafeAreaView style={styles.container}>
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.canGoBack() && navigation.goBack()}>
+          <ArrowLeft color={colors.textDark || '#053130'} size={24} />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>CareMate</Text>
+        <TouchableOpacity style={styles.bellButton}>
+          <Bell color={colors.textDark || '#053130'} size={24} />
+          <View style={styles.notificationDot} />
+        </TouchableOpacity>
+      </View>
+
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>{t('myChildrenTitle')}</Text>
-          <Text style={styles.headerSubtitle}>{t('myChildrenSubtitle')}</Text>
+        {/* Main Card */}
+        <View style={styles.mainCard}>
+          <View style={styles.hubTag}>
+            <Text style={styles.hubTagText}>Family Planning Hub</Text>
+          </View>
+          
+          <Text style={styles.heroTitle}>Welcome to your{'\n'}shared journey.</Text>
+          <Text style={styles.heroDescription}>
+            Discover evidence-based guidance, track your milestones, and build a healthy foundation for your growing family.
+          </Text>
+          
+          <TouchableOpacity style={styles.getStartedBtn}>
+            <Text style={styles.getStartedText}>Get Started</Text>
+            <ArrowRight color="#FFFFFF" size={18} style={{marginLeft: 6}} />
+          </TouchableOpacity>
+          
+          <Image 
+            source={require('../../assets/family_planning.jpg')}
+            style={styles.heroImage}
+            resizeMode="cover"
+          />
         </View>
 
-        {/* Children List */}
-        {loading ? (
-          <Text style={{ textAlign: 'center', marginTop: 40, color: colors.textMuted }}>{t('loadingText')}</Text>
-        ) : displayData.length === 0 ? (
-          renderEmptyState()
-        ) : (
-          <View style={styles.childrenList}>
-            {displayData.map(child => (
-              <View key={child.id} style={styles.card}>
-                <View style={styles.cardTop}>
-                  <Image source={{ uri: child.profile_pic_url || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(child.full_name) + '&background=0D8ABC&color=fff' }} style={styles.childImage} />
-                  <View style={styles.childInfo}>
-                    <Text style={styles.childName}>{child.full_name}</Text>
-                    <Text style={styles.childDetails}>{child.gender}</Text>
-                  </View>
-                  <TouchableOpacity style={styles.menuIcon} onPress={() => navigation.navigate('RegisterChild', { mode: 'edit', child })}>
-                    <Pencil color={colors.primary} size={20} />
-                  </TouchableOpacity>
-                </View>
-
-                {/* Alert Banner - Placeholder for API */}
-                {child.alert && (
-                  <View style={styles.alertBanner}>
-                    <View style={styles.alertIconContainer}>
-                      <AlertCircle color={colors.white} size={16} />
-                    </View>
-                    <View style={styles.alertTextContent}>
-                      <Text style={styles.alertTitle}>{child.alert.title}</Text>
-                      <Text style={styles.alertMessage}>{child.alert.message}</Text>
-                    </View>
-                  </View>
-                )}
-
-                {/* Action Buttons */}
-                <View style={styles.actionButtonsRow}>
-                  <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('ScheduleTab', { childId: child.id })}>
-                    <Calendar color={colors.primary} size={16} style={{ marginRight: 6 }} />
-                    <Text style={styles.actionButtonText}>{t('scheduleBtn')}</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('ChildVaccination', { child })}>
-                    <ShieldPlus color={colors.primary} size={16} style={{ marginRight: 6 }} />
-                    <Text style={styles.actionButtonText}>Vaccines</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('ChildRecords', { child })}>
-                    <FileText color={colors.primary} size={16} style={{ marginRight: 6 }} />
-                    <Text style={styles.actionButtonText}>{t('recordsBtn')}</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            ))}
+        {/* Feature Cards */}
+        <TouchableOpacity style={styles.featureCard} onPress={() => navigation.navigate('PreconceptionCare')}>
+          <View style={styles.iconCircle}>
+            <Heart color={colors.primary || '#117871'} size={24} />
           </View>
-        )}
+          <Text style={styles.featureTitle}>Preconception Care</Text>
+          <Text style={styles.featureDescription}>
+            Medical checklists, genetic screening information, and vital health optimizing strategies before trying to conceive.
+          </Text>
+          <View style={styles.featureFooter}>
+            <Text style={styles.featureAction}>Explore Care</Text>
+            <ArrowRight color={colors.primary || '#117871'} size={16} />
+          </View>
+          <View style={styles.cardDecoration} />
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.featureCard} onPress={() => navigation.navigate('FamilyPlanningMethods')}>
+          <View style={styles.iconCircle}>
+            <Calendar color={colors.primary || '#117871'} size={24} />
+          </View>
+          <Text style={styles.featureTitle}>Family Planning Methods</Text>
+          <Text style={styles.featureDescription}>
+            Compare contraceptive options, track fertility windows, and understand timelines for natural family planning.
+          </Text>
+          <View style={styles.featureFooter}>
+            <Text style={styles.featureAction}>View Methods</Text>
+            <ArrowRight color={colors.primary || '#117871'} size={16} />
+          </View>
+          <View style={styles.cardDecoration} />
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.featureCard} onPress={() => navigation.navigate('NutritionGuide')}>
+          <View style={styles.iconCircle}>
+            <UtensilsCrossed color={colors.primary || '#117871'} size={24} />
+          </View>
+          <Text style={styles.featureTitle}>Nutrition & Lifestyle</Text>
+          <Text style={styles.featureDescription}>
+            Dietary guidelines, supplement recommendations, and stress management techniques for optimal reproductive health.
+          </Text>
+          <View style={styles.featureFooter}>
+            <Text style={styles.featureAction}>Read Guide</Text>
+            <ArrowRight color={colors.primary || '#117871'} size={16} />
+          </View>
+          <View style={styles.cardDecoration} />
+        </TouchableOpacity>
+        
+        {/* Add bottom spacing */}
+        <View style={{height: 40}}/>
 
       </ScrollView>
-
-      {/* FAB */}
-      {displayData.length > 0 && (
-        <TouchableOpacity style={styles.fab} onPress={() => navigation.navigate('RegisterChild')}>
-          <Plus color={colors.white} size={28} />
-        </TouchableOpacity>
-      )}
     </SafeAreaView>
   );
 };
@@ -146,116 +104,148 @@ export const ChildrenScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F4FAFA'},
-  scrollContent: {
-    padding: layout.padding,
-    paddingBottom: 100, // Extra padding for FAB
+    backgroundColor: '#F4FAFA', // Light cyan background to match the image
   },
   header: {
-    marginTop: 20,
-    marginBottom: 24},
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    backgroundColor: '#F4FAFA',
+  },
+  backButton: {
+    padding: 5,
+  },
   headerTitle: {
-    ...typography.h1,
-    marginBottom: 8},
-  headerSubtitle: {
-    ...typography.body},
-  childrenList: {
-    gap: 16},
-  card: {
-    backgroundColor: colors.white,
-    borderRadius: 20,
-    padding: 20,
-    borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.05)'},
-  cardTop: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16},
-  childImage: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    marginRight: 16},
-  childInfo: {
-    flex: 1},
-  childName: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: colors.textDark,
-    marginBottom: 4},
-  childDetails: {
-    fontSize: 14,
-    color: colors.textMuted},
-  menuIcon: {
-    padding: 8},
-  alertBanner: {
-    flexDirection: 'row',
-    backgroundColor: '#E6F4F4',
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 16,
-    alignItems: 'center'},
-  alertIconContainer: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: colors.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12},
-  alertTextContent: {
-    flex: 1},
-  alertTitle: {
-    fontSize: 13,
-    fontWeight: 'bold',
-    color: colors.textDark},
-  alertMessage: {
-    fontSize: 13,
-    color: colors.textMuted,
-    marginTop: 2},
-  actionButtonsRow: {
-    flexDirection: 'row',
-    gap: 12},
-  actionButton: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#E6F4F4', // Light teal background
-    paddingVertical: 12,
-    borderRadius: 12},
-  actionButtonText: {
-    color: colors.primary,
-    fontWeight: '600',
-    fontSize: 15},
-  fab: {
+    color: '#053130',
+  },
+  bellButton: {
+    padding: 5,
+    position: 'relative',
+  },
+  notificationDot: {
     position: 'absolute',
-    bottom: 24,
-    right: 24,
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: colors.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4},
-  emptyContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 60,
-    paddingHorizontal: 20},
-  emptyTitle: {
-    fontSize: 20,
+    top: 5,
+    right: 7,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#E74C3C',
+    borderWidth: 1,
+    borderColor: '#FFF',
+  },
+  scrollContent: {
+    padding: 20,
+  },
+  mainCard: {
+    backgroundColor: '#FAF7EF', // very pale beige/yellow for the main card background
+    borderRadius: 24,
+    padding: 24,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.05)',
+  },
+  hubTag: {
+    backgroundColor: '#C5EBE9',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    alignSelf: 'flex-start',
+    marginBottom: 16,
+  },
+  hubTagText: {
+    color: '#0D6864',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  heroTitle: {
+    fontSize: 28,
     fontWeight: 'bold',
-    color: colors.textDark,
-    marginBottom: 8},
-  emptySubtitle: {
+    color: '#053130',
+    marginBottom: 12,
+    lineHeight: 34,
+  },
+  heroDescription: {
     fontSize: 15,
-    color: colors.textMuted,
-    textAlign: 'center',
-    lineHeight: 22}
+    color: '#4A6261',
+    lineHeight: 22,
+    marginBottom: 24,
+  },
+  getStartedBtn: {
+    backgroundColor: '#117871', // colors.primary
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'flex-start',
+    paddingHorizontal: 24,
+    paddingVertical: 14,
+    borderRadius: 12,
+    marginBottom: 30,
+  },
+  getStartedText: {
+    color: '#FFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  heroImage: {
+    width: '100%',
+    height: 180,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.05)',
+  },
+  featureCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 24,
+    padding: 24,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#E8E8E8',
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  iconCircle: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#D2EEED',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  featureTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#053130',
+    marginBottom: 10,
+  },
+  featureDescription: {
+    fontSize: 14,
+    color: '#555',
+    lineHeight: 20,
+    marginBottom: 20,
+  },
+  featureFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  featureAction: {
+    color: '#117871',
+    fontSize: 14,
+    fontWeight: '600',
+    marginRight: 6,
+  },
+  cardDecoration: {
+    position: 'absolute',
+    bottom: -40,
+    right: -40,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: '#F4FAFA', // very light teal decoration bubble
+    zIndex: -1, // Keep behind text
+  },
 });
