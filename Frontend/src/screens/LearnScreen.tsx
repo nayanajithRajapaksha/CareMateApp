@@ -11,39 +11,6 @@ import { BlogDetailModal } from '../components/BlogDetailModal';
 import { useLanguage } from '../i18n/LanguageContext';
 import { useNavigation } from '@react-navigation/native';
 
-
-
-// Fallback seed articles in case backend has no records yet
-const fallbackArticles: Blog[] = [
-  {
-    id: 'f1',
-    category: 'Nutrition',
-    title: 'The Essential Breastfeeding Guide for New Mothers',
-    subtitle: 'Learn optimal positioning, latching techniques, and nutrition advice for newborn care.',
-    read_time: '5 min read',
-    author_name: 'Dr. Perera (MOH)',
-    author_role: 'moh',
-    cover_image: 'https://images.unsplash.com/photo-1544928147-79a2dbc1f389?w=600&q=80',
-    status: 'published',
-    content_blocks: [
-      { id: 'b1', type: 'subtitle', text: 'Why Breastfeeding is Vital' },
-      { id: 'b2', type: 'text', text: 'Breast milk provides the ideal balance of nutrients for your baby. It has antibodies that help your baby fight off viruses and bacteria.' },
-      { id: 'b3', type: 'image', url: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=80', caption: 'Balanced mother & child nutrition meal' }
-    ]
-  },
-  {
-    id: 'f2',
-    category: 'General Health',
-    title: 'Managing Common Fevers in Toddlers at Home',
-    subtitle: 'Recognizing high fever warning signs and safe home care remedies.',
-    read_time: '4 min read',
-    author_name: 'CareMate Health Team',
-    author_role: 'admin',
-    cover_image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=600&q=80',
-import { useLanguage } from '../i18n/LanguageContext';
-
-
-
 // Fallback seed articles in case backend has no records yet
 const fallbackArticles: Blog[] = [
   {
