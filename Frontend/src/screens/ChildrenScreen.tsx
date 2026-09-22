@@ -4,9 +4,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Heart, Calendar, ArrowRight, Bell, ArrowLeft, Utensils, UtensilsCrossed } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import { colors } from '../theme';
+import { useLanguage } from '../i18n/LanguageContext';
 
 export const ChildrenScreen: React.FC = () => {
   const navigation = useNavigation<any>();
+  const { t } = useLanguage();
 
   return (
     <SafeAreaView style={styles.container}>
@@ -27,16 +29,16 @@ export const ChildrenScreen: React.FC = () => {
         {/* Main Card */}
         <View style={styles.mainCard}>
           <View style={styles.hubTag}>
-            <Text style={styles.hubTagText}>Family Planning Hub</Text>
+            <Text style={styles.hubTagText}>{t('familyPlanningHub')}</Text>
           </View>
           
-          <Text style={styles.heroTitle}>Welcome to your{'\n'}shared journey.</Text>
+          <Text style={styles.heroTitle}>{t('welcomeSharedJourney')}</Text>
           <Text style={styles.heroDescription}>
             Discover evidence-based guidance, track your milestones, and build a healthy foundation for your growing family.
           </Text>
           
           <TouchableOpacity style={styles.getStartedBtn}>
-            <Text style={styles.getStartedText}>Get Started</Text>
+            <Text style={styles.getStartedText}>{t('getStarted')}</Text>
             <ArrowRight color="#FFFFFF" size={18} style={{marginLeft: 6}} />
           </TouchableOpacity>
           
@@ -52,12 +54,10 @@ export const ChildrenScreen: React.FC = () => {
           <View style={styles.iconCircle}>
             <Heart color={colors.primary || '#117871'} size={24} />
           </View>
-          <Text style={styles.featureTitle}>Preconception Care</Text>
-          <Text style={styles.featureDescription}>
-            Medical checklists, genetic screening information, and vital health optimizing strategies before trying to conceive.
-          </Text>
+          <Text style={styles.featureTitle}>{t('preconceptionCareTitle')}</Text>
+          <Text style={styles.featureDescription}>{t('preconceptionCareDesc')}</Text>
           <View style={styles.featureFooter}>
-            <Text style={styles.featureAction}>Explore Care</Text>
+            <Text style={styles.featureAction}>{t('exploreCare')}</Text>
             <ArrowRight color={colors.primary || '#117871'} size={16} />
           </View>
           <View style={styles.cardDecoration} />
@@ -67,12 +67,10 @@ export const ChildrenScreen: React.FC = () => {
           <View style={styles.iconCircle}>
             <Calendar color={colors.primary || '#117871'} size={24} />
           </View>
-          <Text style={styles.featureTitle}>Family Planning Methods</Text>
-          <Text style={styles.featureDescription}>
-            Compare contraceptive options, track fertility windows, and understand timelines for natural family planning.
-          </Text>
+          <Text style={styles.featureTitle}>{t('familyPlanningMethodsTitle')}</Text>
+          <Text style={styles.featureDescription}>{t('familyPlanningMethodsDesc')}</Text>
           <View style={styles.featureFooter}>
-            <Text style={styles.featureAction}>View Methods</Text>
+            <Text style={styles.featureAction}>{t('viewMethods')}</Text>
             <ArrowRight color={colors.primary || '#117871'} size={16} />
           </View>
           <View style={styles.cardDecoration} />
@@ -82,12 +80,10 @@ export const ChildrenScreen: React.FC = () => {
           <View style={styles.iconCircle}>
             <UtensilsCrossed color={colors.primary || '#117871'} size={24} />
           </View>
-          <Text style={styles.featureTitle}>Nutrition & Lifestyle</Text>
-          <Text style={styles.featureDescription}>
-            Dietary guidelines, supplement recommendations, and stress management techniques for optimal reproductive health.
-          </Text>
+          <Text style={styles.featureTitle}>{t('nutritionLifestyleTitle')}</Text>
+          <Text style={styles.featureDescription}>{t('nutritionLifestyleDesc')}</Text>
           <View style={styles.featureFooter}>
-            <Text style={styles.featureAction}>Read Guide</Text>
+            <Text style={styles.featureAction}>{t('readGuide')}</Text>
             <ArrowRight color={colors.primary || '#117871'} size={16} />
           </View>
           <View style={styles.cardDecoration} />

@@ -4,9 +4,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft, Bell, Shield, Users, Heart, Info, Calendar } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import { colors } from '../theme';
+import { useLanguage } from '../i18n/LanguageContext';
 
 export const WhyImmunizeScreen: React.FC = () => {
   const navigation = useNavigation<any>();
+  const { t } = useLanguage();
 
   return (
     <SafeAreaView style={styles.container}>
@@ -32,7 +34,7 @@ export const WhyImmunizeScreen: React.FC = () => {
             resizeMode="cover"
           />
           <View style={styles.heroOverlay}>
-            <Text style={styles.heroTitle}>Why Immunize?</Text>
+            <Text style={styles.heroTitle}>{t('whyImmunizeTitle')}</Text>
           </View>
         </View>
 
@@ -45,7 +47,7 @@ export const WhyImmunizeScreen: React.FC = () => {
           <View style={[styles.iconCircle, { backgroundColor: '#E0EEED' }]}>
             <Shield color="#053130" size={20} />
           </View>
-          <Text style={styles.reasonTitle}>Direct Protection</Text>
+          <Text style={styles.reasonTitle}>{t('directProtection')}</Text>
           <Text style={styles.reasonDesc}>
             Vaccines train your child's immune system to recognize and fight serious diseases, providing immunity before exposure.
           </Text>
@@ -55,7 +57,7 @@ export const WhyImmunizeScreen: React.FC = () => {
           <View style={[styles.iconCircle, { backgroundColor: '#E0EEED' }]}>
             <Users color="#053130" size={20} />
           </View>
-          <Text style={styles.reasonTitle}>Community Defense</Text>
+          <Text style={styles.reasonTitle}>{t('communityDefense')}</Text>
           <Text style={styles.reasonDesc}>
             High vaccination rates prevent outbreaks, protecting vulnerable individuals who cannot be vaccinated due to medical conditions.
           </Text>
@@ -65,25 +67,25 @@ export const WhyImmunizeScreen: React.FC = () => {
           <View style={[styles.iconCircle, { backgroundColor: '#BBE2E9', width: 64, height: 64, borderRadius: 16, marginBottom: 16 }]}>
             <Heart color="#053130" size={28} />
           </View>
-          <Text style={styles.reasonTitle}>Long-term Health Investment</Text>
+          <Text style={styles.reasonTitle}>{t('longtermHealthInvestment')}</Text>
           <Text style={styles.reasonDesc}>
-            Preventing disease today ensures a healthier tomorrow. Many vaccines provide lifelong protection against debilitating illnesses, reducing future healthcare interventions and ensuring your child can thrive.
+            {t('longtermHealthInvestmentDesc')}
           </Text>
         </View>
 
         <View style={[styles.reasonCard, { backgroundColor: '#F0F9F8', borderColor: '#D4ECEC' }]}>
           <View style={styles.safetyHeader}>
             <Info color="#053130" size={20} style={{ marginRight: 10 }} />
-            <Text style={styles.safetyTitle}>Safety & Rigor</Text>
+            <Text style={styles.safetyTitle}>{t('safetyAndRigor')}</Text>
           </View>
           <Text style={styles.reasonDesc}>
-            All vaccines undergo years of rigorous testing for safety and efficacy before approval, and are continuously monitored by global health authorities.
+            {t('safetyAndRigorDesc')}
           </Text>
         </View>
 
         {/* Action Bottom Section */}
         <View style={styles.actionSection}>
-          <Text style={styles.actionTitle}>Ready to review your schedule?</Text>
+          <Text style={styles.actionTitle}>{t('readyToReviewSchedule')}</Text>
           <Text style={styles.actionDesc}>
             Check your personalized immunization timeline or book an appointment with your pediatrician.
           </Text>
@@ -93,14 +95,14 @@ export const WhyImmunizeScreen: React.FC = () => {
             onPress={() => navigation.navigate('ChildVaccination')}
           >
             <Calendar color="#FFF" size={20} style={{ marginRight: 8 }} />
-            <Text style={styles.primaryButtonText}>View Schedule</Text>
+            <Text style={styles.primaryButtonText}>{t('viewScheduleBtn')}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity 
             style={styles.secondaryButton}
             onPress={() => navigation.navigate('VaccineMilestones')}
           >
-            <Text style={styles.secondaryButtonText}>Learn More</Text>
+            <Text style={styles.secondaryButtonText}>{t('learnMoreBtn')}</Text>
           </TouchableOpacity>
         </View>
 

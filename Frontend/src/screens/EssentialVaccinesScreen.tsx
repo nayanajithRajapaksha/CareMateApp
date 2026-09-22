@@ -4,9 +4,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft, Bell, Info, Shield, ShieldAlert, Droplet, Syringe, Bug } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import { colors } from '../theme';
+import { useLanguage } from '../i18n/LanguageContext';
 
 export const EssentialVaccinesScreen: React.FC = () => {
   const navigation = useNavigation<any>();
+  const { t } = useLanguage();
 
   return (
     <SafeAreaView style={styles.container}>
@@ -32,12 +34,12 @@ export const EssentialVaccinesScreen: React.FC = () => {
             resizeMode="cover"
           />
           <View style={styles.heroOverlay}>
-            <Text style={styles.heroTitle}>Essential Vaccinations for Under 5s</Text>
+            <Text style={styles.heroTitle}>{t('essentialVaccinesTitle')}</Text>
           </View>
         </View>
 
         <Text style={styles.introText}>
-          Immunization is one of the most effective ways to protect your child from serious, preventable diseases. By adhering to the recommended vaccination schedule in the first five years of life, you build a strong foundation for your child's long-term health and contribute to the safety of the wider community.
+          {t('essentialVaccinesIntro')}
         </Text>
 
         {/* Info Card */}
@@ -46,25 +48,25 @@ export const EssentialVaccinesScreen: React.FC = () => {
             <Info color="#4A6261" size={20} />
           </View>
           <Text style={styles.infoText}>
-            This guide provides a general overview. Always consult your pediatrician for a personalized vaccination schedule tailored to your child's specific medical history and local guidelines.
+            {t('essentialVaccinesDisclaimer')}
           </Text>
         </View>
 
-        <Text style={styles.sectionTitle}>Key Vaccines Overview</Text>
+        <Text style={styles.sectionTitle}>{t('keyVaccinesOverview')}</Text>
 
         {/* BCG Card */}
         <View style={styles.vaccineCard}>
           <View style={styles.vaccineHeader}>
             <View style={styles.vaccineTitleRow}>
               <Syringe color="#117871" size={22} style={{ marginRight: 8 }} />
-              <Text style={styles.vaccineTitle}>BCG</Text>
+              <Text style={styles.vaccineTitle}>{t('bcgTitle')}</Text>
             </View>
             <View style={styles.badge}>
-              <Text style={styles.badgeText}>Birth</Text>
+              <Text style={styles.badgeText}>{t('bcgTiming')}</Text>
             </View>
           </View>
           <Text style={styles.vaccineDesc}>
-            Protects against Tuberculosis (TB), particularly severe forms of the disease in young children. Usually given as a single dose shortly after birth.
+            {t('bcgDesc')}
           </Text>
         </View>
 
@@ -73,14 +75,14 @@ export const EssentialVaccinesScreen: React.FC = () => {
           <View style={styles.vaccineHeader}>
             <View style={styles.vaccineTitleRow}>
               <ShieldAlert color="#117871" size={22} style={{ marginRight: 8 }} />
-              <Text style={styles.vaccineTitle}>Pentavalent</Text>
+              <Text style={styles.vaccineTitle}>{t('pentavalentTitle')}</Text>
             </View>
             <View style={styles.badge}>
-              <Text style={styles.badgeText}>6, 10, 14 wks</Text>
+              <Text style={styles.badgeText}>{t('pentavalentTiming')}</Text>
             </View>
           </View>
           <Text style={styles.vaccineDesc}>
-            A 5-in-1 vaccine protecting against Diphtheria, Tetanus, Pertussis (whooping cough), Hepatitis B, and Haemophilus influenzae type b (Hib).
+            {t('pentavalentDesc')}
           </Text>
         </View>
 
@@ -89,14 +91,14 @@ export const EssentialVaccinesScreen: React.FC = () => {
           <View style={styles.vaccineHeader}>
             <View style={styles.vaccineTitleRow}>
               <Droplet color="#117871" size={22} style={{ marginRight: 8 }} />
-              <Text style={styles.vaccineTitle}>Polio (OPV/IPV)</Text>
+              <Text style={styles.vaccineTitle}>{t('polioTitle')}</Text>
             </View>
             <View style={[styles.badge, { backgroundColor: '#475569' }]}>
-              <Text style={styles.badgeText}>Multiple</Text>
+              <Text style={styles.badgeText}>{t('polioTiming')}</Text>
             </View>
           </View>
           <Text style={styles.vaccineDesc}>
-            Prevents Poliomyelitis, a highly infectious viral disease that can cause irreversible paralysis. Administered orally (OPV) or via injection (IPV).
+            {t('polioDesc')}
           </Text>
         </View>
 
@@ -105,14 +107,14 @@ export const EssentialVaccinesScreen: React.FC = () => {
           <View style={styles.vaccineHeader}>
             <View style={styles.vaccineTitleRow}>
               <Bug color="#117871" size={22} style={{ marginRight: 8 }} />
-              <Text style={styles.vaccineTitle}>MMR</Text>
+              <Text style={styles.vaccineTitle}>{t('mmrTitle')}</Text>
             </View>
             <View style={styles.badge}>
-              <Text style={styles.badgeText}>9 & 15 mos</Text>
+              <Text style={styles.badgeText}>{t('mmrTiming')}</Text>
             </View>
           </View>
           <Text style={styles.vaccineDesc}>
-            Guards against Measles, Mumps, and Rubella. These highly contagious diseases can lead to severe complications, making this vaccine crucial for early childhood.
+            {t('mmrDesc')}
           </Text>
         </View>
 

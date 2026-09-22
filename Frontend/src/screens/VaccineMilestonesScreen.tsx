@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-nati
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft, Bell, Info, Syringe } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useLanguage } from '../i18n/LanguageContext';
 import { colors, typography, layout } from '../theme';
 
 const milestones = [
@@ -60,6 +61,7 @@ const milestones = [
 
 export const VaccineMilestonesScreen: React.FC = () => {
   const navigation = useNavigation<any>();
+  const { t } = useLanguage();
 
   return (
     <SafeAreaView style={styles.container}>

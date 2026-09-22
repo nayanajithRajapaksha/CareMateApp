@@ -3,9 +3,11 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'rea
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft, Bookmark, Share2, Lightbulb, TriangleAlert, CupSoda } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useLanguage } from '../i18n/LanguageContext';
 
 export const NutritionGuideScreen: React.FC = () => {
   const navigation = useNavigation<any>();
+  const { t } = useLanguage();
 
   return (
     <SafeAreaView style={styles.container}>

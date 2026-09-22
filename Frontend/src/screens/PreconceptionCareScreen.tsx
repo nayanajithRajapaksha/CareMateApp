@@ -3,9 +3,12 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'rea
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft, Bell, CheckCircle2, Info, Briefcase, Pill, PersonStanding, Leaf } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
+import { colors } from '../theme';
+import { useLanguage } from '../i18n/LanguageContext';
 
 export const PreconceptionCareScreen: React.FC = () => {
   const navigation = useNavigation<any>();
+  const { t } = useLanguage();
 
   return (
     <SafeAreaView style={styles.container}>

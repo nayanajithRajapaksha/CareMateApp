@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { ShieldCheck, UserCheck, Stethoscope, Users } from 'lucide-react';
-import logo from '../assets/logo.png';
+import { ShieldCheck, UserCheck, Stethoscope } from 'lucide-react';
 
 export const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -36,7 +35,6 @@ export const LoginPage: React.FC = () => {
     <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: 'var(--color-bg)' }}>
       {/* Left branding pane */}
       <div style={{ flex: 1, backgroundColor: 'var(--color-primary)', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: 'white', padding: 40 }}>
-        <img src={logo} alt="CareMate Logo" style={{ marginBottom: 24, width: '128px', height: '128px', objectFit: 'contain' }} />
         <h1 style={{ fontSize: 40, fontWeight: 700, marginBottom: 16 }}>CareMate Portal</h1>
         <p style={{ fontSize: 18, opacity: 0.9, textAlign: 'center', maxWidth: 400 }}>
           Centralized management for Public Health Midwives, MOH Officers, Parents, and System Administrators.
@@ -72,13 +70,6 @@ export const LoginPage: React.FC = () => {
               <Stethoscope size={16} /> Midwife (PHM)
             </button>
 
-            <button
-              type="button"
-              onClick={() => handleQuickFill('parent@caremate.gov', 'Parent@123')}
-              style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', background: 'rgba(255, 255, 255, 0.15)', border: '1px solid rgba(255, 255, 255, 0.3)', borderRadius: 8, color: 'white', cursor: 'pointer', fontSize: 13, textAlign: 'left' }}
-            >
-              <Users size={16} /> Parent
-            </button>
           </div>
         </div>
       </div>

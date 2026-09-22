@@ -4,9 +4,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft, Bell, Thermometer, Heart, AlertCircle, CheckCircle2 } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import { colors } from '../theme';
+import { useLanguage } from '../i18n/LanguageContext';
 
 export const AfterVaccineScreen: React.FC = () => {
   const navigation = useNavigation<any>();
+  const { t } = useLanguage();
 
   return (
     <SafeAreaView style={styles.container}>
@@ -26,7 +28,7 @@ export const AfterVaccineScreen: React.FC = () => {
         
         {/* Title Section */}
         <View style={styles.titleSection}>
-          <Text style={styles.mainTitle}>After the Vaccine</Text>
+          <Text style={styles.mainTitle}>{t('afterVaccineTitle')}</Text>
           <Text style={styles.subTitle}>
             A practical guide for parents on managing post-vaccination side effects, ensuring your child's comfort and your peace of mind.
           </Text>
@@ -47,7 +49,7 @@ export const AfterVaccineScreen: React.FC = () => {
             <View style={[styles.iconCircle, { backgroundColor: '#CBEBE9' }]}>
               <Thermometer color="#117871" size={20} />
             </View>
-            <Text style={styles.cardTitle}>Common Mild Reactions</Text>
+            <Text style={styles.cardTitle}>{t('commonMildReactions')}</Text>
           </View>
           
           <Text style={styles.cardDescription}>
@@ -57,24 +59,24 @@ export const AfterVaccineScreen: React.FC = () => {
           <View style={styles.listItem}>
             <CheckCircle2 color="#117871" size={20} style={styles.listIcon} />
             <View style={styles.listTextContainer}>
-              <Text style={styles.listTitle}>Slight Fever</Text>
-              <Text style={styles.listDesc}>A low-grade fever (under 101°F/38.3°C) is common in the first 24-48 hours.</Text>
+              <Text style={styles.listTitle}>{t('slightFever')}</Text>
+              <Text style={styles.listDesc}>{t('slightFeverDesc')}</Text>
             </View>
           </View>
 
           <View style={styles.listItem}>
             <CheckCircle2 color="#117871" size={20} style={styles.listIcon} />
             <View style={styles.listTextContainer}>
-              <Text style={styles.listTitle}>Soreness or Redness</Text>
-              <Text style={styles.listDesc}>The injection site may be tender, slightly swollen, or red.</Text>
+              <Text style={styles.listTitle}>{t('sorenessRedness')}</Text>
+              <Text style={styles.listDesc}>{t('sorenessRednessDesc')}</Text>
             </View>
           </View>
 
           <View style={styles.listItem}>
             <CheckCircle2 color="#117871" size={20} style={styles.listIcon} />
             <View style={styles.listTextContainer}>
-              <Text style={styles.listTitle}>Fussiness or Fatigue</Text>
-              <Text style={styles.listDesc}>Your child may be more irritable than usual or sleep more.</Text>
+              <Text style={styles.listTitle}>{t('fussinessFatigue')}</Text>
+              <Text style={styles.listDesc}>{t('fussinessFatigueDesc')}</Text>
             </View>
           </View>
         </View>
@@ -83,22 +85,22 @@ export const AfterVaccineScreen: React.FC = () => {
         <View style={[styles.card, { backgroundColor: '#F0F9F8', borderColor: '#D4ECEC' }]}>
           <View style={styles.cardHeader}>
             <Heart color="#117871" size={24} style={{ marginRight: 12 }} />
-            <Text style={styles.cardTitle}>How to Soothe</Text>
+            <Text style={styles.cardTitle}>{t('howToSoothe')}</Text>
           </View>
 
           <View style={styles.sootheBlock}>
-            <Text style={styles.sootheTitle}>Extra Comfort</Text>
-            <Text style={styles.sootheDesc}>Provide extra cuddles and quiet time. Keeping them calm helps reduce stress.</Text>
+            <Text style={styles.sootheTitle}>{t('extraComfort')}</Text>
+            <Text style={styles.sootheDesc}>{t('extraComfortDesc')}</Text>
           </View>
 
           <View style={styles.sootheBlock}>
-            <Text style={styles.sootheTitle}>Cool Compress</Text>
-            <Text style={styles.sootheDesc}>Apply a cool, damp cloth to the injection site to ease soreness.</Text>
+            <Text style={styles.sootheTitle}>{t('coolCompress')}</Text>
+            <Text style={styles.sootheDesc}>{t('coolCompressDesc')}</Text>
           </View>
 
           <View style={styles.sootheBlock}>
-            <Text style={styles.sootheTitle}>Hydration</Text>
-            <Text style={styles.sootheDesc}>Offer plenty of fluids. A lukewarm sponge bath can also help if they feel warm.</Text>
+            <Text style={styles.sootheTitle}>{t('hydration')}</Text>
+            <Text style={styles.sootheDesc}>{t('hydrationDesc')}</Text>
           </View>
         </View>
 
@@ -106,7 +108,7 @@ export const AfterVaccineScreen: React.FC = () => {
         <View style={[styles.card, { backgroundColor: '#FEF2F2', borderColor: '#FEE2E2' }]}>
           <View style={styles.cardHeader}>
             <AlertCircle color="#DC2626" size={24} style={{ marginRight: 12 }} />
-            <Text style={[styles.cardTitle, { color: '#053130' }]}>When to Call a Doctor</Text>
+            <Text style={[styles.cardTitle, { color: '#053130' }]}>{t('whenToCallDoctor')}</Text>
           </View>
 
           <Text style={[styles.cardDescription, { color: '#4A6261', marginBottom: 16 }]}>
@@ -115,17 +117,17 @@ export const AfterVaccineScreen: React.FC = () => {
 
           <View style={styles.alertItem}>
             <View style={styles.alertDot} />
-            <Text style={styles.alertText}>Fever above 104°F (40°C)</Text>
+            <Text style={styles.alertText}>{t('feverAbove104')}</Text>
           </View>
 
           <View style={styles.alertItem}>
             <View style={styles.alertDot} />
-            <Text style={styles.alertText}>Crying continuously for {'>'}3 hours</Text>
+            <Text style={styles.alertText}>{t('cryingContinuously')}<
           </View>
 
           <View style={styles.alertItem}>
             <View style={styles.alertDot} />
-            <Text style={styles.alertText}>Seizures or unusual unresponsiveness</Text>
+            <Text style={styles.alertText}>{t('seizuresUnresponsive')}</Text>
           </View>
         </View>
 
