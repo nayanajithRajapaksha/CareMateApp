@@ -42,6 +42,19 @@ const mockChildren = [
   }
 ];
 
+const getInitials = (fullName?: string): string => {
+  if (!fullName?.trim()) {
+    return 'U';
+  }
+  return fullName
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map(name => name[0])
+    .join('')
+    .toUpperCase();
+};
+
 export const ParentDashboardScreen: React.FC = () => {
   usePushNotifications();
   const { t } = useLanguage();
@@ -51,6 +64,7 @@ export const ParentDashboardScreen: React.FC = () => {
   const [unreadNotifications, setUnreadNotifications] = React.useState(0);
   const [loading, setLoading] = React.useState(true);
   const [userName, setUserName] = React.useState('User');
+  const [profilePicUrl, setProfilePicUrl] = React.useState<string | null>(null);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -132,6 +146,7 @@ export const ParentDashboardScreen: React.FC = () => {
 
           setChildrenData(children);
           setUserName(profileResponse.profile?.full_name || 'User');
+          setProfilePicUrl(profileResponse.profile?.profile_pic_url || null);
           setAppointments((appointmentsResponse.appointments || []).filter((a: any) => a.status === 'booked'));
           
           const unreadCount = (notificationsResponse.notifications || []).filter((n: any) => !n.is_read).length;
@@ -171,7 +186,13 @@ export const ParentDashboardScreen: React.FC = () => {
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity style={styles.headerLeft} onPress={() => navigation.navigate('ProfileTab')}>
-            <Image source={{ uri: 'https://i.pravatar.cc/150?img=47' }} style={styles.profilePic} />
+            {profilePicUrl ? (
+              <Image source={{ uri: profilePicUrl }} style={styles.profilePic} />
+            ) : (
+              <View style={[styles.profilePic, { backgroundColor: colors.primary, justifyContent: 'center', alignItems: 'center' }]}>
+                <Text style={{ color: colors.white, fontWeight: 'bold' }}>{getInitials(userName)}</Text>
+              </View>
+            )}
             <Text style={styles.headerTitle}>CareMate</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.notificationBtn} onPress={() => navigation.navigate('Notifications')}>
