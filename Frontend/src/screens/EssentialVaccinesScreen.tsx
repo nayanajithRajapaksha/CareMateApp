@@ -12,12 +12,13 @@ export const EssentialVaccinesScreen: React.FC = () => {
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.canGoBack() && navigation.goBack()}>
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <ArrowLeft color={colors.textDark || '#053130'} size={24} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>CareMate</Text>
-        <TouchableOpacity style={styles.bellButton}>
+        <TouchableOpacity style={styles.bellButton} onPress={() => navigation.navigate('Notification')}>
           <Bell color={colors.textDark || '#053130'} size={24} />
+          <View style={styles.notificationDot} />
         </TouchableOpacity>
       </View>
 
@@ -127,13 +128,14 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingVertical: 12,
+    paddingVertical: 15,
+    backgroundColor: '#F4FAFA',
   },
   backButton: {
-    padding: 4,
+    padding: 5,
   },
   headerTitle: {
     fontSize: 20,
@@ -141,7 +143,19 @@ const styles = StyleSheet.create({
     color: '#053130',
   },
   bellButton: {
-    padding: 4,
+    padding: 5,
+    position: 'relative',
+  },
+  notificationDot: {
+    position: 'absolute',
+    top: 5,
+    right: 7,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#FF5252',
+    borderWidth: 1,
+    borderColor: '#F4FAFA',
   },
   scrollContent: {
     paddingHorizontal: 20,

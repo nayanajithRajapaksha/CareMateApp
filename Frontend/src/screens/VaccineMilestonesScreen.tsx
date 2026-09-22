@@ -65,7 +65,7 @@ export const VaccineMilestonesScreen: React.FC = () => {
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.canGoBack() && navigation.goBack()}>
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <ArrowLeft color="#053130" size={24} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>CareMate</Text>
@@ -170,6 +170,17 @@ const styles = StyleSheet.create({
   bellButton: {
     padding: 5,
     position: 'relative',
+  },
+  notificationDot: {
+    position: 'absolute',
+    top: 5,
+    right: 7,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#FF5252',
+    borderWidth: 1,
+    borderColor: '#F4FAFA',
   },
   notificationDot: {
     position: 'absolute',

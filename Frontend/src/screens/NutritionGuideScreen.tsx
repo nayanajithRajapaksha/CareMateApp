@@ -11,7 +11,7 @@ export const NutritionGuideScreen: React.FC = () => {
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.canGoBack() && navigation.goBack()}>
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <ArrowLeft color="#053130" size={24} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Nutrition Guide</Text>
