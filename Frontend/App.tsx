@@ -23,6 +23,9 @@ import { RegisterChildScreen } from './src/screens/RegisterChildScreen';
 import { PreconceptionCareScreen } from './src/screens/PreconceptionCareScreen';
 import { NutritionGuideScreen } from './src/screens/NutritionGuideScreen';
 import { FamilyPlanningMethodsScreen } from './src/screens/FamilyPlanningMethodsScreen';
+import { AfterVaccineScreen } from './src/screens/AfterVaccineScreen';
+import { WhyImmunizeScreen } from './src/screens/WhyImmunizeScreen';
+import { EssentialVaccinesScreen } from './src/screens/EssentialVaccinesScreen';
 
 import { SelectClinicScreen } from './src/screens/SelectClinicScreen';
 import { FindClinicScreen } from './src/screens/FindClinicScreen';
@@ -65,6 +68,9 @@ export default function App() {
             <Stack.Screen name="PreconceptionCare" component={PreconceptionCareScreen} />
             <Stack.Screen name="NutritionGuide" component={NutritionGuideScreen} />
             <Stack.Screen name="FamilyPlanningMethods" component={FamilyPlanningMethodsScreen} />
+            <Stack.Screen name="AfterVaccine" component={AfterVaccineScreen} />
+            <Stack.Screen name="WhyImmunize" component={WhyImmunizeScreen} />
+            <Stack.Screen name="EssentialVaccines" component={EssentialVaccinesScreen} />
             <Stack.Screen name="SupervisorDashboard" component={SupervisorDashboardScreen} />
           </Stack.Navigator>
         </NavigationContainer>

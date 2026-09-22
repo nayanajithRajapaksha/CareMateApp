@@ -9,6 +9,7 @@ import { colors, typography, layout } from '../theme';
 import { blogService, type Blog } from '../services/blogService';
 import { BlogDetailModal } from '../components/BlogDetailModal';
 import { useLanguage } from '../i18n/LanguageContext';
+import { useNavigation } from '@react-navigation/native';
 
 
 
