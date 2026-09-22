@@ -14,29 +14,48 @@ router.put('/notifications/:id/read', markNotificationAsRead);
 router.get('/all', requireRole('admin'), getAllUsers);
 
 import multer from 'multer';
-import { getSupabase } from '../config/supabase';
+import { getSupabase, ensureAvatarsBucket } from '../config/supabase';
 import pool from '../config/db';
 
 const storage = multer.memoryStorage();
-const upload = multer({ storage });
+const upload = multer({
+  storage,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+});
 
 router.post('/profile-pic', upload.single('profile_pic'), async (req: any, res: any): Promise<void> => {
   try {
     const userId = req.user?.id;
+    if (!userId) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
     if (!req.file) {
       res.status(400).json({ error: 'No image provided' });
       return;
     }
 
     const file = req.file;
-    // ensure originalname is sanitized somewhat and has a predictable format
-    const sanitizedName = file.originalname.split('.')[0].replace(/[^a-zA-Z0-9]/g, '_');
-    const fileName = `caremate_profiles/${Date.now()}-${sanitizedName}.png`;
+    const bucketName = await ensureAvatarsBucket();
+
+    // Determine appropriate file extension based on mimetype or original name
+    let ext = 'jpg';
+    if (file.mimetype) {
+      if (file.mimetype.includes('png')) ext = 'png';
+      else if (file.mimetype.includes('webp')) ext = 'webp';
+      else if (file.mimetype.includes('gif')) ext = 'gif';
+      else if (file.mimetype.includes('jpeg') || file.mimetype.includes('jpg')) ext = 'jpg';
+    } else if (file.originalname && file.originalname.includes('.')) {
+      ext = file.originalname.split('.').pop() || 'jpg';
+    }
+
+    const fileName = `caremate_profiles/user_${userId}_${Date.now()}.${ext}`;
 
     const { data, error } = await getSupabase().storage
-      .from('avatars')
+      .from(bucketName)
       .upload(fileName, file.buffer, {
-        contentType: file.mimetype,
+        contentType: file.mimetype || 'image/jpeg',
         upsert: true,
       });
 
@@ -47,7 +66,7 @@ router.post('/profile-pic', upload.single('profile_pic'), async (req: any, res: 
     }
 
     const { data: publicUrlData } = getSupabase().storage
-      .from('avatars')
+      .from(bucketName)
       .getPublicUrl(fileName);
 
     const imageUrl = publicUrlData.publicUrl;

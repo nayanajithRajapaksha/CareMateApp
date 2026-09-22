@@ -9,7 +9,6 @@
     // See also https://aka.ms/tsconfig/module
     "module": "CommonJS",
     "target": "esnext",
-    "types": [],
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     // For nodejs:

@@ -12,7 +12,7 @@ const getProfile = async (req, res) => {
             res.status(401).json({ error: 'Unauthorized' });
             return;
         }
-        const result = await db_1.default.query(`SELECT u.email, p.full_name, p.contact_number, p.role, p.hospital
+        const result = await db_1.default.query(`SELECT u.email, p.full_name, p.contact_number, p.role, p.hospital, p.profile_pic_url
        FROM app_users u
        JOIN profiles p ON u.id = p.id
        WHERE u.id = $1`, [userId]);
@@ -44,7 +44,7 @@ const updateProfile = async (req, res) => {
        SET full_name = $1,
            contact_number = COALESCE($2, contact_number)
        WHERE id = $3
-       RETURNING full_name, contact_number, role, hospital`, [full_name, contact_number ?? null, userId]);
+       RETURNING full_name, contact_number, role, hospital, profile_pic_url`, [full_name, contact_number ?? null, userId]);
         if (result.rows.length === 0) {
             res.status(404).json({ error: 'User profile not found' });
             return;
@@ -59,7 +59,7 @@ const updateProfile = async (req, res) => {
 exports.updateProfile = updateProfile;
 const getAllUsers = async (req, res) => {
     try {
-        const result = await db_1.default.query(`SELECT p.id, u.email, p.full_name, p.contact_number, p.role, p.hospital, p.created_at
+        const result = await db_1.default.query(`SELECT p.id, u.email, p.full_name, p.contact_number, p.role, p.hospital, p.profile_pic_url, p.created_at
        FROM profiles p
        JOIN app_users u ON p.id = u.id
        ORDER BY p.created_at DESC`);
