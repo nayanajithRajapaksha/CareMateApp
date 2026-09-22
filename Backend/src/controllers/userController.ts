@@ -11,7 +11,7 @@ export const getProfile = async (req: AuthRequest, res: Response): Promise<void>
     }
 
     const result = await pool.query(
-      `SELECT u.email, p.full_name, p.contact_number, p.role, p.hospital, p.email_notifications, p.push_notifications
+      `SELECT u.email, p.full_name, p.contact_number, p.role, p.hospital, p.email_notifications, p.push_notifications, p.profile_pic_url
        FROM app_users u
        JOIN profiles p ON u.id = p.id
        WHERE u.id = $1`,
@@ -52,7 +52,7 @@ export const updateProfile = async (req: AuthRequest, res: Response): Promise<vo
            email_notifications = COALESCE($3, email_notifications),
            push_notifications = COALESCE($4, push_notifications)
        WHERE id = $5
-       RETURNING full_name, contact_number, role, hospital, email_notifications, push_notifications`,
+       RETURNING full_name, contact_number, role, hospital, email_notifications, push_notifications, profile_pic_url`,
       [full_name, contact_number ?? null, email_notifications ?? null, push_notifications ?? null, userId]
     );
 
@@ -71,7 +71,7 @@ export const updateProfile = async (req: AuthRequest, res: Response): Promise<vo
 export const getAllUsers = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const result = await pool.query(
-      `SELECT p.id, u.email, p.full_name, p.contact_number, p.role, p.hospital, p.created_at
+      `SELECT p.id, u.email, p.full_name, p.contact_number, p.role, p.hospital, p.created_at, p.profile_pic_url
        FROM profiles p
        JOIN app_users u ON p.id = u.id
        ORDER BY p.created_at DESC`
