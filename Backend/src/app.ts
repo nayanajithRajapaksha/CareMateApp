@@ -32,5 +32,9 @@ app.use('/api/appointments', appointmentRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/vaccines', vaccineRoutes);
 
-export default app;
+// Keep-alive ping route
+app.get('/ping', (req, res) => {
+  res.status(200).send('pong');
+});
 
+export default app;
