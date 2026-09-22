@@ -7,11 +7,13 @@ import userRoutes from './routes/userRoutes';
 import clinicRoutes from './routes/clinicRoutes';
 import blogRoutes from './routes/blogRoutes';
 import { createBlogTableIfNotExists } from './models/blogModel';
+import { initUserProfileSchema } from './models/userModel';
 
 const app = express();
 
 // Initialize Database Tables
 createBlogTableIfNotExists();
+initUserProfileSchema();
 
 // Global Middleware
 app.use(express.json({ limit: '10mb' }));

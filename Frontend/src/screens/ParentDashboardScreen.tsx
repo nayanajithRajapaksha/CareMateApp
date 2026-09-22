@@ -31,6 +31,7 @@ export const ParentDashboardScreen: React.FC = () => {
   const [childrenData, setChildrenData] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [userName, setUserName] = React.useState('User');
+  const [userAvatar, setUserAvatar] = React.useState<string | null>(null);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -43,6 +44,7 @@ export const ParentDashboardScreen: React.FC = () => {
 
           setChildrenData(childrenResponse.children || []);
           setUserName(profileResponse.profile?.full_name || 'User');
+          setUserAvatar(profileResponse.profile?.avatar_url || null);
         } catch (error) {
           console.error('Error fetching dashboard data:', error);
           setChildrenData([]);
@@ -76,7 +78,7 @@ export const ParentDashboardScreen: React.FC = () => {
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity style={styles.headerLeft} onPress={() => navigation.navigate('ProfileTab')}>
-            <Image source={{ uri: 'https://i.pravatar.cc/150?img=47' }} style={styles.profilePic} />
+            <Image source={{ uri: userAvatar || 'https://i.pravatar.cc/150?img=47' }} style={styles.profilePic} />
             <Text style={styles.headerTitle}>CareMate</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.notificationBtn}>

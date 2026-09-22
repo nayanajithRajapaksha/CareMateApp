@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Plus, Search, Edit3, Trash2, ArrowUp, ArrowDown, Type, Image as ImageIcon, 
-  Heading, Eye, CheckCircle, Clock, X, Sparkles, AlertCircle 
+  Heading, Eye, X, Sparkles 
 } from 'lucide-react';
 import { blogService, type Blog, type BlogBlock } from '../services/blogService';
 import { useAuth } from '../contexts/AuthContext';

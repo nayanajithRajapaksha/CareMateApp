@@ -1,0 +1,19 @@
+DATABASE_URL=postgresql://postgres.brurxutqthyejlrmibtl:Nayan2002%40%40%40Nayan@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres
+JWT_SECRET=super_secret_caremate_jwt_key_2026
+
+# SMTP Settings
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=465
+SMTP_USER=nayanajithrajapaksha75@gmail.com
+SMTP_PASS="fhno ezsk bxlq weay"
+SMTP_FROM="CareMate App" <nayanajithrajapaksha75@gmail.com>
+
+EMAILJS_SERVICE_ID=service_0tzvu58
+EMAILJS_TEMPLATE_ID=template_clp3ssp
+EMAILJS_PUBLIC_KEY=iIIlN0tXT4CiVsR84
+EMAILJS_PRIVATE_KEY=pmrR_avIrhiH_2r2-EltH
+
+
+CLOUDINARY_CLOUD_NAME=kswazezr
+CLOUDINARY_API_KEY=665991718184627
+CLOUDINARY_API_SECRET=fJiKxGskQebPD7O_ufzLfDZ2b8I

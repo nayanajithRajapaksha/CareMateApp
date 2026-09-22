@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Modal, TextInput, ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Linking } from 'react-native';
-import { Pencil, User as UserIcon, Shield, Bell, Globe, FileKey, HelpCircle, ChevronRight, ExternalLink, X } from 'lucide-react-native';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Modal, TextInput, ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Linking, Image } from 'react-native';
+import { Pencil, Camera, User as UserIcon, Shield, Bell, Globe, FileKey, HelpCircle, ChevronRight, ExternalLink, X } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as ImagePicker from 'expo-image-picker';
 import { authService } from '../services/authService';
 import { profileService, UserProfile } from '../services/profileService';
 import { colors, typography, layout } from '../theme';
@@ -82,10 +83,49 @@ export const ProfileScreen: React.FC = () => {
   const [editFullName, setEditFullName] = useState('');
   const [editContactNumber, setEditContactNumber] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
 
   useEffect(() => {
     fetchProfile();
   }, []);
+
+  const handlePickAndUploadAvatar = async () => {
+    try {
+      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!permissionResult.granted) {
+        Alert.alert('Permission Required', 'Permission to access gallery is required to choose a profile picture.');
+        return;
+      }
+
+      const pickerResult = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+
+      if (pickerResult.canceled || !pickerResult.assets || pickerResult.assets.length === 0) {
+        return;
+      }
+
+      const localUri = pickerResult.assets[0].uri;
+      setIsUploadingAvatar(true);
+
+      const publicUrl = await profileService.uploadAvatar(localUri, profile?.email?.split('@')[0]);
+
+      const updated = await profileService.updateProfile({
+        avatar_url: publicUrl,
+      });
+
+      setProfile(updated.profile);
+      Alert.alert('Success', 'Profile picture updated successfully!');
+    } catch (error: any) {
+      console.error('Avatar upload error:', error);
+      Alert.alert('Upload Error', error.message || 'Failed to upload profile picture.');
+    } finally {
+      setIsUploadingAvatar(false);
+    }
+  };
 
   const fetchProfile = async () => {
     try {
@@ -240,11 +280,22 @@ export const ProfileScreen: React.FC = () => {
         {/* Profile Header */}
         <View style={styles.profileHeader}>
           <View style={styles.avatarContainer}>
-            <View style={styles.avatar}>
-              <Text style={styles.avatarText}>{getInitials(profile?.full_name)}</Text>
-            </View>
-            <TouchableOpacity style={styles.editBadge} onPress={openEditModal}>
-              <Pencil color={colors.white} size={14} />
+            <TouchableOpacity onPress={handlePickAndUploadAvatar} disabled={isUploadingAvatar} activeOpacity={0.8}>
+              {profile?.avatar_url ? (
+                <Image source={{ uri: profile.avatar_url }} style={styles.avatarImage} />
+              ) : (
+                <View style={styles.avatar}>
+                  <Text style={styles.avatarText}>{getInitials(profile?.full_name)}</Text>
+                </View>
+              )}
+              {isUploadingAvatar && (
+                <View style={styles.avatarLoadingOverlay}>
+                  <ActivityIndicator color={colors.white} size="small" />
+                </View>
+              )}
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.editBadge} onPress={handlePickAndUploadAvatar} disabled={isUploadingAvatar}>
+              <Camera color={colors.white} size={14} />
             </TouchableOpacity>
           </View>
           
@@ -499,6 +550,18 @@ const styles = StyleSheet.create({
     height: 100,
     borderRadius: 50,
     backgroundColor: colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  avatarImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+  },
+  avatarLoadingOverlay: {
+    ...StyleSheet.absoluteFill as object,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    borderRadius: 50,
     justifyContent: 'center',
     alignItems: 'center',
   },

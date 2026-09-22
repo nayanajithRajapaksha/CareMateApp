@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { Activity, ShieldCheck, UserCheck, Stethoscope, Users } from 'lucide-react';
+import { ShieldCheck, UserCheck, Stethoscope, Users } from 'lucide-react';
 import logo from '../assets/logo.png';
 
 export const LoginPage: React.FC = () => {
