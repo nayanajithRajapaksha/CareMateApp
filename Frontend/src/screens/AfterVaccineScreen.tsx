@@ -122,7 +122,7 @@ export const AfterVaccineScreen: React.FC = () => {
 
           <View style={styles.alertItem}>
             <View style={styles.alertDot} />
-            <Text style={styles.alertText}>{t('cryingContinuously')}<
+            <Text style={styles.alertText}>{t('cryingContinuously')}</Text>
           </View>
 
           <View style={styles.alertItem}>
