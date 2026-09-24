@@ -7,6 +7,7 @@ import { colors, typography, layout } from '../theme';
 import { vaccineService, Vaccine } from '../services/vaccineService';
 import { useLanguage } from '../i18n/LanguageContext';
 import { PrimaryButton } from '../components/PrimaryButton';
+import { NotificationIcon } from '../components/NotificationIcon';
 
 export const SupervisorDashboardScreen: React.FC = () => {
   const { t } = useLanguage();
@@ -75,9 +76,7 @@ export const SupervisorDashboardScreen: React.FC = () => {
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Vaccine Master Schedule</Text>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-          <TouchableOpacity onPress={() => navigation.navigate('Notifications')}>
-            <Bell color={colors.textDark} size={24} />
-          </TouchableOpacity>
+          <NotificationIcon color={colors.textDark} size={24} />
           <TouchableOpacity style={styles.addButton} onPress={() => setShowAddForm(!showAddForm)}>
             <Plus color={colors.white} size={20} />
           </TouchableOpacity>

@@ -125,7 +125,13 @@ export const LearnScreen: React.FC = () => {
       );
 
       if (fetched && fetched.length > 0) {
-        setBlogs(fetched);
+        const specialFallbacks = fallbackArticles.filter(b => {
+          if (!b.id.startsWith('special-')) return false;
+          const matchTopic = activeTopic === t('topicAllTopics') || t(`topic${b.category.replace(/\s+/g, '')}`) === activeTopic || b.category === activeTopic;
+          const matchSearch = !searchQuery || b.title.toLowerCase().includes(searchQuery.toLowerCase()) || (b.subtitle && b.subtitle.toLowerCase().includes(searchQuery.toLowerCase()));
+          return matchTopic && matchSearch;
+        });
+        setBlogs([...fetched, ...specialFallbacks]);
       } else {
         // Filter fallback articles if API returns empty
         const filtered = fallbackArticles.filter(b => {

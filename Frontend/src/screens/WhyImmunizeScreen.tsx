@@ -5,6 +5,7 @@ import { ArrowLeft, Bell, Shield, Users, Heart, Info, Calendar } from 'lucide-re
 import { useNavigation } from '@react-navigation/native';
 import { colors } from '../theme';
 import { useLanguage } from '../i18n/LanguageContext';
+import { NotificationIcon } from '../components/NotificationIcon';
 
 export const WhyImmunizeScreen: React.FC = () => {
   const navigation = useNavigation<any>();
@@ -18,10 +19,7 @@ export const WhyImmunizeScreen: React.FC = () => {
           <ArrowLeft color={colors.textDark || '#053130'} size={24} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>CareMate</Text>
-        <TouchableOpacity style={styles.bellButton} onPress={() => navigation.navigate('Notification')}>
-          <Bell color={colors.textDark || '#053130'} size={24} />
-          <View style={styles.notificationDot} />
-        </TouchableOpacity>
+        <NotificationIcon color={colors.textDark || '#053130'} size={24} />
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
@@ -131,21 +129,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     color: '#053130',
-  },
-  bellButton: {
-    padding: 5,
-    position: 'relative',
-  },
-  notificationDot: {
-    position: 'absolute',
-    top: 5,
-    right: 7,
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#FF5252',
-    borderWidth: 1,
-    borderColor: '#F4FAFA',
   },
   scrollContent: {
     paddingHorizontal: 20,

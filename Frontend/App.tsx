@@ -26,6 +26,7 @@ import { FamilyPlanningMethodsScreen } from './src/screens/FamilyPlanningMethods
 import { AfterVaccineScreen } from './src/screens/AfterVaccineScreen';
 import { WhyImmunizeScreen } from './src/screens/WhyImmunizeScreen';
 import { EssentialVaccinesScreen } from './src/screens/EssentialVaccinesScreen';
+import { FamilyPlanningScreen } from './src/screens/FamilyPlanningScreen';
 
 import { SelectClinicScreen } from './src/screens/SelectClinicScreen';
 import { FindClinicScreen } from './src/screens/FindClinicScreen';
@@ -71,6 +72,7 @@ export default function App() {
             <Stack.Screen name="AfterVaccine" component={AfterVaccineScreen} />
             <Stack.Screen name="WhyImmunize" component={WhyImmunizeScreen} />
             <Stack.Screen name="EssentialVaccines" component={EssentialVaccinesScreen} />
+            <Stack.Screen name="FamilyPlanningScreen" component={FamilyPlanningScreen} />
             <Stack.Screen name="SupervisorDashboard" component={SupervisorDashboardScreen} />
           </Stack.Navigator>
         </NavigationContainer>

@@ -12,6 +12,7 @@ import { vaccineService } from '../services/vaccineService';
 import { apiClient } from '../services/apiClient';
 import { useLanguage } from '../i18n/LanguageContext';
 import { usePushNotifications } from '../hooks/usePushNotifications';
+import { NotificationIcon } from '../components/NotificationIcon';
 
 const formatDate = (dateString: string) => {
   const d = new Date(dateString);
@@ -195,16 +196,7 @@ export const ParentDashboardScreen: React.FC = () => {
             )}
             <Text style={styles.headerTitle}>CareMate</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.notificationBtn} onPress={() => navigation.navigate('Notification')}>
-            <Bell color={colors.primary} size={24} />
-            {unreadNotifications > 0 && (
-              <View style={styles.notificationBadge}>
-                <Text style={styles.notificationBadgeText}>
-                  {unreadNotifications > 9 ? '9+' : unreadNotifications}
-                </Text>
-              </View>
-            )}
-          </TouchableOpacity>
+          <NotificationIcon color={colors.primary} size={24} />
         </View>
 
         {/* Greeting Card */}
@@ -250,7 +242,7 @@ export const ParentDashboardScreen: React.FC = () => {
               <Text style={styles.actionText}>{t('vaccinesAction')}</Text>
             </TouchableOpacity>
             
-            <TouchableOpacity style={styles.actionItem} onPress={() => navigation.navigate('LearnTab')}>
+            <TouchableOpacity style={styles.actionItem} onPress={() => navigation.navigate('FamilyPlanningScreen')}>
               <View style={styles.actionIconContainer}>
                 <MessageSquare color={colors.textDark} size={24} />
               </View>
@@ -375,18 +367,6 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: 'bold',
     color: colors.primary},
-  notificationBtn: {
-    position: 'relative',
-    padding: 8},
-  notificationBadge: {
-    position: 'absolute',
-    top: 6,
-    right: 8,
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#EF4444', // Red dot
-  },
   greetingCard: {
     backgroundColor: colors.primary,
     borderRadius: 24,

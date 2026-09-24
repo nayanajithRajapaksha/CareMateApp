@@ -7,6 +7,7 @@ import { colors, layout } from '../theme';
 import { vaccineService, TimelineVaccine } from '../services/vaccineService';
 import { useLanguage } from '../i18n/LanguageContext';
 import { useAuth } from '../context/AuthContext';
+import { NotificationIcon } from '../components/NotificationIcon';
 
 export const ChildVaccinationScreen: React.FC = () => {
   const { t } = useLanguage();
@@ -106,10 +107,7 @@ export const ChildVaccinationScreen: React.FC = () => {
           <ArrowLeft color="#053130" size={24} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>CareMate</Text>
-        <TouchableOpacity style={styles.bellButton}>
-          <Bell color="#053130" size={24} />
-          <View style={styles.notificationDot} />
-        </TouchableOpacity>
+        <NotificationIcon color="#053130" size={24} />
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
@@ -302,21 +300,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     color: '#053130',
-  },
-  bellButton: {
-    padding: 5,
-    position: 'relative',
-  },
-  notificationDot: {
-    position: 'absolute',
-    top: 5,
-    right: 7,
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#E74C3C',
-    borderWidth: 1,
-    borderColor: '#FFF',
   },
   scrollContent: {
     padding: 20,
