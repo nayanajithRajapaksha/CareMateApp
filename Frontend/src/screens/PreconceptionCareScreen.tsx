@@ -25,10 +25,8 @@ export const PreconceptionCareScreen: React.FC = () => {
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         
         {/* Intro Section */}
-        <Text style={styles.greenSubtitle}>The Essential Guide to Preconception Care</Text>
-        <Text style={styles.introText}>
-          Preparing your body for a healthy pregnancy starts well before conception. Discover the crucial steps for both partners to ensure optimal health.
-        </Text>
+        <Text style={styles.greenSubtitle}>{t("preconceptionSubtitle")}</Text>
+        <Text style={styles.introText}>{t("preconceptionIntroText")}</Text>
 
         <Image 
           source={require('../../assets/preconception_cooking.jpg')}
@@ -36,16 +34,12 @@ export const PreconceptionCareScreen: React.FC = () => {
           resizeMode="cover"
         />
 
-        <Text style={styles.paragraph}>
-          Preconception care is a vital, proactive approach to family planning that focuses on optimizing health and identifying potential risks before conception. It's not just for women; preconception health is equally important for men to ensure healthy sperm development and a supportive environment.
-        </Text>
+        <Text style={styles.paragraph}>{t("preconceptionPara1")}</Text>
 
-        <Text style={styles.sectionTitle}>Why Preconception Care Matters</Text>
-        <Text style={styles.paragraph}>
-          Many critical developments in fetal growth occur within the first few weeks of pregnancy often before a woman even realizes she is pregnant. By adopting healthy habits and addressing medical conditions early, you significantly reduce the risk of complications and birth defects.
-        </Text>
+        <Text style={styles.sectionTitle}>{t("preconceptionWhyMatters")}</Text>
+        <Text style={styles.paragraph}>{t("preconceptionPara2")}</Text>
 
-        <Text style={styles.sectionTitle}>The Preconception Checklist</Text>
+        <Text style={styles.sectionTitle}>{t("preconceptionChecklist")}</Text>
 
         {/* Checklist Cards */}
         {/* 1. Health Screenings */}
@@ -53,18 +47,18 @@ export const PreconceptionCareScreen: React.FC = () => {
           <View style={styles.iconCircle}>
             <Briefcase color="#117871" size={20} />
           </View>
-          <Text style={styles.cardTitle}>Health Screenings</Text>
+          <Text style={styles.cardTitle}>{t("preconceptionHealthScreenings")}</Text>
           <View style={styles.checklistItem}>
             <CheckCircle2 color="#117871" size={16} style={styles.checkIcon} />
-            <Text style={styles.checklistText}>Comprehensive blood panel & thyroid check.</Text>
+            <Text style={styles.checklistText}>{t("preconceptionCheck1")}</Text>
           </View>
           <View style={styles.checklistItem}>
             <CheckCircle2 color="#117871" size={16} style={styles.checkIcon} />
-            <Text style={styles.checklistText}>Screening for STIs and genetic carrier testing.</Text>
+            <Text style={styles.checklistText}>{t("preconceptionCheck2")}</Text>
           </View>
           <View style={styles.checklistItem}>
             <CheckCircle2 color="#117871" size={16} style={styles.checkIcon} />
-            <Text style={styles.checklistText}>Review of current medications and immunizations.</Text>
+            <Text style={styles.checklistText}>{t("preconceptionCheck3")}</Text>
           </View>
         </View>
 
@@ -73,18 +67,18 @@ export const PreconceptionCareScreen: React.FC = () => {
           <View style={styles.iconCircle}>
             <Pill color="#117871" size={20} />
           </View>
-          <Text style={styles.cardTitle}>Nutrition & Vitamins</Text>
+          <Text style={styles.cardTitle}>{t("preconceptionNutritionVitamins")}</Text>
           <View style={styles.checklistItem}>
             <CheckCircle2 color="#117871" size={16} style={styles.checkIcon} />
-            <Text style={styles.checklistText}>Start a daily prenatal vitamin with 400mcg of Folic Acid.</Text>
+            <Text style={styles.checklistText}>{t("preconceptionCheck4")}</Text>
           </View>
           <View style={styles.checklistItem}>
             <CheckCircle2 color="#117871" size={16} style={styles.checkIcon} />
-            <Text style={styles.checklistText}>Ensure adequate Iron, Calcium, and Vitamin D intake.</Text>
+            <Text style={styles.checklistText}>{t("preconceptionCheck5")}</Text>
           </View>
           <View style={styles.checklistItem}>
             <CheckCircle2 color="#117871" size={16} style={styles.checkIcon} />
-            <Text style={styles.checklistText}>Adopt a balanced diet rich in leafy greens and lean proteins.</Text>
+            <Text style={styles.checklistText}>{t("preconceptionCheck6")}</Text>
           </View>
         </View>
 
@@ -93,18 +87,18 @@ export const PreconceptionCareScreen: React.FC = () => {
           <View style={styles.iconCircle}>
             <PersonStanding color="#117871" size={20} />
           </View>
-          <Text style={styles.cardTitle}>Lifestyle Adjustments</Text>
+          <Text style={styles.cardTitle}>{t("preconceptionLifestyle")}</Text>
           <View style={styles.checklistItem}>
             <CheckCircle2 color="#117871" size={16} style={styles.checkIcon} />
-            <Text style={styles.checklistText}>Eliminate alcohol, smoking, and recreational drugs.</Text>
+            <Text style={styles.checklistText}>{t("preconceptionCheck7")}</Text>
           </View>
           <View style={styles.checklistItem}>
             <CheckCircle2 color="#117871" size={16} style={styles.checkIcon} />
-            <Text style={styles.checklistText}>Limit caffeine intake to less than 200mg per day.</Text>
+            <Text style={styles.checklistText}>{t("preconceptionCheck8")}</Text>
           </View>
           <View style={styles.checklistItem}>
             <CheckCircle2 color="#117871" size={16} style={styles.checkIcon} />
-            <Text style={styles.checklistText}>Maintain a healthy weight through regular, moderate exercise.</Text>
+            <Text style={styles.checklistText}>{t("preconceptionCheck9")}</Text>
           </View>
         </View>
 
@@ -113,18 +107,18 @@ export const PreconceptionCareScreen: React.FC = () => {
           <View style={styles.iconCircle}>
             <Leaf color="#117871" size={20} />
           </View>
-          <Text style={styles.cardTitle}>Environmental Factors</Text>
+          <Text style={styles.cardTitle}>{t("preconceptionEnvironment")}</Text>
           <View style={styles.checklistItem}>
             <CheckCircle2 color="#117871" size={16} style={styles.checkIcon} />
-            <Text style={styles.checklistText}>Avoid exposure to toxic substances (e.g., strong cleaning chemicals).</Text>
+            <Text style={styles.checklistText}>{t("preconceptionCheck10")}</Text>
           </View>
           <View style={styles.checklistItem}>
             <CheckCircle2 color="#117871" size={16} style={styles.checkIcon} />
-            <Text style={styles.checklistText}>Manage stress levels with relaxation techniques or counseling.</Text>
+            <Text style={styles.checklistText}>{t("preconceptionCheck11")}</Text>
           </View>
           <View style={styles.checklistItem}>
             <CheckCircle2 color="#117871" size={16} style={styles.checkIcon} />
-            <Text style={styles.checklistText}>Discuss any workplace hazards with your healthcare provider.</Text>
+            <Text style={styles.checklistText}>{t("preconceptionCheck12")}</Text>
           </View>
         </View>
 
@@ -134,10 +128,8 @@ export const PreconceptionCareScreen: React.FC = () => {
             <Info color="#117871" size={20} />
           </View>
           <View style={styles.infoTextContainer}>
-            <Text style={styles.infoTitle}>A Note for Partners</Text>
-            <Text style={styles.infoDescription}>
-              Sperm generation takes about 74 days. Male partners should adopt healthier lifestyle choices—such as reducing alcohol, quitting smoking, and eating a balanced diet—at least three months before trying to conceive.
-            </Text>
+            <Text style={styles.infoTitle}>{t("preconceptionPartnersNote")}</Text>
+            <Text style={styles.infoDescription}>{t("preconceptionPartnersDesc")}</Text>
           </View>
         </View>
         

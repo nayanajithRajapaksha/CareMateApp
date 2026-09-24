@@ -16,15 +16,8 @@ export const NutritionGuideScreen: React.FC = () => {
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <ArrowLeft color="#053130" size={24} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Nutrition Guide</Text>
-        <View style={styles.headerIcons}>
-          <TouchableOpacity style={styles.iconButton}>
-            <Bookmark color="#053130" size={20} />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.iconButton}>
-            <Share2 color="#053130" size={20} />
-          </TouchableOpacity>
-        </View>
+        <Text style={styles.headerTitle}>{t("nutritionHeaderTitle")}</Text>
+        
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false} bounces={false}>
@@ -48,95 +41,68 @@ export const NutritionGuideScreen: React.FC = () => {
           </View>
 
           {/* Title & Author */}
-          <Text style={styles.articleTitle}>Nutrition Guide{'\n'}for Toddlers</Text>
+          <Text style={styles.articleTitle}>{t("nutritionTitle")}</Text>
           <View style={styles.authorRow}>
             <View style={styles.authorAvatar}>
               <Text style={styles.authorInitial}>Dr</Text>
             </View>
-            <Text style={styles.authorText}>By Dr. Amarasinghe • 5 min read</Text>
+            <Text style={styles.authorText}>{t("nutritionAuthor")}</Text>
           </View>
 
           {/* Text Content */}
-          <Text style={styles.paragraph}>
-            Ensuring your toddler receives the right balance of nutrients is crucial for their rapid physical and cognitive development during these formative years. As they transition from infant formulas or breast milk to solid foods, introducing a variety of textures and flavors helps establish healthy lifelong eating habits.
-          </Text>
+          <Text style={styles.paragraph}>{t("nutritionP1")}</Text>
 
-          <Text style={styles.subHeading}>Building a Balanced Plate</Text>
-          <Text style={styles.paragraph}>
-            A toddler's stomach is small, so they need nutrient-dense meals and snacks spread throughout the day. Aim for three small meals and two to three healthy snacks daily. Each main meal should ideally include components from major food groups.
-          </Text>
+          <Text style={styles.subHeading}>{t("nutritionH2_1")}</Text>
+          <Text style={styles.paragraph}>{t("nutritionP2")}</Text>
 
           {/* Bullet List */}
           <View style={styles.bulletItem}>
             <Text style={styles.paragraph}>
-              <Text style={styles.boldText}>Proteins: </Text>Essential for growth. Include lean meats, poultry, fish, eggs, beans, and lentils.
-            </Text>
+              <Text style={styles.boldText}>{t("nutritionL1Bold")}</Text>{t("nutritionL1Desc")}</Text>
           </View>
           <View style={styles.bulletItem}>
             <Text style={styles.paragraph}>
-              <Text style={styles.boldText}>Carbohydrates: </Text>Provide necessary energy. Focus on whole grains like brown rice, whole-wheat pasta, and oats.
-            </Text>
+              <Text style={styles.boldText}>{t("nutritionL2Bold")}</Text>{t("nutritionL2Desc")}</Text>
           </View>
           <View style={styles.bulletItem}>
             <Text style={styles.paragraph}>
-              <Text style={styles.boldText}>Fruits & Vegetables: </Text>Vital for vitamins, minerals, and fiber. Offer a rainbow of colors daily.
-            </Text>
+              <Text style={styles.boldText}>{t("nutritionL3Bold")}</Text>{t("nutritionL3Desc")}</Text>
           </View>
           <View style={styles.bulletItem}>
             <Text style={styles.paragraph}>
-              <Text style={styles.boldText}>Dairy or Alternatives: </Text>Crucial for calcium and bone health. Whole milk, yogurt, and cheese are excellent choices for this age group.
-            </Text>
+              <Text style={styles.boldText}>{t("nutritionL4Bold")}</Text>{t("nutritionL4Desc")}</Text>
           </View>
 
           {/* Key Tip Box */}
           <View style={styles.tipBox}>
             <View style={styles.tipHeader}>
               <Lightbulb color="#117871" size={18} style={{ marginRight: 8 }} />
-              <Text style={styles.tipTitle}>Key Tip: Managing Picky Eating</Text>
+              <Text style={styles.tipTitle}>{t("nutritionTipTitle")}</Text>
             </View>
-            <Text style={styles.tipText}>
-              It's common for toddlers to suddenly refuse foods they previously loved. Keep offering a variety of healthy options without pressuring them to eat. It can take up to 15 exposures to a new food before a child accepts it.
-            </Text>
+            <Text style={styles.tipText}>{t("nutritionTipDesc")}</Text>
           </View>
 
-          <Text style={styles.subHeading}>Foods to Limit or Avoid</Text>
-          <Text style={styles.paragraph}>
-            While exploring new foods is encouraged, certain items should be restricted to protect a toddler's developing system and prevent choking hazards.
-          </Text>
+          <Text style={styles.subHeading}>{t("nutritionH2_2")}</Text>
+          <Text style={styles.paragraph}>{t("nutritionP3")}</Text>
 
           {/* Hazard Cards */}
           <View style={styles.hazardCard}>
             <View style={styles.hazardHeader}>
               <TriangleAlert color="#E74C3C" size={18} style={{ marginRight: 8 }} />
-              <Text style={styles.hazardTitleRed}>Choking Hazards</Text>
+              <Text style={styles.hazardTitleRed}>{t("nutritionHazard1Title")}</Text>
             </View>
-            <Text style={styles.hazardText}>
-              Avoid whole grapes, nuts, popcorn, hot dogs (unless cut lengthwise), and hard candies.
-            </Text>
+            <Text style={styles.hazardText}>{t("nutritionHazard1Desc")}</Text>
           </View>
 
           <View style={styles.hazardCard}>
             <View style={styles.hazardHeader}>
               <CupSoda color="#475569" size={18} style={{ marginRight: 8 }} />
-              <Text style={styles.hazardTitleBlue}>Added Sugars & Sodium</Text>
+              <Text style={styles.hazardTitleBlue}>{t("nutritionHazard2Title")}</Text>
             </View>
-            <Text style={styles.hazardText}>
-              Limit fruit juices (even 100% juice), highly processed snacks, and foods with high added salt content.
-            </Text>
+            <Text style={styles.hazardText}>{t("nutritionHazard2Desc")}</Text>
           </View>
 
-          {/* Action Buttons */}
-          <View style={styles.actionButtonsContainer}>
-            <TouchableOpacity style={styles.saveButton}>
-              <Bookmark color="#FFF" size={18} fill="#FFF" style={{ marginRight: 8 }} />
-              <Text style={styles.saveButtonText}>Save Article</Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity style={styles.shareButton}>
-              <Share2 color="#117871" size={18} style={{ marginRight: 8 }} />
-              <Text style={styles.shareButtonText}>Share</Text>
-            </TouchableOpacity>
-          </View>
+          
 
           <View style={{ height: 60 }} />
         </View>

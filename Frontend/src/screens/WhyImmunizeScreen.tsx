@@ -36,9 +36,7 @@ export const WhyImmunizeScreen: React.FC = () => {
           </View>
         </View>
 
-        <Text style={styles.introText}>
-          Immunization is one of the safest and most effective ways to protect your child's health and the well-being of the community. Here is why staying on schedule matters.
-        </Text>
+        <Text style={styles.introText}>{t("whyImmunizeIntroText")}</Text>
 
         {/* Reason Cards */}
         <View style={styles.reasonCard}>
@@ -46,9 +44,7 @@ export const WhyImmunizeScreen: React.FC = () => {
             <Shield color="#053130" size={20} />
           </View>
           <Text style={styles.reasonTitle}>{t('directProtection')}</Text>
-          <Text style={styles.reasonDesc}>
-            Vaccines train your child's immune system to recognize and fight serious diseases, providing immunity before exposure.
-          </Text>
+          <Text style={styles.reasonDesc}>{t("whyImmunizeReason1Desc")}</Text>
         </View>
 
         <View style={styles.reasonCard}>
@@ -56,9 +52,7 @@ export const WhyImmunizeScreen: React.FC = () => {
             <Users color="#053130" size={20} />
           </View>
           <Text style={styles.reasonTitle}>{t('communityDefense')}</Text>
-          <Text style={styles.reasonDesc}>
-            High vaccination rates prevent outbreaks, protecting vulnerable individuals who cannot be vaccinated due to medical conditions.
-          </Text>
+          <Text style={styles.reasonDesc}>{t("whyImmunizeReason2Desc")}</Text>
         </View>
 
         <View style={styles.reasonCard}>
@@ -84,13 +78,11 @@ export const WhyImmunizeScreen: React.FC = () => {
         {/* Action Bottom Section */}
         <View style={styles.actionSection}>
           <Text style={styles.actionTitle}>{t('readyToReviewSchedule')}</Text>
-          <Text style={styles.actionDesc}>
-            Check your personalized immunization timeline or book an appointment with your pediatrician.
-          </Text>
+          <Text style={styles.actionDesc}>{t("whyImmunizeActionDesc")}</Text>
 
           <TouchableOpacity 
             style={styles.primaryButton}
-            onPress={() => navigation.navigate('ChildVaccination')}
+            onPress={() => navigation.navigate('ChildrenTab')}
           >
             <Calendar color="#FFF" size={20} style={{ marginRight: 8 }} />
             <Text style={styles.primaryButtonText}>{t('viewScheduleBtn')}</Text>

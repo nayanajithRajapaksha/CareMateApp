@@ -31,9 +31,7 @@ export const FamilyPlanningScreen: React.FC = () => {
           </View>
           
           <Text style={styles.heroTitle}>{t('welcomeSharedJourney')}</Text>
-          <Text style={styles.heroDescription}>
-            Discover evidence-based guidance, track your milestones, and build a healthy foundation for your growing family.
-          </Text>
+          <Text style={styles.heroDescription}>{t("heroDescriptionFP")}</Text>
           
           <TouchableOpacity style={styles.getStartedBtn}>
             <Text style={styles.getStartedText}>{t('getStarted')}</Text>

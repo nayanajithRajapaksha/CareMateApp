@@ -16,15 +16,8 @@ export const FamilyPlanningMethodsScreen: React.FC = () => {
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <ArrowLeft color="#053130" size={24} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Family Planning Guide</Text>
-        <View style={styles.headerIcons}>
-          <TouchableOpacity style={styles.iconButton}>
-            <Bookmark color="#053130" size={20} />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.iconButton}>
-            <Share2 color="#053130" size={20} />
-          </TouchableOpacity>
-        </View>
+        <Text style={styles.headerTitle}>{t("fpMethodsHeader")}</Text>
+        
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false} bounces={false}>
@@ -48,7 +41,7 @@ export const FamilyPlanningMethodsScreen: React.FC = () => {
           </View>
 
           {/* Title & Author */}
-          <Text style={styles.articleTitle}>Family Planning{'\n'}in Sri Lanka</Text>
+          <Text style={styles.articleTitle}>{t("fpMethodsTitle")}</Text>
           <View style={styles.authorRow}>
             <View style={styles.authorAvatar}>
               <Text style={styles.authorInitial}>CM</Text>
@@ -57,66 +50,47 @@ export const FamilyPlanningMethodsScreen: React.FC = () => {
           </View>
 
           {/* Text Content */}
-          <Text style={styles.paragraph}>
-            Every family’s journey is different. Whether you are preparing for your first baby, considering another child, or choosing to delay pregnancy, family planning helps you make informed decisions about your future. It supports your right to decide whether and when to have children, while reducing the health risks associated with unintended pregnancies.
-          </Text>
+          <Text style={styles.paragraph}>{t("fpMethodsP1")}</Text>
 
-          <Text style={styles.subHeading}>Prepare for pregnancy with confidence</Text>
-          <Text style={styles.paragraph}>
-            A healthy pregnancy begins with care before conception. Arrange a discussion with a healthcare professional about existing health conditions, medicines, vaccinations, and any concerns about previous pregnancies or inherited conditions. This helps identify the support you may need before trying for a baby.
-          </Text>
-          <Text style={styles.paragraph}>
-            Folic acid is an important part of this preparation. WHO recommends 400 micrograms daily from the time you begin trying to conceive until 12 weeks of pregnancy. Ask your doctor or clinic about the appropriate dose for you, as some people need a different prescription.
-          </Text>
+          <Text style={styles.subHeading}>{t("fpMethodsH2_1")}</Text>
+          <Text style={styles.paragraph}>{t("fpMethodsP2")}</Text>
+          <Text style={styles.paragraph}>{t("fpMethodsP3")}</Text>
 
-          <Text style={styles.subHeading}>Understand your family planning options</Text>
-          <Text style={styles.paragraph}>
-            Contraceptive methods differ in how they are used and how long they work. Options include:
-          </Text>
+          <Text style={styles.subHeading}>{t("fpMethodsH2_2")}</Text>
+          <Text style={styles.paragraph}>{t("fpMethodsP4")}</Text>
 
           {/* Bullet List */}
           <View style={styles.bulletItem}>
             <CheckCircle2 color="#117871" size={16} style={styles.checkIcon} />
             <Text style={styles.listText}>
-              <Text style={styles.boldText}>Condoms: </Text>Help prevent pregnancy and also protect against sexually transmitted infections.
-            </Text>
+              <Text style={styles.boldText}>{t("fpMethodsL1Bold")}</Text>{t("fpMethodsL1Desc")}</Text>
           </View>
           <View style={styles.bulletItem}>
             <CheckCircle2 color="#117871" size={16} style={styles.checkIcon} />
             <Text style={styles.listText}>
-              <Text style={styles.boldText}>Contraceptive pills: </Text>Require regular use according to the prescribed instructions.
-            </Text>
+              <Text style={styles.boldText}>{t("fpMethodsL2Bold")}</Text>{t("fpMethodsL2Desc")}</Text>
           </View>
           <View style={styles.bulletItem}>
             <CheckCircle2 color="#117871" size={16} style={styles.checkIcon} />
             <Text style={styles.listText}>
-              <Text style={styles.boldText}>Injectable contraceptives: </Text>Require repeat appointments at the recommended intervals.
-            </Text>
+              <Text style={styles.boldText}>{t("fpMethodsL3Bold")}</Text>{t("fpMethodsL3Desc")}</Text>
           </View>
           <View style={styles.bulletItem}>
             <CheckCircle2 color="#117871" size={16} style={styles.checkIcon} />
             <Text style={styles.listText}>
-              <Text style={styles.boldText}>Implants and IUDs: </Text>Provide highly effective, long-lasting, reversible contraception.
-            </Text>
+              <Text style={styles.boldText}>{t("fpMethodsL4Bold")}</Text>{t("fpMethodsL4Desc")}</Text>
           </View>
           <View style={styles.bulletItem}>
             <CheckCircle2 color="#117871" size={16} style={styles.checkIcon} />
             <Text style={styles.listText}>
-              <Text style={styles.boldText}>Permanent methods: </Text>Intended for people who are certain they do not want future pregnancies.
-            </Text>
+              <Text style={styles.boldText}>{t("fpMethodsL5Bold")}</Text>{t("fpMethodsL5Desc")}</Text>
           </View>
 
-          <Text style={[styles.paragraph, {marginTop: 12}]}>
-            Fertility-awareness methods require careful monitoring and are generally less reliable than modern contraceptive methods. Your health, breastfeeding status, preferences, and future pregnancy plans should guide your choice with a trained healthcare provider.
-          </Text>
+          <Text style={[styles.paragraph, {marginTop: 12}]}>{t("fpMethodsP5")}</Text>
 
-          <Text style={styles.subHeading}>Build healthy everyday habits</Text>
-          <Text style={styles.paragraph}>
-            Choose varied, balanced meals using familiar foods such as vegetables, leafy greens, fruit, dhal, beans, whole grains, eggs, or fish. Limit foods and drinks high in added sugar, salt, and unhealthy fats. Healthy eating supports your general wellbeing as you prepare for parenthood.
-          </Text>
-          <Text style={styles.paragraph}>
-            Regular physical activity and avoiding tobacco and alcohol are also part of preparing for pregnancy. Both partners can support healthier routines and discuss concerns with a healthcare professional. Small, consistent changes can make preparation more manageable.
-          </Text>
+          <Text style={styles.subHeading}>{t("fpMethodsH2_3")}</Text>
+          <Text style={styles.paragraph}>{t("fpMethodsP6")}</Text>
+          <Text style={styles.paragraph}>{t("fpMethodsP7")}</Text>
 
           {/* Info Cards */}
           <View style={styles.infoCard}>
@@ -124,10 +98,8 @@ export const FamilyPlanningMethodsScreen: React.FC = () => {
               <MapPin color="#117871" size={20} />
             </View>
             <View style={styles.infoTextContainer}>
-              <Text style={styles.infoTitle}>Find support in Sri Lanka</Text>
-              <Text style={styles.infoDescription}>
-                Your local Public Health Midwife (PHM) or Medical Officer of Health (MOH) clinic is a practical starting point for family planning advice. Ask about available methods, possible side effects, follow-up appointments, and planning pregnancy after childbirth.
-              </Text>
+              <Text style={styles.infoTitle}>{t("fpMethodsSupportTitle")}</Text>
+              <Text style={styles.infoDescription}>{t("fpMethodsSupportDesc")}</Text>
             </View>
           </View>
 
@@ -136,29 +108,14 @@ export const FamilyPlanningMethodsScreen: React.FC = () => {
               <Info color="#117871" size={20} />
             </View>
             <View style={styles.infoTextContainer}>
-              <Text style={styles.infoTitle}>Take the next step</Text>
-              <Text style={styles.infoDescription}>
-                Write down your questions and discuss your goals with a healthcare professional. You may involve your partner if you wish, while keeping your own comfort and preferences central to the decision.
-              </Text>
+              <Text style={styles.infoTitle}>{t("fpMethodsNextStepTitle")}</Text>
+              <Text style={styles.infoDescription}>{t("fpMethodsNextStepDesc")}</Text>
             </View>
           </View>
           
-          <Text style={styles.disclaimerText}>
-            This article provides general health information. Your PHM or doctor can help you choose care suited to your individual needs.
-          </Text>
+          <Text style={styles.disclaimerText}>{t("fpMethodsDisclaimer")}</Text>
 
-          {/* Action Buttons */}
-          <View style={styles.actionButtonsContainer}>
-            <TouchableOpacity style={styles.saveButton}>
-              <Bookmark color="#FFF" size={18} fill="#FFF" style={{ marginRight: 8 }} />
-              <Text style={styles.saveButtonText}>Save Article</Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity style={styles.shareButton}>
-              <Share2 color="#117871" size={18} style={{ marginRight: 8 }} />
-              <Text style={styles.shareButtonText}>Share</Text>
-            </TouchableOpacity>
-          </View>
+          
 
           <View style={{ height: 60 }} />
         </View>
