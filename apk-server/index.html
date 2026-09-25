@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CareMate — Download</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            color: #f8fafc;
+            padding: 20px;
+        }
+        .card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(148, 163, 184, 0.15);
+            border-radius: 24px;
+            padding: 48px 40px;
+            max-width: 440px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+        }
+        .icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #10b981, #06b6d4);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            font-size: 36px;
+        }
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #10b981, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .subtitle {
+            color: #94a3b8;
+            font-size: 14px;
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            text-decoration: none;
+            padding: 16px 36px;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+        }
+        .download-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+        .info {
+            margin-top: 24px;
+            font-size: 12px;
+            color: #64748b;
+        }
+        .badge {
+            display: inline-block;
+            background: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="icon">🏥</div>
+        <h1>CareMate</h1>
+        <span class="badge">Android APK</span>
+        <p class="subtitle">
+            Maternal &amp; Child Healthcare Platform<br>
+            Vaccination tracking, clinic finder &amp; more.
+        </p>
+        <a href="/download/caremate.apk" class="download-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V3"/>
+            </svg>
+            Download APK
+        </a>
+        <p class="info">v1.0.0 · ~92 MB · Requires Android 8.0+</p>
+    </div>
+</body>
+</html>
